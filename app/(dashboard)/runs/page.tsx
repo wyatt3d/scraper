@@ -51,7 +51,15 @@ import { downloadCSV, downloadJSON } from "@/lib/export"
 import { DataViewer } from "@/components/dashboard/data-viewer"
 import { TableSkeleton } from "@/components/dashboard/skeletons"
 import { EmptyRuns } from "@/components/dashboard/empty-states"
+import { SavedViews } from "@/components/dashboard/saved-views"
+import type { SavedView } from "@/components/dashboard/saved-views"
 import type { Flow, Run, RunLog } from "@/lib/types"
+
+const RUN_DEFAULT_VIEWS: SavedView[] = [
+  { id: "all-runs", name: "All Runs", filters: { status: "all", dateRange: "7d" }, isDefault: true },
+  { id: "failed-runs", name: "Failed Runs", filters: { status: "failed", dateRange: "7d" }, isDefault: true },
+  { id: "todays-runs", name: "Today's Runs", filters: { status: "all", dateRange: "24h" }, isDefault: true },
+]
 
 const ITEMS_PER_PAGE = 5
 
@@ -303,6 +311,16 @@ export default function RunsPage() {
       </div>
 
       <div className="flex items-center gap-3">
+        <SavedViews
+          storageKey="scraper-run-views"
+          currentFilters={{ status: statusFilter, dateRange }}
+          onApplyView={(filters) => {
+            setStatusFilter(filters.status ?? "all")
+            setDateRange(filters.dateRange ?? "7d")
+            setPage(1)
+          }}
+          defaultViews={RUN_DEFAULT_VIEWS}
+        />
         <Select value={flowFilter} onValueChange={(v) => { setFlowFilter(v); setPage(1) }}>
           <SelectTrigger className="w-[200px]">
             <SelectValue placeholder="All Flows" />

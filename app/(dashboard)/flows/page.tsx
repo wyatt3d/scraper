@@ -76,7 +76,16 @@ import { toast } from "sonner"
 import { downloadCSV, downloadJSON } from "@/lib/export"
 import { FlowGridSkeleton } from "@/components/dashboard/skeletons"
 import { EmptyFlows } from "@/components/dashboard/empty-states"
+import { SavedViews } from "@/components/dashboard/saved-views"
+import type { SavedView } from "@/components/dashboard/saved-views"
 import type { Flow, FlowMode, FlowStatus } from "@/lib/types"
+
+const FLOW_DEFAULT_VIEWS: SavedView[] = [
+  { id: "all-flows", name: "All Flows", filters: { mode: "all", status: "all" }, isDefault: true },
+  { id: "active-only", name: "Active Only", filters: { mode: "all", status: "active" }, isDefault: true },
+  { id: "failing-flows", name: "Failing Flows", filters: { mode: "all", status: "error" }, isDefault: true },
+  { id: "my-flows", name: "My Flows", filters: { mode: "all", status: "all" }, isDefault: true },
+]
 
 function timeAgo(dateStr: string): string {
   const now = new Date()
@@ -276,6 +285,15 @@ export default function FlowsPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+          <SavedViews
+            storageKey="scraper-flow-views"
+            currentFilters={{ mode: modeFilter, status: statusFilter }}
+            onApplyView={(filters) => {
+              setModeFilter(filters.mode ?? "all")
+              setStatusFilter(filters.status ?? "all")
+            }}
+            defaultViews={FLOW_DEFAULT_VIEWS}
+          />
           <div className="relative flex-1 min-w-[240px] max-w-sm">
             <Search className="text-muted-foreground absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
             <Input
