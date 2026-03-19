@@ -3,16 +3,6 @@
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
 
-const dailyData = Array.from({ length: 19 }, (_, i) => {
-  const day = i + 1
-  const base = 80 + Math.floor(Math.random() * 40)
-  const weekend = (new Date(2026, 2, day).getDay() % 6 === 0) ? 0.6 : 1
-  return {
-    date: `Mar ${day}`,
-    runs: Math.floor(base * weekend),
-  }
-})
-
 const chartConfig = {
   runs: {
     label: "Runs",
@@ -20,10 +10,22 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function UsageDailyChart() {
+interface UsageDailyChartProps {
+  data?: { date: string; runs: number }[]
+}
+
+export function UsageDailyChart({ data }: UsageDailyChartProps) {
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex h-[300px] items-center justify-center text-sm text-muted-foreground">
+        No daily usage data yet
+      </div>
+    )
+  }
+
   return (
     <ChartContainer config={chartConfig} className="h-[300px] w-full">
-      <AreaChart data={dailyData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+      <AreaChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
         <defs>
           <linearGradient id="fillRuns" x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%" stopColor="var(--color-runs)" stopOpacity={0.3} />
@@ -36,7 +38,7 @@ export function UsageDailyChart() {
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          tickFormatter={(v) => v.replace("Mar ", "")}
+          tickFormatter={(v) => v.slice(5)}
         />
         <YAxis tickLine={false} axisLine={false} tickMargin={8} />
         <ChartTooltip content={<ChartTooltipContent />} />

@@ -1,17 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import dynamic from "next/dynamic"
 import {
   Activity,
-  CheckCircle2,
+  Database,
+  DollarSign,
   Download,
-  Globe,
-  HardDrive,
-  Receipt,
-  Zap,
+  TrendingUp,
 } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   Card,
@@ -20,7 +17,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
 import {
   Table,
   TableBody,
@@ -29,6 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "sonner"
 
 const UsageDailyChart = dynamic(
@@ -36,67 +33,86 @@ const UsageDailyChart = dynamic(
   { loading: () => <div className="h-[300px] bg-muted animate-pulse rounded-lg" />, ssr: false }
 )
 
-const summaryCards = [
-  {
-    title: "Runs Used",
-    value: "1,885",
-    limit: "5,000",
-    percent: 37.7,
-    icon: Activity,
-    hasBar: true,
-  },
-  {
-    title: "API Calls",
-    value: "12,450",
-    limit: "50,000",
-    percent: 24.9,
-    icon: Zap,
-    hasBar: true,
-  },
-  {
-    title: "Data Points",
-    value: "845,200",
-    limit: "Unlimited",
-    percent: 0,
-    icon: Globe,
-    hasBar: false,
-  },
-  {
-    title: "Bandwidth",
-    value: "28.4 GB",
-    limit: "100 GB",
-    percent: 28.4,
-    icon: HardDrive,
-    hasBar: true,
-  },
-  {
-    title: "Current Bill",
-    value: "$29.00",
-    limit: "Pro Plan",
-    percent: 0,
-    icon: Receipt,
-    hasBar: false,
-  },
-]
+interface AnalyticsData {
+  summary: {
+    totalRuns: number
+    completedRuns: number
+    failedRuns: number
+    successRate: number
+    totalItems: number
+    totalCost: number
+    avgDuration: number
+  }
+  daily: { date: string; runs: number; success: number; failed: number; items: number }[]
+  flowBreakdown: {
+    id: string
+    name: string
+    mode: string
+    runs: number
+    successRate: number
+    items: number
+    avgDuration: number
+    cost: number
+  }[]
+  period: { days: number; since: string }
+}
 
-const flowUsage = [
-  { name: "Amazon Monitor", runs: 480, apiCalls: "3,840", dataPoints: "282,240", bandwidth: "8.2 GB", cost: "$5.76" },
-  { name: "Indeed Scraper", runs: 240, apiCalls: "1,920", dataPoints: "141,120", bandwidth: "5.1 GB", cost: "$4.32" },
-  { name: "Zillow Monitor", runs: 120, apiCalls: "960", dataPoints: "70,560", bandwidth: "3.8 GB", cost: "$2.16" },
-  { name: "HN Scraper", runs: 960, apiCalls: "7,680", dataPoints: "345,600", bandwidth: "9.6 GB", cost: "$2.88" },
-  { name: "GitHub Trending", runs: 85, apiCalls: "680", dataPoints: "5,680", bandwidth: "1.7 GB", cost: "$0.51" },
-]
+function formatNumber(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 1_000) return n.toLocaleString()
+  return n.toString()
+}
 
-const billingHistory = [
-  { period: "March 2026", plan: "Pro", runs: "1,885", status: "in progress", cost: "$29.00", invoice: "current" },
-  { period: "February 2026", plan: "Pro", runs: "4,231", status: "paid", cost: "$29.00", invoice: "download" },
-  { period: "January 2026", plan: "Pro", runs: "3,892", status: "paid", cost: "$29.00", invoice: "download" },
-  { period: "December 2025", plan: "Pro", runs: "2,104", status: "paid", cost: "$29.00", invoice: "download" },
-  { period: "November 2025", plan: "Free", runs: "98", status: "paid", cost: "$0.00", invoice: "download" },
-  { period: "October 2025", plan: "Free", runs: "12", status: "paid", cost: "$0.00", invoice: "download" },
-]
+function StatSkeleton() {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <Skeleton className="h-4 w-20" />
+        <Skeleton className="size-4" />
+      </CardHeader>
+      <CardContent>
+        <Skeleton className="h-7 w-24 mb-2" />
+        <Skeleton className="h-3 w-16" />
+      </CardContent>
+    </Card>
+  )
+}
 
 export default function UsagePage() {
+  const [data, setData] = useState<AnalyticsData | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function load() {
+      setLoading(true)
+      try {
+        const res = await fetch("/api/analytics?days=30")
+        const json = await res.json()
+        setData(json)
+      } catch {
+        setData(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [])
+
+  const summary = data?.summary
+  const isEmpty = !loading && (!summary || summary.totalRuns === 0)
+
+  const dailyChartData = data?.daily.map(d => ({
+    date: d.date,
+    runs: d.runs,
+  }))
+
+  const summaryCards = summary ? [
+    { title: "Total Runs", value: formatNumber(summary.totalRuns), subtitle: "This period", icon: Activity },
+    { title: "Completed", value: formatNumber(summary.completedRuns), subtitle: `${summary.successRate.toFixed(1)}% success rate`, icon: TrendingUp },
+    { title: "Data Points", value: formatNumber(summary.totalItems), subtitle: "Items extracted", icon: Database },
+    { title: "Total Cost", value: `$${summary.totalCost.toFixed(2)}`, subtitle: "This period", icon: DollarSign },
+  ] : []
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -105,7 +121,7 @@ export default function UsagePage() {
             Usage & Billing
           </h1>
           <p className="text-muted-foreground mt-1">
-            Current Period: Mar 1-31, 2026
+            Current period: last 30 days
           </p>
         </div>
         <Button
@@ -117,148 +133,95 @@ export default function UsagePage() {
         </Button>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {summaryCards.map((card) => (
-          <Card key={card.title}>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {card.title}
-              </CardTitle>
-              <card.icon className="size-4 text-muted-foreground" />
+      {isEmpty ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <Activity className="size-12 text-muted-foreground mb-4" />
+            <p className="text-lg font-medium">No usage data yet</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Create and run a flow to see usage metrics
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {loading
+              ? Array.from({ length: 4 }).map((_, i) => <StatSkeleton key={i} />)
+              : summaryCards.map((card) => (
+                  <Card key={card.title}>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">
+                        {card.title}
+                      </CardTitle>
+                      <card.icon className="size-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{card.value}</div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {card.subtitle}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Daily Usage</CardTitle>
+              <CardDescription>Runs per day for the current period</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{card.value}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {card.hasBar ? `of ${card.limit} (${card.percent}%)` : card.limit}
-              </p>
-              {card.hasBar && (
-                <Progress value={card.percent} className="mt-2 h-1.5" />
+              {loading ? (
+                <Skeleton className="h-[300px] w-full" />
+              ) : (
+                <UsageDailyChart data={dailyChartData} />
               )}
             </CardContent>
           </Card>
-        ))}
-      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Daily Usage</CardTitle>
-          <CardDescription>Runs per day for the current billing period</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <UsageDailyChart />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Usage by Flow</CardTitle>
-          <CardDescription>Resource consumption breakdown per flow</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Flow</TableHead>
-                <TableHead className="text-right">Runs</TableHead>
-                <TableHead className="text-right">API Calls</TableHead>
-                <TableHead className="text-right">Data Points</TableHead>
-                <TableHead className="text-right">Bandwidth</TableHead>
-                <TableHead className="text-right">Cost</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {flowUsage.map((flow) => (
-                <TableRow key={flow.name}>
-                  <TableCell className="font-medium">{flow.name}</TableCell>
-                  <TableCell className="text-right">{flow.runs.toLocaleString()}</TableCell>
-                  <TableCell className="text-right">{flow.apiCalls}</TableCell>
-                  <TableCell className="text-right">{flow.dataPoints}</TableCell>
-                  <TableCell className="text-right">{flow.bandwidth}</TableCell>
-                  <TableCell className="text-right">{flow.cost}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      <Card className="border-emerald-200 dark:border-emerald-800">
-        <CardHeader>
-          <div className="flex items-center gap-2">
-            <CheckCircle2 className="size-5 text-emerald-500" />
-            <CardTitle>Overage Projection</CardTitle>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <p className="text-sm">
-              At current usage rate, you&apos;ll use <span className="font-semibold">3,247</span> of{" "}
-              <span className="font-semibold">5,000</span> runs this month (65%).
-            </p>
-            <div className="flex items-center gap-2">
-              <div className="size-2 rounded-full bg-emerald-500" />
-              <p className="text-sm text-emerald-600 dark:text-emerald-400 font-medium">
-                No overage expected
-              </p>
-            </div>
-            <Progress value={65} className="mt-2 h-1.5" />
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Billing History</CardTitle>
-          <CardDescription>Past invoices and billing periods</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Period</TableHead>
-                <TableHead>Plan</TableHead>
-                <TableHead className="text-right">Runs</TableHead>
-                <TableHead className="text-right">Cost</TableHead>
-                <TableHead className="text-right">Invoice</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {billingHistory.map((row) => (
-                <TableRow key={row.period}>
-                  <TableCell className="font-medium">{row.period}</TableCell>
-                  <TableCell>
-                    <Badge variant={row.plan === "Pro" ? "default" : "secondary"}>
-                      {row.plan}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <span>{row.runs}</span>
-                    {row.status === "in progress" && (
-                      <span className="ml-1 text-xs text-muted-foreground">(in progress)</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">{row.cost}</TableCell>
-                  <TableCell className="text-right">
-                    {row.invoice === "current" ? (
-                      <Badge variant="outline">Current</Badge>
-                    ) : (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 text-xs"
-                        onClick={() => toast.success("Invoice downloaded", { description: `${row.period} invoice saved.` })}
-                      >
-                        <Download className="mr-1 size-3" />
-                        Download
-                      </Button>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Usage by Flow</CardTitle>
+              <CardDescription>Resource consumption breakdown per flow</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <div className="space-y-3">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} className="h-10 w-full" />
+                  ))}
+                </div>
+              ) : data?.flowBreakdown && data.flowBreakdown.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Flow</TableHead>
+                      <TableHead className="text-right">Runs</TableHead>
+                      <TableHead className="text-right">Items</TableHead>
+                      <TableHead className="text-right">Avg Duration</TableHead>
+                      <TableHead className="text-right">Cost</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {data.flowBreakdown.map((flow) => (
+                      <TableRow key={flow.id}>
+                        <TableCell className="font-medium">{flow.name}</TableCell>
+                        <TableCell className="text-right">{flow.runs.toLocaleString()}</TableCell>
+                        <TableCell className="text-right">{formatNumber(flow.items)}</TableCell>
+                        <TableCell className="text-right">{flow.avgDuration.toFixed(1)}s</TableCell>
+                        <TableCell className="text-right">${flow.cost.toFixed(2)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-8">No flow data available</p>
+              )}
+            </CardContent>
+          </Card>
+        </>
+      )}
     </div>
   )
 }

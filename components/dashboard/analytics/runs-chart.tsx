@@ -3,17 +3,6 @@
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
 
-const runsData = Array.from({ length: 30 }, (_, i) => {
-  const day = i + 1
-  const success = 100 + Math.floor(Math.random() * 60)
-  const failed = Math.floor(Math.random() * 8)
-  return {
-    date: `Day ${day}`,
-    success,
-    failed,
-  }
-})
-
 const chartConfig = {
   success: {
     label: "Success",
@@ -25,10 +14,22 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function RunsChart() {
+interface RunsChartProps {
+  data?: { date: string; success: number; failed: number }[]
+}
+
+export function RunsChart({ data }: RunsChartProps) {
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex h-[300px] items-center justify-center text-sm text-muted-foreground">
+        No run data yet
+      </div>
+    )
+  }
+
   return (
     <ChartContainer config={chartConfig} className="h-[300px] w-full">
-      <AreaChart data={runsData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+      <AreaChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
         <defs>
           <linearGradient id="fillSuccess" x1="0" y1="0" x2="0" y2="1">
             <stop offset="5%" stopColor="var(--color-success)" stopOpacity={0.3} />
@@ -45,7 +46,7 @@ export function RunsChart() {
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          tickFormatter={(v) => v.replace("Day ", "")}
+          tickFormatter={(v) => v.slice(5)}
         />
         <YAxis tickLine={false} axisLine={false} tickMargin={8} />
         <ChartTooltip content={<ChartTooltipContent />} />

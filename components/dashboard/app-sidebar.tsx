@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
+import { useAuth } from "@/components/auth/auth-provider"
 import {
   BarChart3,
   Bell,
@@ -97,8 +98,13 @@ const navItems = [
 export function AppSidebar() {
   const pathname = usePathname()
   const router = useRouter()
+  const { user } = useAuth()
   const { state } = useSidebar()
   const isCollapsed = state === "collapsed"
+
+  const userName = user?.user_metadata?.name || user?.email?.split("@")[0] || "User"
+  const userEmail = user?.email || ""
+  const userInitials = userName.slice(0, 2).toUpperCase()
 
   return (
     <Sidebar collapsible="icon" data-tour="sidebar" aria-label="Main navigation">
@@ -160,15 +166,15 @@ export function AppSidebar() {
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
                   <Avatar className="size-8">
-                    <AvatarImage src="/avatars/user.png" alt="User" />
+                    <AvatarImage src={user?.user_metadata?.avatar_url} alt={userName} />
                     <AvatarFallback className="bg-accent text-accent-foreground text-xs">
-                      WS
+                      {userInitials}
                     </AvatarFallback>
                   </Avatar>
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-medium">Wyatt S.</span>
+                    <span className="truncate font-medium">{userName}</span>
                     <span className="text-muted-foreground truncate text-xs">
-                      Pro Plan
+                      {userEmail || "Free Plan"}
                     </span>
                   </div>
                   <ChevronsUpDown className="ml-auto size-4" />
@@ -182,9 +188,9 @@ export function AppSidebar() {
               >
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">Wyatt S.</p>
+                    <p className="text-sm font-medium leading-none">{userName}</p>
                     <p className="text-muted-foreground text-xs leading-none">
-                      wyatt@example.com
+                      {userEmail}
                     </p>
                   </div>
                 </DropdownMenuLabel>

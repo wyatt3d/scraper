@@ -3,15 +3,6 @@
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
 
-const dataPoints = Array.from({ length: 30 }, (_, i) => {
-  const day = i + 1
-  const points = 30000 + Math.floor(Math.random() * 20000)
-  return {
-    date: `Day ${day}`,
-    points,
-  }
-})
-
 const chartConfig = {
   points: {
     label: "Data Points",
@@ -19,17 +10,29 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function DataChart() {
+interface DataChartProps {
+  data?: { date: string; points: number }[]
+}
+
+export function DataChart({ data }: DataChartProps) {
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex h-[300px] items-center justify-center text-sm text-muted-foreground">
+        No data points yet
+      </div>
+    )
+  }
+
   return (
     <ChartContainer config={chartConfig} className="h-[300px] w-full">
-      <BarChart data={dataPoints} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
+      <BarChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
         <CartesianGrid vertical={false} strokeDasharray="3 3" />
         <XAxis
           dataKey="date"
           tickLine={false}
           axisLine={false}
           tickMargin={8}
-          tickFormatter={(v) => v.replace("Day ", "")}
+          tickFormatter={(v) => v.slice(5)}
         />
         <YAxis
           tickLine={false}

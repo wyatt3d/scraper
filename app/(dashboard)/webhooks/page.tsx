@@ -1,11 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import {
   Check,
   Copy,
   Edit,
   Globe,
+  Loader2,
   Pause,
   Play,
   Plus,
@@ -32,6 +33,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Skeleton } from "@/components/ui/skeleton"
 import { Switch } from "@/components/ui/switch"
 import {
   Table,
@@ -48,19 +50,10 @@ interface Webhook {
   id: string
   url: string
   events: string[]
-  status: "active" | "paused"
+  active: boolean
   secret: string
-  lastTriggered: string | null
-  createdAt: string
-}
-
-interface WebhookLog {
-  id: string
-  timestamp: string
-  event: string
-  url: string
-  statusCode: number
-  success: boolean
+  last_triggered_at: string | null
+  created_at: string
 }
 
 const ALL_EVENTS = [
@@ -70,63 +63,6 @@ const ALL_EVENTS = [
   "alert.triggered",
   "flow.updated",
   "flow.deleted",
-]
-
-const mockWebhooks: Webhook[] = [
-  {
-    id: "wh-1",
-    url: "https://api.myapp.com/scraper-hook",
-    events: ["run.completed", "run.failed"],
-    status: "active",
-    secret: "whsec_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6",
-    lastTriggered: "2 hours ago",
-    createdAt: "2026-02-15T10:00:00Z",
-  },
-  {
-    id: "wh-2",
-    url: "https://hooks.slack.com/services/T01234567/B01234567/abcdefghijklmnop",
-    events: ["alert.triggered"],
-    status: "active",
-    secret: "whsec_q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1f2",
-    lastTriggered: "1 day ago",
-    createdAt: "2026-03-01T14:30:00Z",
-  },
-  {
-    id: "wh-3",
-    url: "https://discord.com/api/webhooks/123456789/abcdefghijklmnop",
-    events: ["run.completed"],
-    status: "paused",
-    secret: "whsec_g3h4i5j6k7l8m9n0o1p2q3r4s5t6u7v8",
-    lastTriggered: "3 days ago",
-    createdAt: "2026-03-10T09:15:00Z",
-  },
-]
-
-const mockLogs: WebhookLog[] = [
-  {
-    id: "log-1",
-    timestamp: "2 hours ago",
-    event: "run.completed",
-    url: "api.myapp.com/...",
-    statusCode: 200,
-    success: true,
-  },
-  {
-    id: "log-2",
-    timestamp: "2 hours ago",
-    event: "run.completed",
-    url: "hooks.slack.com/...",
-    statusCode: 200,
-    success: true,
-  },
-  {
-    id: "log-3",
-    timestamp: "1 day ago",
-    event: "run.failed",
-    url: "api.myapp.com/...",
-    statusCode: 500,
-    success: false,
-  },
 ]
 
 function generateSecret() {
@@ -143,8 +79,23 @@ function truncateUrl(url: string, max = 40) {
   return url.slice(0, max) + "..."
 }
 
+function formatRelativeTime(dateStr: string | null) {
+  if (!dateStr) return "Never"
+  const date = new Date(dateStr)
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffMin = Math.floor(diffMs / 60000)
+  if (diffMin < 1) return "Just now"
+  if (diffMin < 60) return `${diffMin} min ago`
+  const diffHr = Math.floor(diffMin / 60)
+  if (diffHr < 24) return `${diffHr} hour${diffHr > 1 ? "s" : ""} ago`
+  const diffDays = Math.floor(diffHr / 24)
+  return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`
+}
+
 export default function WebhooksPage() {
-  const [webhooks, setWebhooks] = useState<Webhook[]>(mockWebhooks)
+  const [webhooks, setWebhooks] = useState<Webhook[]>([])
+  const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editingWebhook, setEditingWebhook] = useState<Webhook | null>(null)
   const [url, setUrl] = useState("")
@@ -152,6 +103,23 @@ export default function WebhooksPage() {
   const [secret, setSecret] = useState(generateSecret())
   const [isActive, setIsActive] = useState(true)
   const [copiedId, setCopiedId] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+
+  const fetchWebhooks = useCallback(async () => {
+    try {
+      const res = await fetch("/api/webhooks")
+      const json = await res.json()
+      setWebhooks(json.data || [])
+    } catch {
+      toast.error("Failed to load webhooks")
+    } finally {
+      setLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    fetchWebhooks()
+  }, [fetchWebhooks])
 
   function resetForm() {
     setUrl("")
@@ -174,50 +142,67 @@ export default function WebhooksPage() {
     toast.success("Secret copied to clipboard")
   }
 
-  function saveWebhook() {
-    if (editingWebhook) {
-      setWebhooks((prev) =>
-        prev.map((wh) =>
-          wh.id === editingWebhook.id
-            ? { ...wh, url, events, secret, status: isActive ? "active" : "paused" }
-            : wh
-        )
-      )
-      toast.success("Webhook updated")
-    } else {
-      const newWebhook: Webhook = {
-        id: `wh-${Date.now()}`,
-        url,
-        events,
-        status: isActive ? "active" : "paused",
-        secret,
-        lastTriggered: null,
-        createdAt: new Date().toISOString(),
+  async function saveWebhook() {
+    setSaving(true)
+    try {
+      if (editingWebhook) {
+        const res = await fetch(`/api/webhooks/${editingWebhook.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url, events, secret, active: isActive }),
+        })
+        const json = await res.json()
+        if (json.error) throw new Error(json.error)
+        toast.success("Webhook updated")
+      } else {
+        const res = await fetch("/api/webhooks", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url, events, secret }),
+        })
+        const json = await res.json()
+        if (json.error) throw new Error(json.error)
+        toast.success("Webhook created")
       }
-      setWebhooks((prev) => [...prev, newWebhook])
-      toast.success("Webhook created")
+      setDialogOpen(false)
+      resetForm()
+      await fetchWebhooks()
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to save webhook")
+    } finally {
+      setSaving(false)
     }
-    setDialogOpen(false)
-    resetForm()
   }
 
-  function deleteWebhook(id: string) {
-    setWebhooks((prev) => prev.filter((wh) => wh.id !== id))
-    toast.success("Webhook deleted")
+  async function deleteWebhook(id: string) {
+    try {
+      const res = await fetch(`/api/webhooks/${id}`, { method: "DELETE" })
+      const json = await res.json()
+      if (json.error) throw new Error(json.error)
+      toast.success("Webhook deleted")
+      await fetchWebhooks()
+    } catch {
+      toast.error("Failed to delete webhook")
+    }
   }
 
   function testWebhook(wh: Webhook) {
     toast.success(`Test delivery sent to ${truncateUrl(wh.url, 30)}`)
   }
 
-  function toggleStatus(id: string) {
-    setWebhooks((prev) =>
-      prev.map((wh) =>
-        wh.id === id
-          ? { ...wh, status: wh.status === "active" ? "paused" : "active" }
-          : wh
-      )
-    )
+  async function toggleStatus(id: string, currentActive: boolean) {
+    try {
+      const res = await fetch(`/api/webhooks/${id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ active: !currentActive }),
+      })
+      const json = await res.json()
+      if (json.error) throw new Error(json.error)
+      await fetchWebhooks()
+    } catch {
+      toast.error("Failed to toggle webhook status")
+    }
   }
 
   function openEdit(wh: Webhook) {
@@ -225,7 +210,7 @@ export default function WebhooksPage() {
     setUrl(wh.url)
     setEvents(wh.events)
     setSecret(wh.secret)
-    setIsActive(wh.status === "active")
+    setIsActive(wh.active)
     setDialogOpen(true)
   }
 
@@ -339,8 +324,9 @@ export default function WebhooksPage() {
               </DialogClose>
               <Button
                 onClick={saveWebhook}
-                disabled={!url || events.length === 0}
+                disabled={!url || events.length === 0 || saving}
               >
+                {saving && <Loader2 className="size-3.5 mr-1.5 animate-spin" />}
                 {editingWebhook ? "Save Changes" : "Add Webhook"}
               </Button>
             </DialogFooter>
@@ -368,99 +354,113 @@ export default function WebhooksPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {webhooks.map((wh) => (
-                    <TableRow key={wh.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Globe className="size-4 text-muted-foreground shrink-0" />
-                          <code className="text-xs font-mono">
-                            {truncateUrl(wh.url)}
-                          </code>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {wh.events.map((event) => (
+                  {loading ? (
+                    Array.from({ length: 3 }).map((_, i) => (
+                      <TableRow key={i}>
+                        <TableCell><Skeleton className="h-4 w-48" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                        <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <>
+                      {webhooks.map((wh) => (
+                        <TableRow key={wh.id}>
+                          <TableCell>
+                            <div className="flex items-center gap-2">
+                              <Globe className="size-4 text-muted-foreground shrink-0" />
+                              <code className="text-xs font-mono">
+                                {truncateUrl(wh.url)}
+                              </code>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex flex-wrap gap-1">
+                              {wh.events.map((event) => (
+                                <Badge
+                                  key={event}
+                                  variant="secondary"
+                                  className="font-mono text-xs"
+                                >
+                                  {event}
+                                </Badge>
+                              ))}
+                            </div>
+                          </TableCell>
+                          <TableCell>
                             <Badge
-                              key={event}
-                              variant="secondary"
-                              className="font-mono text-xs"
+                              variant="outline"
+                              className={
+                                wh.active
+                                  ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                                  : "border-yellow-500/30 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
+                              }
                             >
-                              {event}
+                              {wh.active ? "Active" : "Paused"}
                             </Badge>
-                          ))}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant="outline"
-                          className={
-                            wh.status === "active"
-                              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                              : "border-yellow-500/30 bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
-                          }
-                        >
-                          {wh.status === "active" ? "Active" : "Paused"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-muted-foreground text-sm">
-                        {wh.lastTriggered ?? "Never"}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8"
-                            onClick={() => openEdit(wh)}
-                            title="Edit"
+                          </TableCell>
+                          <TableCell className="text-muted-foreground text-sm">
+                            {formatRelativeTime(wh.last_triggered_at)}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-8"
+                                onClick={() => openEdit(wh)}
+                                title="Edit"
+                              >
+                                <Edit className="size-3.5" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-8"
+                                onClick={() => testWebhook(wh)}
+                                title="Test"
+                              >
+                                <Send className="size-3.5" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-8"
+                                onClick={() => toggleStatus(wh.id, wh.active)}
+                                title={wh.active ? "Pause" : "Resume"}
+                              >
+                                {wh.active ? (
+                                  <Pause className="size-3.5" />
+                                ) : (
+                                  <Play className="size-3.5" />
+                                )}
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="size-8 text-red-500 hover:text-red-600"
+                                onClick={() => deleteWebhook(wh.id)}
+                                title="Delete"
+                              >
+                                <Trash2 className="size-3.5" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {webhooks.length === 0 && (
+                        <TableRow>
+                          <TableCell
+                            colSpan={5}
+                            className="py-8 text-center text-muted-foreground"
                           >
-                            <Edit className="size-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8"
-                            onClick={() => testWebhook(wh)}
-                            title="Test"
-                          >
-                            <Send className="size-3.5" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8"
-                            onClick={() => toggleStatus(wh.id)}
-                            title={wh.status === "active" ? "Pause" : "Resume"}
-                          >
-                            {wh.status === "active" ? (
-                              <Pause className="size-3.5" />
-                            ) : (
-                              <Play className="size-3.5" />
-                            )}
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="size-8 text-red-500 hover:text-red-600"
-                            onClick={() => deleteWebhook(wh.id)}
-                            title="Delete"
-                          >
-                            <Trash2 className="size-3.5" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                  {webhooks.length === 0 && (
-                    <TableRow>
-                      <TableCell
-                        colSpan={5}
-                        className="py-8 text-center text-muted-foreground"
-                      >
-                        No webhooks configured. Add one to get started.
-                      </TableCell>
-                    </TableRow>
+                            No webhooks configured. Add one to get started.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </>
                   )}
                 </TableBody>
               </Table>
@@ -482,62 +482,14 @@ export default function WebhooksPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {mockLogs.map((log) => (
-                    <TableRow key={log.id}>
-                      <TableCell className="text-muted-foreground text-sm">
-                        {log.timestamp}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="secondary" className="font-mono text-xs">
-                          {log.event}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <code className="text-xs font-mono text-muted-foreground">
-                          {log.url}
-                        </code>
-                      </TableCell>
-                      <TableCell>
-                        <Badge
-                          variant="outline"
-                          className={
-                            log.success
-                              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-                              : "border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400"
-                          }
-                        >
-                          {log.statusCode} {log.success ? "OK" : "Error"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-7 text-xs"
-                            onClick={() =>
-                              toast.info("Viewing delivery details")
-                            }
-                          >
-                            View
-                          </Button>
-                          {!log.success && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 text-xs gap-1"
-                              onClick={() =>
-                                toast.success("Retry delivery queued")
-                              }
-                            >
-                              <RefreshCw className="size-3" />
-                              Retry
-                            </Button>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      className="py-8 text-center text-muted-foreground"
+                    >
+                      No webhook delivery logs yet.
+                    </TableCell>
+                  </TableRow>
                 </TableBody>
               </Table>
             </CardContent>

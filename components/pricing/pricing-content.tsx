@@ -17,6 +17,7 @@ import { Slider } from "@/components/ui/slider"
 import { Check, X, ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Logo } from "@/components/brand/logo"
+import { toast } from "sonner"
 
 const tiers = [
   {
@@ -176,10 +177,32 @@ function CellIcon({ value }: { value: CellValue }) {
 }
 
 export function PricingContent() {
+  const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [annual, setAnnual] = useState(false)
   const [monthlyRuns, setMonthlyRuns] = useState(1000)
   const [pagesPerRun, setPagesPerRun] = useState(5)
   const [teamMembers, setTeamMembers] = useState(3)
+
+  async function handleCheckout(plan: string) {
+    setCheckoutLoading(true)
+    try {
+      const res = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ plan }),
+      })
+      const data = await res.json()
+      if (data.url) {
+        window.location.href = data.url
+      } else {
+        toast.error(data.error || "Checkout failed")
+      }
+    } catch {
+      toast.error("Failed to start checkout")
+    } finally {
+      setCheckoutLoading(false)
+    }
+  }
 
   const recommendedPlan = monthlyRuns < 100 ? "Free" : monthlyRuns < 5000 ? "Pro" : "Enterprise"
   const estimatedCost = recommendedPlan === "Free" ? 0 : recommendedPlan === "Pro" ? 29 : 299
@@ -313,19 +336,31 @@ export function PricingContent() {
                       </li>
                     ))}
                   </ul>
-                  <Link href={tier.ctaHref}>
+                  {tier.name === "Pro" ? (
                     <Button
                       variant={tier.ctaVariant}
+                      disabled={checkoutLoading}
+                      onClick={() => handleCheckout("pro")}
                       className={cn(
                         "w-full",
-                        tier.highlighted
-                          ? "bg-blue-600 hover:bg-blue-700 text-white"
-                          : "bg-transparent"
+                        "bg-blue-600 hover:bg-blue-700 text-white"
                       )}
                     >
-                      {tier.cta}
+                      {checkoutLoading ? "Redirecting..." : tier.cta}
                     </Button>
-                  </Link>
+                  ) : (
+                    <Link href={tier.ctaHref}>
+                      <Button
+                        variant={tier.ctaVariant}
+                        className={cn(
+                          "w-full",
+                          "bg-transparent"
+                        )}
+                      >
+                        {tier.cta}
+                      </Button>
+                    </Link>
+                  )}
                 </CardContent>
               </Card>
             ))}

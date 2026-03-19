@@ -1,17 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import dynamic from "next/dynamic"
 import {
   Activity,
-  ArrowDown,
-  ArrowUp,
   Clock,
   Database,
   DollarSign,
   TrendingUp,
 } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
@@ -34,6 +31,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { Skeleton } from "@/components/ui/skeleton"
 
 const RunsChart = dynamic(
   () => import("@/components/dashboard/analytics/runs-chart").then((mod) => ({ default: mod.RunsChart })),
@@ -50,56 +48,115 @@ const CostChart = dynamic(
   { loading: () => <div className="h-[300px] bg-muted animate-pulse rounded-lg" />, ssr: false }
 )
 
-const stats = [
-  {
-    title: "Total Runs",
-    value: "4,287",
-    change: "+12%",
-    positive: true,
-    icon: Activity,
-  },
-  {
-    title: "Success Rate",
-    value: "96.8%",
-    change: "+1.2%",
-    positive: true,
-    icon: TrendingUp,
-  },
-  {
-    title: "Data Points",
-    value: "1.2M",
-    change: "+23%",
-    positive: true,
-    icon: Database,
-  },
-  {
-    title: "Avg Duration",
-    value: "8.4s",
-    change: "-15%",
-    positive: true,
-    icon: Clock,
-  },
-  {
-    title: "Total Cost",
-    value: "$12.47",
-    change: "-8%",
-    positive: true,
-    icon: DollarSign,
-  },
-]
+interface AnalyticsData {
+  summary: {
+    totalRuns: number
+    completedRuns: number
+    failedRuns: number
+    successRate: number
+    totalItems: number
+    totalCost: number
+    avgDuration: number
+  }
+  daily: { date: string; runs: number; success: number; failed: number; items: number }[]
+  flowBreakdown: {
+    id: string
+    name: string
+    mode: string
+    runs: number
+    successRate: number
+    items: number
+    avgDuration: number
+    cost: number
+  }[]
+  period: { days: number; since: string }
+}
 
-const topFlows = [
-  { name: "Product Price Monitor", runs: 248, success: "98.5%", items: "36,456", avgDuration: "12.4s", cost: "$3.72" },
-  { name: "Job Listings Scraper", runs: 412, success: "96.2%", items: "36,668", avgDuration: "28.6s", cost: "$4.94" },
-  { name: "Craigslist Cars", runs: 1024, success: "94.7%", items: "23,552", avgDuration: "45.2s", cost: "$2.89" },
-  { name: "News Aggregator", runs: 856, success: "97.1%", items: "128,400", avgDuration: "6.2s", cost: "$1.84" },
-  { name: "Social Media Tracker", runs: 632, success: "95.8%", items: "45,920", avgDuration: "18.7s", cost: "$3.12" },
-  { name: "Real Estate Listings", runs: 389, success: "93.4%", items: "12,480", avgDuration: "52.1s", cost: "$2.46" },
-  { name: "Stock Data Feed", runs: 726, success: "99.2%", items: "892,000", avgDuration: "2.1s", cost: "$0.92" },
-]
+const DATE_RANGE_MAP: Record<string, number> = {
+  "7d": 7,
+  "30d": 30,
+  "90d": 90,
+}
+
+const MODE_COLORS: Record<string, string> = {
+  extract: "hsl(221, 83%, 53%)",
+  interact: "hsl(262, 83%, 58%)",
+  monitor: "hsl(142, 71%, 45%)",
+}
+
+function formatNumber(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`
+  if (n >= 1_000) return n.toLocaleString()
+  return n.toString()
+}
+
+function StatSkeleton() {
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between pb-2">
+        <Skeleton className="h-4 w-20" />
+        <Skeleton className="size-4" />
+      </CardHeader>
+      <CardContent>
+        <Skeleton className="h-7 w-24 mb-2" />
+        <Skeleton className="h-3 w-16" />
+      </CardContent>
+    </Card>
+  )
+}
 
 export default function AnalyticsPage() {
+  const [data, setData] = useState<AnalyticsData | null>(null)
+  const [loading, setLoading] = useState(true)
   const [dateRange, setDateRange] = useState("30d")
+
+  const period = DATE_RANGE_MAP[dateRange] || 30
+
+  useEffect(() => {
+    async function load() {
+      setLoading(true)
+      try {
+        const res = await fetch(`/api/analytics?days=${period}`)
+        const json = await res.json()
+        setData(json)
+      } catch {
+        setData(null)
+      } finally {
+        setLoading(false)
+      }
+    }
+    load()
+  }, [period])
+
+  const summary = data?.summary
+  const isEmpty = !loading && (!summary || summary.totalRuns === 0)
+
+  const stats = summary ? [
+    { title: "Total Runs", value: formatNumber(summary.totalRuns), icon: Activity },
+    { title: "Success Rate", value: `${summary.successRate.toFixed(1)}%`, icon: TrendingUp },
+    { title: "Data Points", value: formatNumber(summary.totalItems), icon: Database },
+    { title: "Avg Duration", value: `${summary.avgDuration.toFixed(1)}s`, icon: Clock },
+    { title: "Total Cost", value: `$${summary.totalCost.toFixed(2)}`, icon: DollarSign },
+  ] : []
+
+  const runsChartData = data?.daily.map(d => ({
+    date: d.date,
+    success: d.success,
+    failed: d.failed,
+  }))
+
+  const dataChartData = data?.daily.map(d => ({
+    date: d.date,
+    points: d.items,
+  }))
+
+  const costChartData = data?.flowBreakdown
+    .filter(f => f.cost > 0)
+    .map(f => ({
+      name: f.name,
+      value: parseFloat(f.cost.toFixed(2)),
+      fill: MODE_COLORS[f.mode] || "hsl(220, 10%, 50%)",
+    }))
 
   return (
     <div className="space-y-6">
@@ -120,102 +177,128 @@ export default function AnalyticsPage() {
             <SelectItem value="7d">Last 7 days</SelectItem>
             <SelectItem value="30d">Last 30 days</SelectItem>
             <SelectItem value="90d">Last 90 days</SelectItem>
-            <SelectItem value="custom">Custom</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {stats.map((stat) => (
-          <Card key={stat.title}>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {stat.title}
-              </CardTitle>
-              <stat.icon className="size-4 text-muted-foreground" />
+      {isEmpty ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <Activity className="size-12 text-muted-foreground mb-4" />
+            <p className="text-lg font-medium">No data yet</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Create and run a flow to see analytics
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        <>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            {loading
+              ? Array.from({ length: 5 }).map((_, i) => <StatSkeleton key={i} />)
+              : stats.map((stat) => (
+                  <Card key={stat.title}>
+                    <CardHeader className="flex flex-row items-center justify-between pb-2">
+                      <CardTitle className="text-sm font-medium text-muted-foreground">
+                        {stat.title}
+                      </CardTitle>
+                      <stat.icon className="size-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{stat.value}</div>
+                    </CardContent>
+                  </Card>
+                ))}
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>Runs Over Time</CardTitle>
+                <CardDescription>Success and failed runs over the selected period</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {loading ? (
+                  <Skeleton className="h-[300px] w-full" />
+                ) : (
+                  <RunsChart data={runsChartData} />
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Data Points Extracted</CardTitle>
+                <CardDescription>Total data points collected per day</CardDescription>
+              </CardHeader>
+              <CardContent>
+                {loading ? (
+                  <Skeleton className="h-[300px] w-full" />
+                ) : (
+                  <DataChart data={dataChartData} />
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Top Flows</CardTitle>
+              <CardDescription>Performance breakdown by flow</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <div className="flex items-center gap-1 text-xs mt-1">
-                {stat.positive ? (
-                  <ArrowUp className="size-3 text-emerald-500" />
-                ) : (
-                  <ArrowDown className="size-3 text-red-500" />
-                )}
-                <span className="text-emerald-500">
-                  {stat.change}
-                </span>
-                <span className="text-muted-foreground">vs prev period</span>
-              </div>
+              {loading ? (
+                <div className="space-y-3">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} className="h-10 w-full" />
+                  ))}
+                </div>
+              ) : data?.flowBreakdown && data.flowBreakdown.length > 0 ? (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Flow</TableHead>
+                      <TableHead className="text-right">Runs</TableHead>
+                      <TableHead className="text-right">Success</TableHead>
+                      <TableHead className="text-right">Items</TableHead>
+                      <TableHead className="text-right">Avg Duration</TableHead>
+                      <TableHead className="text-right">Cost</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {data.flowBreakdown.map((flow) => (
+                      <TableRow key={flow.id}>
+                        <TableCell className="font-medium">{flow.name}</TableCell>
+                        <TableCell className="text-right">{flow.runs.toLocaleString()}</TableCell>
+                        <TableCell className="text-right">{flow.successRate.toFixed(1)}%</TableCell>
+                        <TableCell className="text-right">{formatNumber(flow.items)}</TableCell>
+                        <TableCell className="text-right">{flow.avgDuration.toFixed(1)}s</TableCell>
+                        <TableCell className="text-right">${flow.cost.toFixed(2)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-8">No flow data available</p>
+              )}
             </CardContent>
           </Card>
-        ))}
-      </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Runs Over Time</CardTitle>
-            <CardDescription>Success and failed runs over the last 30 days</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <RunsChart />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Data Points Extracted</CardTitle>
-            <CardDescription>Total data points collected per day</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <DataChart />
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Top Flows</CardTitle>
-          <CardDescription>Performance breakdown by flow</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Flow</TableHead>
-                <TableHead className="text-right">Runs</TableHead>
-                <TableHead className="text-right">Success</TableHead>
-                <TableHead className="text-right">Items</TableHead>
-                <TableHead className="text-right">Avg Duration</TableHead>
-                <TableHead className="text-right">Cost</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {topFlows.map((flow) => (
-                <TableRow key={flow.name}>
-                  <TableCell className="font-medium">{flow.name}</TableCell>
-                  <TableCell className="text-right">{flow.runs.toLocaleString()}</TableCell>
-                  <TableCell className="text-right">{flow.success}</TableCell>
-                  <TableCell className="text-right">{flow.items}</TableCell>
-                  <TableCell className="text-right">{flow.avgDuration}</TableCell>
-                  <TableCell className="text-right">{flow.cost}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Cost Breakdown</CardTitle>
-          <CardDescription>Where your budget is being spent</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <CostChart />
-        </CardContent>
-      </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Cost Breakdown</CardTitle>
+              <CardDescription>Where your budget is being spent</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {loading ? (
+                <Skeleton className="h-[300px] w-full" />
+              ) : (
+                <CostChart data={costChartData} />
+              )}
+            </CardContent>
+          </Card>
+        </>
+      )}
     </div>
   )
 }
