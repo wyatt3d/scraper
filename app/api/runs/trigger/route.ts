@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server"
+import { NextRequest, NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
 import { executeFlow } from "@/lib/engine/runner"
+import { checkCsrf } from "@/lib/csrf"
 import type { Flow } from "@/lib/types"
 import { z } from "zod"
 
@@ -8,7 +9,10 @@ const triggerRunSchema = z.object({
   flowId: z.string().uuid(),
 })
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const csrfError = checkCsrf(request)
+  if (csrfError) return csrfError
+
   try {
     const body = await request.json()
     const parsed = triggerRunSchema.safeParse(body)

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import crypto from "crypto"
 import { listApiKeys, createApiKey } from "@/lib/db"
+import { checkCsrf } from "@/lib/csrf"
 
 export async function GET() {
   try {
@@ -17,6 +18,9 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  const csrfError = checkCsrf(request)
+  if (csrfError) return csrfError
+
   const body = await request.json()
 
   try {

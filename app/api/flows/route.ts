@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
 import { validateApiKey } from "@/lib/api-auth"
 import { toFlow } from "@/lib/mappers"
+import { checkCsrf } from "@/lib/csrf"
 import { z } from "zod"
 
 const createFlowSchema = z.object({
@@ -43,6 +44,9 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const csrfError = checkCsrf(req)
+  if (csrfError) return csrfError
+
   try {
     const body = await req.json()
 

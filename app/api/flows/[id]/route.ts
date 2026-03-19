@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
 import { validateApiKey } from "@/lib/api-auth"
 import { toFlow } from "@/lib/mappers"
+import { checkCsrf } from "@/lib/csrf"
 import { z } from "zod"
 
 const updateFlowSchema = z.object({
@@ -46,6 +47,9 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const csrfError = checkCsrf(req)
+  if (csrfError) return csrfError
+
   const { id } = await params
   const body = await req.json()
 
@@ -84,6 +88,9 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const csrfError = checkCsrf(_req)
+  if (csrfError) return csrfError
+
   const { id } = await params
 
   const { error } = await supabase.from("flows").delete().eq("id", id)

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
+import { checkCsrf } from "@/lib/csrf"
 import { z } from "zod"
 
 const createWebhookSchema = z.object({
@@ -31,7 +32,10 @@ export async function GET(request: NextRequest) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const csrfError = checkCsrf(request)
+  if (csrfError) return csrfError
+
   try {
     const body = await request.json()
     const result = createWebhookSchema.safeParse(body)

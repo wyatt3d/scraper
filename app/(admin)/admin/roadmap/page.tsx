@@ -144,7 +144,7 @@ const phases: Phase[] = [
     number: 5,
     name: "Production Hardening",
     status: "IN PROGRESS",
-    completion: 95,
+    completion: 98,
     eta: "Apr 2",
     deliverables: [
       { name: "Vercel deployment (initial)", done: true },
@@ -179,10 +179,11 @@ const phases: Phase[] = [
       { name: "API response standardization (proper error codes)", done: true },
       { name: "Authenticated session bypass for dashboard API calls", done: true },
       { name: "Subdomain auth redirect to main domain", done: true },
+      { name: "API key SHA-256 DB validation in route handlers", done: true },
+      { name: "CSRF origin validation on state-changing routes", done: true },
+      { name: "Templates table with RLS (public read, admin write)", done: true },
       { name: "Proper RLS policies with user_id columns", done: false },
-      { name: "Real API key DB validation in route handlers", done: false },
       { name: "Rate limiting via Upstash Redis", done: false },
-      { name: "CSRF token validation", done: false },
       { name: "E2E test suite (Playwright)", done: false },
       { name: "Remaining security findings remediation (26 items)", done: false },
     ],
@@ -220,7 +221,7 @@ const phases: Phase[] = [
     number: 7,
     name: "Continuous Ops",
     status: "IN PROGRESS",
-    completion: 95,
+    completion: 98,
     eta: "Ongoing",
     deliverables: [
       { name: "Ops Center admin page with automation runbook", done: true },
@@ -241,8 +242,30 @@ const phases: Phase[] = [
       { name: "Settings deep-link via ?tab= query param", done: true },
       { name: "Admin pages converted to server components (8 pages)", done: true },
       { name: "API response consistency (5 routes fixed)", done: true },
+      { name: "Final dark mode sweep (35 instances across 21 files)", done: true },
+      { name: "select(*) narrowed to specific fields (6 queries)", done: true },
+      { name: "11 additional aria-labels on icon buttons", done: true },
+      { name: "Debug console.logs removed from Playwright scripts", done: true },
       { name: "Replace template mock data with Supabase", done: false },
       { name: "Convert remaining dashboard pages to server components", done: false },
+    ],
+  },
+  {
+    number: 8,
+    name: "Browser Recorder",
+    status: "IN PROGRESS" as PhaseStatus,
+    completion: 60,
+    eta: "Apr 10",
+    deliverables: [
+      { name: "Recorder engine (Browserless script builder + element map)", done: true },
+      { name: "API routes (start + action with Zod validation)", done: true },
+      { name: "Interactive screenshot panel with element overlays", done: true },
+      { name: "Mode toolbar (Select/Click/Fill/Extract)", done: true },
+      { name: "Flow builder integration (Record toggle in PreviewPanel)", done: true },
+      { name: "Scroll recording support", done: false },
+      { name: "Multi-page navigation recording", done: false },
+      { name: "Selector refinement with AI suggestions", done: false },
+      { name: "Recording playback/preview", done: false },
     ],
   },
 ]
@@ -255,7 +278,7 @@ export default function RoadmapPage() {
         <p className="text-muted-foreground mt-1">Phased delivery plan for Scraper.bot platform</p>
       </div>
 
-      <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
+      <div className="grid grid-cols-3 md:grid-cols-9 gap-2">
         {phases.map((phase) => (
           <div key={phase.number} className="text-center">
             <div className="text-xs text-muted-foreground mb-1">Phase {phase.number}</div>
