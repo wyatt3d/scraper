@@ -48,7 +48,13 @@ export async function middleware(request: NextRequest) {
     const { data: { session } } = await supabase.auth.getSession()
 
     if (!session) {
+      // For subdomain requests, redirect to main domain for sign-in
+      const isSubdomain = hostname.startsWith("admin.") || hostname.startsWith("docs.")
       const signInUrl = request.nextUrl.clone()
+      if (isSubdomain) {
+        const mainHost = hostname.replace(/^(admin|docs)\./, "")
+        signInUrl.host = mainHost
+      }
       signInUrl.pathname = "/sign-in"
       signInUrl.searchParams.set("redirect", pathname)
       return NextResponse.redirect(signInUrl)
