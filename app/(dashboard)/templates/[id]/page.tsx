@@ -1,6 +1,6 @@
 "use client"
 
-import { use } from "react"
+import { use, useState, useEffect } from "react"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import {
@@ -19,6 +19,7 @@ import {
   Copy,
   Star,
   Download,
+  Loader2,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -33,23 +34,60 @@ import {
 } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
-import { mockTemplates, templateExampleData, templateRatings, templateUseCounts } from "@/lib/mock-data"
-import type { StepType } from "@/lib/types"
+import type { StepType, FlowStep } from "@/lib/types"
 
-const categoryColors: Record<string, string> = {
-  "E-commerce": "bg-muted text-foreground border-border",
-  "Jobs": "bg-violet-500/15 text-violet-600 border-violet-500/25 dark:text-violet-400",
-  "Real Estate": "bg-emerald-500/15 text-emerald-600 border-emerald-500/25 dark:text-emerald-400",
-  "Content": "bg-amber-500/15 text-amber-600 border-amber-500/25 dark:text-amber-400",
-  "Social Media": "bg-pink-500/15 text-pink-600 border-pink-500/25 dark:text-pink-400",
-  "Sales": "bg-orange-500/15 text-orange-600 border-orange-500/25 dark:text-orange-400",
-  "Automation": "bg-cyan-500/15 text-cyan-600 border-cyan-500/25 dark:text-cyan-400",
+interface Template {
+  id: string
+  name: string
+  description: string
+  category: string
+  url: string
+  difficulty: string
+  rating: number
+  useCount: number
+  isFeatured: boolean
+  steps: FlowStep[]
+  outputSchema: Record<string, unknown>
 }
 
-const modeColors: Record<string, string> = {
-  extract: "bg-muted text-foreground border-border",
-  interact: "bg-amber-500/15 text-amber-600 border-amber-500/25 dark:text-amber-400",
-  monitor: "bg-emerald-500/15 text-emerald-600 border-emerald-500/25 dark:text-emerald-400",
+function mapDbTemplate(row: Record<string, unknown>): Template {
+  return {
+    id: row.id as string,
+    name: row.name as string,
+    description: (row.description as string) || "",
+    category: row.category as string,
+    url: (row.url_pattern as string) || "",
+    difficulty: (row.difficulty as string) || "beginner",
+    rating: Number(row.rating) || 0,
+    useCount: Number(row.use_count) || 0,
+    isFeatured: Boolean(row.is_featured),
+    steps: (row.steps as FlowStep[]) || [],
+    outputSchema: (row.output_schema as Record<string, unknown>) || {},
+  }
+}
+
+const categoryLabels: Record<string, string> = {
+  "e-commerce": "E-commerce",
+  "news": "News",
+  "jobs": "Jobs",
+  "social": "Social Media",
+  "real-estate": "Real Estate",
+  "food": "Food",
+}
+
+const categoryColors: Record<string, string> = {
+  "e-commerce": "bg-muted text-foreground border-border",
+  "jobs": "bg-violet-500/15 text-violet-600 border-violet-500/25 dark:text-violet-400",
+  "real-estate": "bg-emerald-500/15 text-emerald-600 border-emerald-500/25 dark:text-emerald-400",
+  "news": "bg-amber-500/15 text-amber-600 border-amber-500/25 dark:text-amber-400",
+  "social": "bg-pink-500/15 text-pink-600 border-pink-500/25 dark:text-pink-400",
+  "food": "bg-orange-500/15 text-orange-600 border-orange-500/25 dark:text-orange-400",
+}
+
+const difficultyColors: Record<string, string> = {
+  beginner: "bg-muted text-foreground border-border",
+  intermediate: "bg-amber-500/15 text-amber-600 border-amber-500/25 dark:text-amber-400",
+  advanced: "bg-red-500/15 text-red-600 border-red-500/25 dark:text-red-400",
 }
 
 const stepIcons: Record<StepType, React.ComponentType<{ className?: string }>> = {
@@ -71,16 +109,34 @@ function formatUseCount(n: number) {
 
 export default function TemplateDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
-  const template = mockTemplates.find((t) => t.id === id)
+  const [template, setTemplate] = useState<Template | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetch("/api/templates")
+      .then((res) => res.json())
+      .then((json) => {
+        const rows = json.data || []
+        const mapped = rows.map(mapDbTemplate)
+        const found = mapped.find((t: Template) => t.id === id)
+        setTemplate(found || null)
+      })
+      .catch(() => setTemplate(null))
+      .finally(() => setLoading(false))
+  }, [id])
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+        <p className="text-muted-foreground text-sm mt-2">Loading template...</p>
+      </div>
+    )
+  }
 
   if (!template) {
     notFound()
   }
-
-  const exampleData = templateExampleData[template.id] || []
-  const rating = templateRatings[template.id] || 4.5
-  const useCount = templateUseCounts[template.id] || 0
-  const exampleFields = exampleData.length > 0 ? Object.keys(exampleData[0]) : []
 
   const curlCommand = `curl -X POST https://scraper.bot/api/flows \\
   -H "Authorization: Bearer scr_live_YOUR_API_KEY" \\
@@ -103,10 +159,10 @@ export default function TemplateDetailPage({ params }: { params: Promise<{ id: s
       <div className="space-y-4">
         <div className="flex flex-wrap items-center gap-2">
           <Badge className={cn("text-xs", categoryColors[template.category] || "")}>
-            {template.category}
+            {categoryLabels[template.category] || template.category}
           </Badge>
-          <Badge variant="outline" className={cn("text-xs capitalize", modeColors[template.mode] || "")}>
-            {template.mode}
+          <Badge variant="outline" className={cn("text-xs capitalize", difficultyColors[template.difficulty] || "")}>
+            {template.difficulty}
           </Badge>
           <div className="flex items-center gap-1 ml-2">
             {[1, 2, 3, 4, 5].map((i) => (
@@ -114,17 +170,17 @@ export default function TemplateDetailPage({ params }: { params: Promise<{ id: s
                 key={i}
                 className={cn(
                   "size-4",
-                  i <= Math.round(rating)
+                  i <= Math.round(template.rating)
                     ? "fill-amber-400 text-amber-400"
                     : "text-zinc-300 dark:text-zinc-600"
                 )}
               />
             ))}
-            <span className="text-sm font-medium ml-1">{rating}</span>
+            <span className="text-sm font-medium ml-1">{template.rating}</span>
           </div>
           <div className="flex items-center gap-1 text-sm text-muted-foreground ml-2">
             <Download className="size-3.5" />
-            {formatUseCount(useCount)} uses
+            {formatUseCount(template.useCount)} uses
           </div>
         </div>
         <h1 className="font-serif text-3xl font-bold tracking-tight">{template.name}</h1>
@@ -136,19 +192,13 @@ export default function TemplateDetailPage({ params }: { params: Promise<{ id: s
       {template.url && (
         <Card>
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Target URL</CardTitle>
+            <CardTitle className="text-sm font-medium">URL Pattern</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
             <div className="flex items-center gap-3">
               <code className="bg-muted flex-1 rounded-md px-3 py-2 text-sm font-mono truncate">
                 {template.url}
               </code>
-              <Button variant="outline" size="sm" className="gap-1.5 shrink-0" asChild>
-                <a href={template.url} target="_blank" rel="noopener noreferrer">
-                  Visit Site
-                  <ExternalLink className="size-3.5" />
-                </a>
-              </Button>
             </div>
           </CardContent>
         </Card>
@@ -260,36 +310,6 @@ export default function TemplateDetailPage({ params }: { params: Promise<{ id: s
           </Table>
         </CardContent>
       </Card>
-
-      {exampleData.length > 0 && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Example Output</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0 overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  {exampleFields.map((field) => (
-                    <TableHead key={field} className="h-8 text-xs whitespace-nowrap">{field}</TableHead>
-                  ))}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {exampleData.map((row, i) => (
-                  <TableRow key={i}>
-                    {exampleFields.map((field) => (
-                      <TableCell key={field} className="py-2 text-sm whitespace-nowrap max-w-[250px] truncate">
-                        {row[field]}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      )}
 
       <Card>
         <CardHeader className="pb-3">

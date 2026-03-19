@@ -326,3 +326,27 @@ INSERT INTO flows (name, description, url, mode, status, steps, output_schema, s
   ('GitHub Trending', 'Track trending repos', 'https://github.com/trending', 'extract', 'active',
    '[{"id":"s1","type":"navigate","label":"Go to Trending"},{"id":"s2","type":"extract","label":"Extract repos","extractionRules":[{"field":"name","selector":"h2.h3.lh-condensed a","transform":"text"},{"field":"description","selector":"p.col-9","transform":"text"}]}]'::jsonb,
    '{"name":"string","description":"string"}'::jsonb, 99.5, 680, 4500);
+
+-- ============================================
+-- Seed data (templates)
+-- ============================================
+
+INSERT INTO templates (name, description, category, url_pattern, difficulty, rating, use_count, is_featured, steps, output_schema) VALUES
+  ('E-commerce Product Scraper', 'Extract product names, prices, images, and ratings from any e-commerce product listing page', 'e-commerce', 'https://*.com/products/*', 'beginner', 4.8, 1250, true,
+   '[{"id":"s1","type":"navigate","label":"Go to product page"},{"id":"s2","type":"wait","label":"Wait for products"},{"id":"s3","type":"extract","label":"Extract products","extractionRules":[{"field":"name","selector":"h2 a, .product-title","transform":"text"},{"field":"price","selector":".price, [data-price]","transform":"text"},{"field":"image","selector":"img.product-image, .product img","transform":"url"}]}]'::jsonb,
+   '{"name":"string","price":"string","image":"string"}'::jsonb),
+  ('News Article Extractor', 'Extract headlines, summaries, authors, and dates from news sites', 'news', 'https://*.com/news/*', 'beginner', 4.6, 890, true,
+   '[{"id":"s1","type":"navigate","label":"Go to news page"},{"id":"s2","type":"extract","label":"Extract articles","extractionRules":[{"field":"headline","selector":"h1, h2, .headline","transform":"text"},{"field":"summary","selector":".summary, .excerpt, p:first-of-type","transform":"text"},{"field":"author","selector":".author, [rel=author]","transform":"text"}]}]'::jsonb,
+   '{"headline":"string","summary":"string","author":"string"}'::jsonb),
+  ('Job Listing Scraper', 'Extract job titles, companies, locations, and salaries from job boards', 'jobs', 'https://*.com/jobs/*', 'intermediate', 4.7, 720, true,
+   '[{"id":"s1","type":"navigate","label":"Go to job listings"},{"id":"s2","type":"extract","label":"Extract jobs","extractionRules":[{"field":"title","selector":".job-title, h2 a","transform":"text"},{"field":"company","selector":".company, .employer","transform":"text"},{"field":"location","selector":".location","transform":"text"},{"field":"salary","selector":".salary","transform":"text"}]}]'::jsonb,
+   '{"title":"string","company":"string","location":"string","salary":"string"}'::jsonb),
+  ('Social Media Profile Scraper', 'Extract profile information, follower counts, and recent posts', 'social', 'https://*.com/profile/*', 'advanced', 4.3, 450, false,
+   '[{"id":"s1","type":"navigate","label":"Go to profile"},{"id":"s2","type":"wait","label":"Wait for content"},{"id":"s3","type":"scroll","label":"Load more posts"},{"id":"s4","type":"extract","label":"Extract profile","extractionRules":[{"field":"name","selector":"h1, .profile-name","transform":"text"},{"field":"bio","selector":".bio, .description","transform":"text"},{"field":"followers","selector":".followers-count","transform":"text"}]}]'::jsonb,
+   '{"name":"string","bio":"string","followers":"string"}'::jsonb),
+  ('Real Estate Listing Monitor', 'Monitor property listings for price changes and new listings', 'real-estate', 'https://*.com/listings/*', 'intermediate', 4.5, 380, true,
+   '[{"id":"s1","type":"navigate","label":"Go to listings"},{"id":"s2","type":"extract","label":"Extract properties","extractionRules":[{"field":"address","selector":".address, .property-address","transform":"text"},{"field":"price","selector":".price, .listing-price","transform":"text"},{"field":"beds","selector":".beds, .bedrooms","transform":"text"},{"field":"sqft","selector":".sqft, .square-feet","transform":"text"}]}]'::jsonb,
+   '{"address":"string","price":"string","beds":"string","sqft":"string"}'::jsonb),
+  ('Restaurant Menu Scraper', 'Extract menu items, prices, and descriptions from restaurant websites', 'food', 'https://*.com/menu/*', 'beginner', 4.4, 290, false,
+   '[{"id":"s1","type":"navigate","label":"Go to menu page"},{"id":"s2","type":"extract","label":"Extract menu","extractionRules":[{"field":"item","selector":".menu-item, .dish-name","transform":"text"},{"field":"price","selector":".menu-price, .dish-price","transform":"text"},{"field":"description","selector":".menu-description, .dish-desc","transform":"text"}]}]'::jsonb,
+   '{"item":"string","price":"string","description":"string"}'::jsonb);

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { toast } from "sonner"
@@ -24,8 +24,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
-import { mockTemplates } from "@/lib/mock-data"
-import type { FlowMode } from "@/lib/types"
+import type { FlowMode, FlowStep } from "@/lib/types"
 import { HelpTooltip } from "@/components/dashboard/help-tooltip"
 
 const modeTooltips: Record<string, string> = {
@@ -64,6 +63,28 @@ const modeOptions = [
   },
 ]
 
+interface TemplateItem {
+  id: string
+  name: string
+  description: string
+  category: string
+  url: string
+  steps: FlowStep[]
+  outputSchema: Record<string, unknown>
+}
+
+function mapDbTemplate(row: Record<string, unknown>): TemplateItem {
+  return {
+    id: row.id as string,
+    name: row.name as string,
+    description: (row.description as string) || "",
+    category: row.category as string,
+    url: (row.url_pattern as string) || "",
+    steps: (row.steps as FlowStep[]) || [],
+    outputSchema: (row.output_schema as Record<string, unknown>) || {},
+  }
+}
+
 export default function NewFlowPage() {
   const router = useRouter()
   const [step, setStep] = useState(1)
@@ -71,10 +92,19 @@ export default function NewFlowPage() {
   const [url, setUrl] = useState("")
   const [prompt, setPrompt] = useState("")
   const [generating, setGenerating] = useState(false)
+  const [templates, setTemplates] = useState<TemplateItem[]>([])
 
-  const filteredTemplates = mockTemplates.filter(
-    (t) => !selectedMode || t.mode === selectedMode
-  )
+  useEffect(() => {
+    fetch("/api/templates")
+      .then((res) => res.json())
+      .then((json) => {
+        const rows = json.data || []
+        setTemplates(rows.map(mapDbTemplate))
+      })
+      .catch(() => setTemplates([]))
+  }, [])
+
+  const filteredTemplates = templates
 
   async function handleGenerate() {
     if (!selectedMode) {
@@ -128,7 +158,7 @@ export default function NewFlowPage() {
         body: JSON.stringify({
           name: template?.name || "New Flow",
           url: template?.url || url || "https://example.com",
-          mode: template?.mode || selectedMode || "extract",
+          mode: selectedMode || "extract",
           description: template?.description || "",
           status: "draft",
           steps: template?.steps || [],
@@ -415,9 +445,6 @@ export default function NewFlowPage() {
                   <div className="flex items-center justify-between">
                     <Badge variant="secondary" className="text-xs">
                       {template.category}
-                    </Badge>
-                    <Badge variant="outline" className="text-xs">
-                      {template.mode}
                     </Badge>
                   </div>
                   <div>

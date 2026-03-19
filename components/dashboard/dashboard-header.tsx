@@ -46,6 +46,7 @@ const routeLabels: Record<string, string> = {
   "workflow-builder": "Workflow Builder",
   integrations: "Integrations",
   customize: "Customize",
+  recorder: "Record",
 }
 
 export function DashboardHeader() {

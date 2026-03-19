@@ -7,6 +7,7 @@ import {
   Activity,
   Bell,
   BookOpen,
+  CircleDot,
   Code,
   FileText,
   Key,
@@ -101,6 +102,10 @@ export function CommandPalette({ onOpenShortcuts }: CommandPaletteProps) {
         <CommandSeparator />
 
         <CommandGroup heading="Actions">
+          <CommandItem onSelect={() => runCommand(() => router.push("/recorder"))}>
+            <CircleDot />
+            <span>Record a Flow</span>
+          </CommandItem>
           <CommandItem onSelect={() => runCommand(() => router.push("/flows/new"))}>
             <Plus />
             <span>Create New Flow</span>
