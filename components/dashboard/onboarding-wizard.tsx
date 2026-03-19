@@ -6,9 +6,8 @@ import {
   ArrowLeft,
   ArrowRight,
   CheckCircle2,
-  Database,
-  Eye,
-  MousePointer,
+  Sparkles,
+  Video,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -18,38 +17,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
 
 const STORAGE_KEY = "scraper_onboarding_complete"
 const TOTAL_STEPS = 4
 
-const flowTypes = [
-  {
-    id: "extract",
-    label: "Extract Data",
-    description: "Pull structured data from any website",
-    icon: Database,
-  },
-  {
-    id: "automate",
-    label: "Automate Actions",
-    description: "Fill forms, click buttons, navigate pages",
-    icon: MousePointer,
-  },
-  {
-    id: "monitor",
-    label: "Monitor Changes",
-    description: "Watch for price drops, new listings, content updates",
-    icon: Eye,
-  },
-]
-
 export function OnboardingWizard() {
   const [open, setOpen] = useState(false)
   const [step, setStep] = useState(1)
-  const [selectedFlow, setSelectedFlow] = useState<string | null>(null)
-  const [url, setUrl] = useState("")
 
   useEffect(() => {
     const completed = localStorage.getItem(STORAGE_KEY)
@@ -86,10 +60,10 @@ export function OnboardingWizard() {
             <>
               <DialogHeader className="mb-6">
                 <DialogTitle className="font-serif text-2xl">
-                  Welcome to Scraper.bot!
+                  Welcome to Scraper.bot
                 </DialogTitle>
                 <DialogDescription>
-                  Let&apos;s get you set up in under 2 minutes.
+                  Let&apos;s extract your first data. You&apos;ll be up and running in under 60 seconds.
                 </DialogDescription>
               </DialogHeader>
               <div className="flex items-center justify-center rounded-lg border bg-muted/50 py-12">
@@ -113,65 +87,22 @@ export function OnboardingWizard() {
             <>
               <DialogHeader className="mb-6">
                 <DialogTitle className="font-serif text-2xl">
-                  Record Your First Flow
+                  Try the Playground
                 </DialogTitle>
                 <DialogDescription>
-                  Point and click on any website to build a scraping flow. What would you like to do?
+                  Paste a URL and see structured data instantly. No setup required.
                 </DialogDescription>
               </DialogHeader>
-              <div className="space-y-3">
-                {flowTypes.map((type) => (
-                  <button
-                    key={type.id}
-                    type="button"
-                    className={cn(
-                      "flex w-full items-start gap-4 rounded-lg border p-4 text-left transition-colors hover:bg-muted/50",
-                      selectedFlow === type.id && "border-foreground bg-muted ring-1 ring-foreground/25"
-                    )}
-                    onClick={() => setSelectedFlow(type.id)}
-                  >
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-muted">
-                      <type.icon className="size-5 text-muted-foreground" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold">{type.label}</p>
-                      <p className="text-sm text-muted-foreground">{type.description}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-              <div className="mt-6 flex justify-between">
-                <Button variant="outline" onClick={back}>
-                  <ArrowLeft className="mr-1.5 size-4" />
-                  Back
-                </Button>
-                <Button onClick={next} disabled={!selectedFlow}>
-                  Next
-                  <ArrowRight className="ml-1.5 size-4" />
-                </Button>
-              </div>
-            </>
-          )}
-
-          {step === 3 && (
-            <>
-              <DialogHeader className="mb-6">
-                <DialogTitle className="font-serif text-2xl">
-                  Enter a URL
-                </DialogTitle>
-                <DialogDescription>
-                  Enter a URL to get started
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <Input
-                  placeholder="https://example.com/products"
-                  value={url}
-                  onChange={(e) => setUrl(e.target.value)}
-                />
-                <p className="text-sm text-muted-foreground">
-                  We&apos;ll analyze the page and suggest an extraction strategy.
-                </p>
+              <div className="flex items-center justify-center rounded-lg border bg-muted/50 py-10">
+                <div className="text-center space-y-3">
+                  <div className="mx-auto flex size-14 items-center justify-center rounded-xl bg-blue-600/10">
+                    <Sparkles className="size-7 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Instant extraction</p>
+                    <p className="text-xs text-muted-foreground mt-1">Paste any URL, get structured JSON back</p>
+                  </div>
+                </div>
               </div>
               <div className="mt-6 flex items-center justify-between">
                 <Button variant="outline" onClick={back}>
@@ -184,12 +115,59 @@ export function OnboardingWizard() {
                     className="text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
                     onClick={next}
                   >
-                    Skip for now
+                    Skip
                   </button>
-                  <Button onClick={next}>
-                    Next
-                    <ArrowRight className="ml-1.5 size-4" />
-                  </Button>
+                  <Link href="/playground" onClick={completeOnboarding}>
+                    <Button className="gap-1.5">
+                      <Sparkles className="size-4" />
+                      Open Playground
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </>
+          )}
+
+          {step === 3 && (
+            <>
+              <DialogHeader className="mb-6">
+                <DialogTitle className="font-serif text-2xl">
+                  Record a Flow
+                </DialogTitle>
+                <DialogDescription>
+                  Point and click to build a reusable scraping flow. Runs on a schedule or via API.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="flex items-center justify-center rounded-lg border bg-muted/50 py-10">
+                <div className="text-center space-y-3">
+                  <div className="mx-auto flex size-14 items-center justify-center rounded-xl bg-blue-600/10">
+                    <Video className="size-7 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Visual flow builder</p>
+                    <p className="text-xs text-muted-foreground mt-1">Click through a site to record extraction steps</p>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-6 flex items-center justify-between">
+                <Button variant="outline" onClick={back}>
+                  <ArrowLeft className="mr-1.5 size-4" />
+                  Back
+                </Button>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    className="text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+                    onClick={next}
+                  >
+                    Skip
+                  </button>
+                  <Link href="/recorder" onClick={completeOnboarding}>
+                    <Button className="gap-1.5">
+                      <Video className="size-4" />
+                      Start Recording
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </>
@@ -202,35 +180,35 @@ export function OnboardingWizard() {
                   <CheckCircle2 className="size-6 text-emerald-600" />
                 </div>
                 <DialogTitle className="font-serif text-2xl text-center">
-                  You&apos;re All Set!
+                  You&apos;re Ready
                 </DialogTitle>
                 <DialogDescription className="text-center">
-                  You&apos;re ready to go!
+                  Explore your dashboard, create API keys, and start automating.
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-2">
                 <Link
-                  href="/recorder"
+                  href="/playground"
                   className="flex items-center justify-between rounded-lg border border-blue-600 bg-blue-600/5 p-3 text-sm font-medium hover:bg-blue-600/10 transition-colors"
+                  onClick={completeOnboarding}
+                >
+                  Try the Playground
+                  <ArrowRight className="size-4 text-muted-foreground" />
+                </Link>
+                <Link
+                  href="/recorder"
+                  className="flex items-center justify-between rounded-lg border p-3 text-sm font-medium hover:bg-muted/50 transition-colors"
                   onClick={completeOnboarding}
                 >
                   Record a Flow
                   <ArrowRight className="size-4 text-muted-foreground" />
                 </Link>
                 <Link
-                  href="/templates"
+                  href="/api-keys"
                   className="flex items-center justify-between rounded-lg border p-3 text-sm font-medium hover:bg-muted/50 transition-colors"
                   onClick={completeOnboarding}
                 >
-                  Browse Templates
-                  <ArrowRight className="size-4 text-muted-foreground" />
-                </Link>
-                <Link
-                  href="/docs"
-                  className="flex items-center justify-between rounded-lg border p-3 text-sm font-medium hover:bg-muted/50 transition-colors"
-                  onClick={completeOnboarding}
-                >
-                  Read Docs
+                  Create an API Key
                   <ArrowRight className="size-4 text-muted-foreground" />
                 </Link>
               </div>

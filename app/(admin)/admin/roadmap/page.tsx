@@ -173,6 +173,7 @@ const phases: Phase[] = [
       { name: "Middleware auth via @supabase/ssr (cookie-based)", done: true },
       { name: "SSRF URL validation on scraping endpoints", done: true },
       { name: "Playwright script injection prevention (JSON.stringify)", done: true },
+      { name: "Flow scheduling (Vercel Cron)", done: true },
       { name: "API pagination on all list endpoints", done: true },
       { name: "Cache-Control headers on GET endpoints", done: true },
       { name: "Zod input validation on POST/PATCH API routes", done: true },
@@ -254,7 +255,7 @@ const phases: Phase[] = [
     number: 8,
     name: "Browser Recorder",
     status: "IN PROGRESS" as PhaseStatus,
-    completion: 70,
+    completion: 75,
     eta: "Apr 10",
     deliverables: [
       { name: "Recorder engine (Browserless script builder + element map)", done: true },
@@ -268,8 +269,8 @@ const phases: Phase[] = [
       { name: "Multi-page navigation recording", done: false },
       { name: "Selector refinement with AI suggestions", done: false },
       { name: "Recording playback/preview", done: false },
-      { name: "Playground → Save as Flow conversion", done: false },
-      { name: "Run results CSV/JSON export", done: false },
+      { name: "Playground → Save as Flow conversion", done: true },
+      { name: "Run results CSV/JSON export", done: true },
     ],
   },
 ]

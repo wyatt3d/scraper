@@ -17,6 +17,7 @@ import {
   Layers,
   Pause,
   Play,
+  Sparkles,
   TrendingUp,
   Video,
   XCircle,
@@ -510,6 +511,31 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
+      {flows.length === 0 ? (
+        <Card className="border-dashed border-2">
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <Sparkles className="size-10 text-muted-foreground/30 mb-4" />
+            <h3 className="font-semibold text-lg mb-2">No flows yet</h3>
+            <p className="text-sm text-muted-foreground mb-4 text-center max-w-md">
+              Start by trying the Playground for instant extraction, or Record a flow to build something reusable.
+            </p>
+            <div className="flex gap-3">
+              <Link href="/playground">
+                <Button variant="outline" className="gap-1.5">
+                  <Sparkles className="size-4" />
+                  Try Playground
+                </Button>
+              </Link>
+              <Link href="/recorder">
+                <Button className="gap-1.5">
+                  <Video className="size-4" />
+                  Record a Flow
+                </Button>
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
       <Card>
         <CardHeader>
           <CardTitle>Active Flows</CardTitle>
@@ -577,6 +603,7 @@ export default function DashboardPage() {
           )}
         </CardContent>
       </Card>
+      )}
     </div>
   )
 }
