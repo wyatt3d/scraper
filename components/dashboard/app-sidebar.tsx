@@ -81,8 +81,7 @@ export function AppSidebar() {
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="inline-flex items-baseline">
                     <span className="font-serif text-base font-semibold">Scraper</span>
-                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 inline-block mx-px mb-0.5" />
-                    <span className="font-serif text-base font-semibold text-blue-600">bot</span>
+                    <span className="font-serif text-base font-semibold text-blue-600">.bot</span>
                   </span>
                   <span className="text-muted-foreground text-xs">Web Automation</span>
                 </div>
