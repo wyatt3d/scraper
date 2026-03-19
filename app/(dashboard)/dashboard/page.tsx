@@ -130,7 +130,7 @@ function severityClasses(severity: string) {
     case "warning":
       return "border-amber-500/30 bg-amber-500/5"
     case "info":
-      return "border-blue-500/30 bg-blue-500/5"
+      return "border-border bg-muted/50"
     default:
       return ""
   }
@@ -143,7 +143,7 @@ function severityIcon(severity: string) {
     case "warning":
       return <AlertTriangle className="size-4 text-amber-500" />
     case "info":
-      return <Bell className="size-4 text-blue-500" />
+      return <Bell className="size-4 text-muted-foreground" />
     default:
       return <Bell className="size-4 text-muted-foreground" />
   }

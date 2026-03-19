@@ -100,7 +100,7 @@ export default function StatusPage() {
           </h1>
         </header>
 
-        <div className="mb-8 rounded-lg border border-blue-500/30 bg-blue-500/5 p-4 text-sm text-muted-foreground">
+        <div className="mb-8 rounded-lg border border-border bg-muted/50 p-4 text-sm text-muted-foreground">
           This status page will be live at launch. The data shown below is for demonstration purposes only.
         </div>
 

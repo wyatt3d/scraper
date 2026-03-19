@@ -126,7 +126,7 @@ export function OnboardingWizard() {
                     type="button"
                     className={cn(
                       "flex w-full items-start gap-4 rounded-lg border p-4 text-left transition-colors hover:bg-muted/50",
-                      selectedFlow === type.id && "border-blue-600 bg-blue-500/5 ring-1 ring-blue-600/25"
+                      selectedFlow === type.id && "border-foreground bg-muted ring-1 ring-foreground/25"
                     )}
                     onClick={() => setSelectedFlow(type.id)}
                   >

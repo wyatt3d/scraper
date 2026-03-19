@@ -110,7 +110,7 @@ function formatDuration(ms: number): string {
 }
 
 const modeConfig: Record<FlowMode, { label: string; icon: typeof FileText; color: string }> = {
-  extract: { label: "Extract", icon: FileText, color: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-300" },
+  extract: { label: "Extract", icon: FileText, color: "bg-muted text-foreground" },
   interact: { label: "Interact", icon: MousePointerClick, color: "bg-purple-100 text-purple-700 dark:bg-purple-950 dark:text-purple-300" },
   monitor: { label: "Monitor", icon: Eye, color: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-300" },
 }

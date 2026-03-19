@@ -170,15 +170,15 @@ export default function LandingPage() {
             {/* Trust badges */}
             <div className="flex flex-wrap items-center justify-center gap-8 mt-10 text-muted-foreground text-sm">
               <div className="flex items-center space-x-2">
-                <CheckCircle className="w-4 h-4 text-blue-600" />
+                <CheckCircle className="w-4 h-4 text-emerald-600" />
                 <span>No credit card required</span>
               </div>
               <div className="flex items-center space-x-2">
-                <CheckCircle className="w-4 h-4 text-blue-600" />
+                <CheckCircle className="w-4 h-4 text-emerald-600" />
                 <span>Free tier available</span>
               </div>
               <div className="flex items-center space-x-2">
-                <Shield className="w-4 h-4 text-blue-600" />
+                <Shield className="w-4 h-4 text-emerald-600" />
                 <span>SOC 2 Compliant</span>
               </div>
             </div>
@@ -223,12 +223,12 @@ export default function LandingPage() {
               },
             ].map((item) => (
               <Card key={item.step} className="animate-slide-up border-border text-center relative pt-12">
-                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center font-serif font-black text-xl shadow-lg">
+                <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-foreground text-background flex items-center justify-center font-serif font-black text-xl shadow-lg">
                   {item.step}
                 </div>
                 <CardHeader>
                   <div className="flex justify-center mb-4">
-                    <item.icon className="w-8 h-8 text-blue-600" />
+                    <item.icon className="w-8 h-8 text-muted-foreground" />
                   </div>
                   <CardTitle className="font-serif font-bold text-xl">{item.title}</CardTitle>
                   <CardDescription className="text-base">{item.description}</CardDescription>
@@ -296,8 +296,8 @@ export default function LandingPage() {
             ].map((feature) => (
               <Card key={feature.title} className="border-border hover:shadow-lg transition-shadow">
                 <CardHeader>
-                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-950 rounded-lg flex items-center justify-center mb-4">
-                    <feature.icon className="w-6 h-6 text-blue-600" />
+                  <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center mb-4">
+                    <feature.icon className="w-6 h-6 text-foreground" />
                   </div>
                   <CardTitle className="font-serif font-bold text-lg">{feature.title}</CardTitle>
                   <CardDescription>{feature.description}</CardDescription>
@@ -398,7 +398,7 @@ export default function LandingPage() {
                 <ul className="space-y-3 mb-8">
                   {["100 runs/month", "3 flows", "Community support", "REST API access", "7-day data retention"].map((f) => (
                     <li key={f} className="flex items-center space-x-3">
-                      <CheckCircle className="w-5 h-5 text-blue-600 shrink-0" />
+                      <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
                       <span>{f}</span>
                     </li>
                   ))}
@@ -435,7 +435,7 @@ export default function LandingPage() {
                     "Webhooks & SDKs",
                   ].map((f) => (
                     <li key={f} className="flex items-center space-x-3">
-                      <CheckCircle className="w-5 h-5 text-blue-600 shrink-0" />
+                      <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
                       <span>{f}</span>
                     </li>
                   ))}
@@ -468,7 +468,7 @@ export default function LandingPage() {
                     "SSO & audit logs",
                   ].map((f) => (
                     <li key={f} className="flex items-center space-x-3">
-                      <CheckCircle className="w-5 h-5 text-blue-600 shrink-0" />
+                      <CheckCircle className="w-5 h-5 text-emerald-600 shrink-0" />
                       <span>{f}</span>
                     </li>
                   ))}
@@ -597,7 +597,7 @@ export default function LandingPage() {
           <h2 className="font-serif font-black text-3xl md:text-5xl text-balance mb-6 text-white">
             Ready to Automate the Web?
           </h2>
-          <p className="text-xl text-blue-100 text-balance max-w-2xl mx-auto mb-10">
+          <p className="text-xl text-white/80 text-balance max-w-2xl mx-auto mb-10">
             Replace fragile scrapers with reliable, AI-generated APIs. Get started in minutes.
           </p>
           <Link href="/sign-up">

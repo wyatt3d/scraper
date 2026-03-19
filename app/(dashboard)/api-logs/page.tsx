@@ -372,8 +372,8 @@ export default function ApiLogsPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="flex items-center gap-3 py-4">
-            <div className="flex size-10 items-center justify-center rounded-lg bg-blue-500/10">
-              <Activity className="size-5 text-blue-600" />
+            <div className="flex size-10 items-center justify-center rounded-lg bg-muted">
+              <Activity className="size-5 text-foreground" />
             </div>
             <div>
               <p className="text-2xl font-bold font-serif">1,247</p>

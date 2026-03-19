@@ -18,7 +18,7 @@ import {
 } from "lucide-react"
 
 const stats = [
-  { label: "Total Routes", value: "54", icon: Route, color: "text-blue-500" },
+  { label: "Total Routes", value: "54", icon: Route, color: "text-foreground" },
   { label: "Total Files", value: "200+", icon: FolderOpen, color: "text-violet-500" },
   { label: "Lines of Code", value: "32,000+", icon: Code2, color: "text-amber-500" },
   { label: "Build Status", value: "Clean", icon: CheckCircle2, color: "text-emerald-500", badge: true },
@@ -125,7 +125,7 @@ export default function AdminOverview() {
             <Link key={link.href} href={link.href}>
               <Card className="h-full border hover:shadow-md transition-shadow cursor-pointer">
                 <CardContent className="pt-0">
-                  <link.icon className="size-5 text-blue-500 mb-3" />
+                  <link.icon className="size-5 text-muted-foreground mb-3" />
                   <div className="text-sm font-semibold mb-1">{link.label}</div>
                   <div className="text-xs text-muted-foreground leading-relaxed">
                     {link.description}
@@ -144,7 +144,7 @@ export default function AdminOverview() {
           <div className="space-y-5">
             {recentCommits.map((commit, i) => (
               <div key={i} className="relative">
-                <div className="absolute -left-[17px] top-1.5 size-2 rounded-full bg-blue-500" />
+                <div className="absolute -left-[17px] top-1.5 size-2 rounded-full bg-foreground" />
                 <div className="text-sm">{commit.message}</div>
                 <div className="text-xs text-muted-foreground mt-0.5">{commit.time}</div>
               </div>

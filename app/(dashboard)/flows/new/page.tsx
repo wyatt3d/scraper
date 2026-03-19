@@ -38,8 +38,8 @@ const modeOptions = [
     label: "Extract",
     description: "Scrape structured data from web pages. Extract text, prices, listings, and more into clean JSON.",
     icon: FileText,
-    color: "border-blue-500 bg-blue-50 dark:bg-blue-950/50",
-    iconColor: "text-blue-600",
+    color: "border-border bg-muted",
+    iconColor: "text-foreground",
     examples: ["Product listings", "Job postings", "Contact info"],
   },
   {
@@ -154,9 +154,9 @@ export default function NewFlowPage() {
               className={cn(
                 "flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors",
                 step === s
-                  ? "bg-blue-600 text-white"
+                  ? "bg-foreground text-background"
                   : step > s
-                    ? "bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-300"
+                    ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-300"
                     : "bg-muted text-muted-foreground"
               )}
             >
@@ -308,9 +308,9 @@ export default function NewFlowPage() {
           </div>
 
           {generating && (
-            <Card className="border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/50">
+            <Card className="border-border bg-muted">
               <CardContent className="flex items-center gap-4 p-4">
-                <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">Analyzing page and generating flow...</p>
                   <p className="text-muted-foreground text-xs mt-0.5">
@@ -338,12 +338,12 @@ export default function NewFlowPage() {
 
           <div className="grid gap-4 sm:grid-cols-2">
             <Card
-              className="cursor-pointer border-2 border-dashed transition-all hover:border-blue-500 hover:shadow-md"
+              className="cursor-pointer border-2 border-dashed transition-all hover:border-foreground hover:shadow-md"
               onClick={handleGenerate}
             >
               <CardContent className="flex flex-col items-center justify-center gap-3 p-8 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950">
-                  <Zap className="h-6 w-6 text-blue-600" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-muted">
+                  <Zap className="h-6 w-6 text-foreground" />
                 </div>
                 <div>
                   <h3 className="font-[family-name:var(--font-crimson-text)] text-lg font-semibold">
@@ -396,9 +396,9 @@ export default function NewFlowPage() {
           </div>
 
           {generating && (
-            <Card className="border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/50">
+            <Card className="border-border bg-muted">
               <CardContent className="flex items-center gap-4 p-4">
-                <Loader2 className="h-5 w-5 animate-spin text-blue-600" />
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                 <div>
                   <p className="text-sm font-medium">Setting up your flow...</p>
                   <p className="text-muted-foreground text-xs mt-0.5">

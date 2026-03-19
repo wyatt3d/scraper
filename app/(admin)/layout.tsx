@@ -128,7 +128,7 @@ function TopBar() {
           <SheetContent side="left" className="w-60 bg-card border-border p-0">
             <SheetHeader className="border-b border-border px-4 py-3">
               <SheetTitle className="flex items-center gap-2 text-foreground">
-                <Bot className="size-5 text-blue-500" />
+                <Bot className="size-5 text-foreground" />
                 <span className="font-serif text-lg font-semibold">Admin</span>
               </SheetTitle>
             </SheetHeader>
@@ -136,7 +136,7 @@ function TopBar() {
           </SheetContent>
         </Sheet>
         <Link href="/admin" className="flex items-center gap-2">
-          <Bot className="size-5 text-blue-500" />
+          <Bot className="size-5 text-foreground" />
           <span className="font-serif text-lg font-semibold text-foreground">
             Scraper.bot <span className="text-xs font-sans font-normal text-muted-foreground">Admin</span>
           </span>
@@ -160,7 +160,7 @@ function Sidebar() {
   return (
     <aside className="hidden lg:flex lg:w-60 lg:flex-col lg:fixed lg:inset-y-14 lg:left-0 lg:border-r lg:border-border lg:bg-card">
       <div className="flex items-center gap-2 border-b border-border px-6 py-4">
-        <Bot className="size-5 text-blue-500" />
+        <Bot className="size-5 text-foreground" />
         <span className="font-serif text-base font-semibold text-foreground">Admin</span>
       </div>
       <div className="flex-1 overflow-y-auto">

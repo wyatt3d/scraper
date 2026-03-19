@@ -80,7 +80,7 @@ function severityBorderColor(severity: string) {
     case "warning":
       return "border-l-amber-500"
     case "info":
-      return "border-l-blue-500"
+      return "border-l-muted-foreground"
     default:
       return ""
   }
@@ -93,7 +93,7 @@ function severityBgColor(severity: string) {
     case "warning":
       return "bg-amber-500/5"
     case "info":
-      return "bg-blue-500/5"
+      return "bg-muted/50"
     default:
       return ""
   }
@@ -106,7 +106,7 @@ function severityIcon(severity: string) {
     case "warning":
       return <AlertTriangle className="size-4 text-amber-500" />
     case "info":
-      return <Bell className="size-4 text-blue-500" />
+      return <Bell className="size-4 text-muted-foreground" />
     default:
       return <Bell className="size-4 text-muted-foreground" />
   }
@@ -116,7 +116,7 @@ function alertTypeBadge(type: MonitorAlert["type"]) {
   switch (type) {
     case "change_detected":
       return (
-        <Badge className="bg-blue-500/15 text-blue-600 border-blue-500/25 dark:text-blue-400">
+        <Badge className="bg-muted text-muted-foreground border-border">
           Change Detected
         </Badge>
       )
@@ -298,7 +298,7 @@ export default function MonitoringPage() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center gap-2">
-              <Clock className="size-5 text-blue-500" />
+              <Clock className="size-5 text-muted-foreground" />
               <span className="text-2xl font-bold">
                 {rules.filter((r) => r.enabled).length}
               </span>

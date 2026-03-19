@@ -99,13 +99,13 @@ export default function ExtensionPage() {
                       key={name}
                       className={`rounded-lg border p-4 text-left ${
                         i === 1
-                          ? "border-blue-500 bg-blue-500/10 ring-2 ring-blue-500/30"
+                          ? "border-emerald-500 bg-emerald-500/10 ring-2 ring-emerald-500/30"
                           : "border-zinc-700 bg-zinc-800/50"
                       }`}
                     >
                       <div className="h-16 rounded bg-zinc-700 mb-3" />
                       <p className="text-zinc-300 text-sm font-medium">{name}</p>
-                      <p className="text-blue-400 text-sm font-mono mt-1">$29.99</p>
+                      <p className="text-emerald-400 text-sm font-mono mt-1">$29.99</p>
                     </div>
                   ))}
                 </div>
@@ -224,8 +224,8 @@ export default function ExtensionPage() {
             ].map((feature) => (
               <Card key={feature.title} className="border-border hover:shadow-lg transition-shadow">
                 <CardHeader>
-                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-950 rounded-lg flex items-center justify-center mb-4">
-                    <feature.icon className="w-6 h-6 text-blue-600" />
+                  <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center mb-4">
+                    <feature.icon className="w-6 h-6 text-foreground" />
                   </div>
                   <CardTitle className="font-serif font-bold text-lg">{feature.title}</CardTitle>
                   <CardDescription className="text-base">{feature.description}</CardDescription>
@@ -247,7 +247,7 @@ export default function ExtensionPage() {
 
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {[
-              { caption: "Select elements visually", color: "from-blue-600/20 to-blue-400/10" },
+              { caption: "Select elements visually", color: "from-muted to-muted/50" },
               { caption: "See extracted data instantly", color: "from-emerald-600/20 to-emerald-400/10" },
               { caption: "Configure and schedule", color: "from-purple-600/20 to-purple-400/10" },
             ].map((screenshot) => (
@@ -297,7 +297,7 @@ export default function ExtensionPage() {
           <h2 className="font-serif font-black text-3xl md:text-5xl text-balance mb-6 text-white">
             Ready to Start Scraping from Your Browser?
           </h2>
-          <p className="text-xl text-blue-100 text-balance max-w-2xl mx-auto mb-10">
+          <p className="text-xl text-white/80 text-balance max-w-2xl mx-auto mb-10">
             Install the Scraper.bot extension and start extracting structured data in seconds.
           </p>
           <ExtensionButtons variant="cta" />

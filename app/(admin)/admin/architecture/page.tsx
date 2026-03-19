@@ -43,7 +43,7 @@ const services: ServiceCard[] = [
   {
     name: "Vercel",
     icon: Cloud,
-    color: "text-blue-500",
+    color: "text-foreground",
     description: "Hosting & Framework",
     details: [
       "Next.js 15 with App Router",
@@ -138,7 +138,7 @@ export default function ArchitecturePage() {
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
-            <Globe className="size-5 text-blue-500" />
+            <Globe className="size-5 text-foreground" />
             <CardTitle>Architecture Diagram</CardTitle>
           </div>
           <CardDescription>High-level system topology</CardDescription>

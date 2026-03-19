@@ -579,7 +579,7 @@ export function PricingContent() {
           <h2 className="font-serif font-black text-3xl md:text-5xl text-balance mb-6 text-white">
             Still have questions?
           </h2>
-          <p className="text-xl text-blue-100 text-balance max-w-2xl mx-auto mb-10">
+          <p className="text-xl text-white/80 text-balance max-w-2xl mx-auto mb-10">
             Our team is happy to walk you through the platform and help you find the right plan.
           </p>
           <Link href="/contact">

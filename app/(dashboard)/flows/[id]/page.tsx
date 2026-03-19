@@ -461,13 +461,13 @@ function StepsPanel({
         <button
           className={cn(
             "flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm transition-colors hover:bg-muted",
-            isSelected && "bg-blue-50 ring-1 ring-blue-200 dark:bg-blue-950/50 dark:ring-blue-800"
+            isSelected && "bg-muted ring-1 ring-border"
           )}
           style={{ paddingLeft: `${depth * 16 + 8}px` }}
           onClick={() => onSelectStep(step.id)}
         >
           <GripVertical className="h-3.5 w-3.5 text-muted-foreground/50 cursor-grab shrink-0" />
-          <div className={cn("flex h-6 w-6 items-center justify-center rounded shrink-0", isSelected ? "bg-blue-100 dark:bg-blue-900" : "bg-muted")}>
+          <div className={cn("flex h-6 w-6 items-center justify-center rounded shrink-0", isSelected ? "bg-muted-foreground/15" : "bg-muted")}>
             <Icon className={cn("h-3.5 w-3.5", config.color)} />
           </div>
           <div className="min-w-0 flex-1">

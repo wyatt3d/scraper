@@ -103,8 +103,8 @@ export default function ProxiesPage() {
         <Card>
           <CardContent className="pt-6">
             <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-lg bg-blue-500/10">
-                <Radio className="size-5 text-blue-600" />
+              <div className="flex size-10 items-center justify-center rounded-lg bg-muted">
+                <Radio className="size-5 text-foreground" />
               </div>
               <div>
                 <p className="text-2xl font-bold">2,847</p>

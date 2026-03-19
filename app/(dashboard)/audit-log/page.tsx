@@ -252,8 +252,8 @@ export default function AuditLogPage() {
                               <TableCell>
                                 <div className="flex items-center gap-2">
                                   {entry.actor !== "system" ? (
-                                    <div className="flex size-6 items-center justify-center rounded-full bg-blue-500/10">
-                                      <User className="size-3 text-blue-600" />
+                                    <div className="flex size-6 items-center justify-center rounded-full bg-muted">
+                                      <User className="size-3 text-foreground" />
                                     </div>
                                   ) : (
                                     <div className="flex size-6 items-center justify-center rounded-full bg-muted">

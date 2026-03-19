@@ -18,7 +18,7 @@ export function CTABanner({
   buttonHref = "/sign-up",
 }: CTABannerProps) {
   return (
-    <div className="my-12 rounded-xl border bg-gradient-to-r from-blue-600/10 to-blue-600/5 p-8 text-center">
+    <div className="my-12 rounded-xl border bg-muted/50 p-8 text-center">
       <h3 className="font-serif text-xl font-bold mb-2">{title}</h3>
       <p className="text-muted-foreground mb-4 max-w-md mx-auto">{description}</p>
       <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
