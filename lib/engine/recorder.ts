@@ -26,7 +26,13 @@ export function buildRecorderScript(actions: RecorderAction[]): string {
           return `
           // Replay action ${i + 1}: scroll
           try {
-            await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+            await page.evaluate((scrollValue) => {
+              if (scrollValue === "bottom") {
+                window.scrollTo(0, document.body.scrollHeight);
+              } else {
+                window.scrollBy(0, parseInt(scrollValue) || 500);
+              }
+            }, ${JSON.stringify(action.value || "500")});
             await page.waitForTimeout(1000);
           } catch {}
         `

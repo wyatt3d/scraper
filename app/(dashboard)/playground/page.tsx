@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Bot, Send, Sparkles, User, Loader2, Globe, Copy, Check, Monitor } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Bot, Send, Sparkles, User, Loader2, Globe, Copy, Check, Monitor, Save } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
@@ -9,6 +10,7 @@ import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 interface ChatMessage {
   id: string
@@ -28,6 +30,7 @@ interface ScrapeResponse {
 }
 
 export default function PlaygroundPage() {
+  const router = useRouter()
   const [useBrowser, setUseBrowser] = useState(false)
   const [url, setUrl] = useState("")
   const [inputValue, setInputValue] = useState("")
@@ -133,6 +136,31 @@ export default function PlaygroundPage() {
     navigator.clipboard.writeText(JSON.stringify(outputData, null, 2))
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const handleSaveAsFlow = async () => {
+    try {
+      const res = await fetch("/api/flows", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: `Flow from ${new URL(url).hostname}`,
+          description: `Auto-created from Playground extraction`,
+          url: url,
+          mode: "extract",
+          steps: [
+            { id: "s1", type: "navigate", label: "Navigate to page" },
+            { id: "s2", type: "extract", label: "Extract data", extractionRules: [] },
+          ],
+        }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      toast.success("Flow created!")
+      router.push(`/flows/${data.data?.id}`)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to save flow")
+    }
   }
 
   const inferredSchema =
@@ -328,6 +356,15 @@ export default function PlaygroundPage() {
                       className="size-7"
                     >
                       {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleSaveAsFlow}
+                      className="h-7 gap-1.5 text-xs"
+                    >
+                      <Save className="size-4" />
+                      Save as Flow
                     </Button>
                   </div>
                   <ScrollArea className="h-full">

@@ -11,7 +11,7 @@ interface RecorderState {
   actions: RecorderAction[]
   currentUrl: string
   selectedElement: ElementInfo | null
-  mode: "select" | "click" | "fill" | "extract"
+  mode: "select" | "click" | "fill" | "extract" | "scroll"
   error: string | null
 }
 

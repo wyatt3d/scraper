@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
-  Globe, Loader2, MousePointer, Type, Database, CircleDot, X
+  Globe, Loader2, MousePointer, Type, Database, CircleDot, X, ArrowDown
 } from "lucide-react"
 import type { ElementInfo, RecorderAction, FlowStep } from "@/lib/types"
 
@@ -15,13 +15,13 @@ interface RecorderPanelProps {
   elements: ElementInfo[]
   selectedElement: ElementInfo | null
   isLoading: boolean
-  mode: "select" | "click" | "fill" | "extract"
+  mode: "select" | "click" | "fill" | "extract" | "scroll"
   currentUrl: string
   error: string | null
   onStart: (url: string) => void
   onAction: (action: RecorderAction, url: string) => void
   onSelectElement: (el: ElementInfo | null) => void
-  onSetMode: (mode: "select" | "click" | "fill" | "extract") => void
+  onSetMode: (mode: "select" | "click" | "fill" | "extract" | "scroll") => void
   onAddStep: (step: Omit<FlowStep, "id">) => void
   onStop: () => void
 }
@@ -53,6 +53,10 @@ export function RecorderPanel({
   }, [])
 
   const handleElementClick = (el: ElementInfo) => {
+    if (mode === "scroll") {
+      handleScroll()
+      return
+    }
     if (mode === "click") {
       onAction({ type: "click", selector: el.selector }, currentUrl || inputUrl)
       onAddStep({ type: "click", label: `Click ${el.text || el.tagName}`, selector: el.selector })
@@ -77,11 +81,22 @@ export function RecorderPanel({
     }
   }
 
+  const handleScroll = () => {
+    onAction({ type: "scroll", selector: "window", value: "500" }, currentUrl || inputUrl)
+    onAddStep({ type: "scroll", label: "Scroll down", selector: "window", value: "500" })
+  }
+
+  const handleScrollToBottom = () => {
+    onAction({ type: "scroll", selector: "window", value: "bottom" }, currentUrl || inputUrl)
+    onAddStep({ type: "scroll", label: "Scroll to bottom", selector: "window", value: "bottom" })
+  }
+
   const modeConfig = {
     select: { icon: MousePointer, label: "Select", color: "bg-muted" },
     click: { icon: CircleDot, label: "Click", color: "bg-blue-600 text-white" },
     fill: { icon: Type, label: "Fill", color: "bg-emerald-600 text-white" },
     extract: { icon: Database, label: "Extract", color: "bg-purple-600 text-white" },
+    scroll: { icon: ArrowDown, label: "Scroll", color: "bg-orange-600 text-white" },
   }
 
   return (
@@ -135,6 +150,18 @@ export function RecorderPanel({
               onKeyDown={(e) => e.key === "Enter" && handleFill()}
             />
             <Button size="sm" className="h-7 text-xs" onClick={handleFill}>Fill</Button>
+          </div>
+        )}
+        {mode === "scroll" && (
+          <div className="flex items-center gap-1 ml-auto">
+            <Button size="sm" className="h-7 text-xs gap-1" onClick={handleScroll}>
+              <ArrowDown className="size-3" />
+              Scroll down
+            </Button>
+            <Button size="sm" variant="outline" className="h-7 text-xs gap-1" onClick={handleScrollToBottom}>
+              <ArrowDown className="size-3" />
+              Scroll to bottom
+            </Button>
           </div>
         )}
       </div>

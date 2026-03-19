@@ -24,7 +24,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
-import { downloadJSON } from "@/lib/export"
+import { downloadJSON, downloadCSV } from "@/lib/export"
 import { DataViewer } from "@/components/dashboard/data-viewer"
 import { formatDuration } from "@/lib/format"
 import type { Run, RunLog } from "@/lib/types"
@@ -479,9 +479,13 @@ export default function RunDetailPage() {
               <RotateCcw className="size-3.5" />
               Re-run
             </Button>
-            <Button variant="outline" className="w-full gap-1.5" onClick={() => { downloadJSON(baseRun.outputPreview || [], `run-${runId}-results.json`); toast.success("Results exported") }}>
+            <Button variant="outline" className="w-full gap-1.5" onClick={() => { downloadJSON(baseRun.outputPreview || [], `run-${runId}-results`); toast.success("JSON exported") }}>
               <Download className="size-3.5" />
-              Export Results
+              Download JSON
+            </Button>
+            <Button variant="outline" className="w-full gap-1.5" onClick={() => { downloadCSV(baseRun.outputPreview || [], `run-${runId}-results`); toast.success("CSV exported") }}>
+              <Download className="size-3.5" />
+              Download CSV
             </Button>
           </div>
         </div>
