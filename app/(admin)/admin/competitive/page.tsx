@@ -231,7 +231,7 @@ export default function CompetitivePage() {
                       key={col}
                       className={cn(
                         "py-2 px-2 text-center font-medium",
-                        col === "Scraper.bot" ? "text-blue-500" : "text-muted-foreground"
+                        col === "Scraper.bot" ? "text-foreground font-bold" : "text-muted-foreground"
                       )}
                     >
                       {col}

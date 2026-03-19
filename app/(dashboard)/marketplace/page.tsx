@@ -333,7 +333,7 @@ function FlowCard({
   const categoryColors: Record<string, string> = {
     "Data Extraction": "bg-violet-500/15 text-violet-600 dark:text-violet-400 border-violet-500/25",
     "Price Monitoring": "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/25",
-    "Lead Generation": "bg-blue-500/15 text-blue-600 dark:text-blue-400 border-blue-500/25",
+    "Lead Generation": "bg-muted text-foreground border-border",
     "Social Media": "bg-pink-500/15 text-pink-600 dark:text-pink-400 border-pink-500/25",
     "E-Commerce": "bg-orange-500/15 text-orange-600 dark:text-orange-400 border-orange-500/25",
     "Real Estate": "bg-teal-500/15 text-teal-600 dark:text-teal-400 border-teal-500/25",
@@ -342,7 +342,7 @@ function FlowCard({
   }
 
   return (
-    <Card className={cn("flex flex-col justify-between", featured && "border-blue-500/25")}>
+    <Card className={cn("flex flex-col justify-between", featured && "border-foreground/20")}>
       <CardContent className="p-5 space-y-3">
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-serif text-base font-bold leading-tight">{flow.name}</h3>

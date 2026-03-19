@@ -213,6 +213,28 @@ export default function DashboardPage() {
     : "0.0"
   const totalDataPoints = runs.reduce((sum, r) => sum + r.itemsExtracted, 0)
 
+  const chartData = runs.reduce(
+    (acc, run) => {
+      const date = new Date(run.startedAt).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      })
+      const existing = acc.find((d) => d.date === date)
+      if (existing) {
+        existing.total++
+        if (run.status === "completed") existing.success++
+      } else {
+        acc.push({
+          date,
+          total: 1,
+          success: run.status === "completed" ? 1 : 0,
+        })
+      }
+      return acc
+    },
+    [] as { date: string; total: number; success: number }[]
+  )
+
   const stats = [
     {
       title: "Total Flows",
@@ -359,7 +381,7 @@ export default function DashboardPage() {
             <CardDescription>Total and successful runs this week</CardDescription>
           </CardHeader>
           <CardContent>
-            <UsageChart />
+            <UsageChart data={chartData} />
           </CardContent>
         </Card>
 

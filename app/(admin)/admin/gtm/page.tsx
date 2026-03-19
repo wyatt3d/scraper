@@ -105,7 +105,7 @@ export default function GtmPage() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <seg.icon className="size-5 text-blue-500" />
+                    <seg.icon className="size-5 text-muted-foreground" />
                     <CardTitle className="text-base">{seg.title}</CardTitle>
                   </div>
                   <Badge variant="secondary" className="text-xs">{seg.tam} of TAM</Badge>

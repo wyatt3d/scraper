@@ -123,13 +123,13 @@ export default function ApiVersionsPage() {
             </div>
 
             <div className="relative flex gap-4 pb-8">
-              <div className="relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full bg-blue-500 text-white">
+              <div className="relative z-10 flex size-8 shrink-0 items-center justify-center rounded-full bg-foreground text-background">
                 <Zap className="size-4" />
               </div>
               <div className="flex-1 space-y-3 pt-0.5">
                 <div className="flex items-center gap-2">
                   <h3 className="font-semibold">v2</h3>
-                  <Badge className="bg-blue-500/15 text-blue-600 border-blue-500/25 dark:text-blue-400">
+                  <Badge className="bg-muted text-muted-foreground border-border">
                     Preview
                   </Badge>
                   <span className="text-sm text-muted-foreground">Expected April 2026</span>
@@ -194,7 +194,7 @@ export default function ApiVersionsPage() {
 }`}</pre>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 rounded-md border border-blue-500/25 bg-blue-500/5 p-2.5 text-xs text-blue-600 dark:text-blue-400">
+                      <div className="flex items-center gap-2 rounded-md border border-border bg-muted/50 p-2.5 text-xs text-foreground">
                         <ArrowRight className="size-3.5 shrink-0" />
                         Update your response parsing to use <code className="font-mono">data</code> instead of the resource name, and adopt cursor-based pagination.
                       </div>
@@ -322,7 +322,7 @@ export default function ApiVersionsPage() {
                 <TableCell>98ms</TableCell>
                 <TableCell>1.2%</TableCell>
                 <TableCell>
-                  <Badge variant="outline" className="bg-blue-500/15 text-blue-600 border-blue-500/25 dark:text-blue-400">
+                  <Badge variant="outline" className="bg-muted text-muted-foreground border-border">
                     Preview
                   </Badge>
                 </TableCell>

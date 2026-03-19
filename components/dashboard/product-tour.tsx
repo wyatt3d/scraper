@@ -18,14 +18,14 @@ const steps: TourStep[] = [
     target: null,
     title: "Welcome to Scraper.bot!",
     description:
-      "Let us show you around. This tour takes about 1 minute.",
+      "Let us show you around. This tour takes about 2 minutes and covers all the key features.",
     position: "center",
   },
   {
     target: '[data-tour="sidebar"]',
     title: "Your Command Center",
     description:
-      "Everything you need is in the sidebar \u2014 flows, runs, monitoring, and more.",
+      "Everything you need is in the sidebar -- flows, runs, monitoring, analytics, and more.",
     position: "right",
   },
   {
@@ -43,10 +43,17 @@ const steps: TourStep[] = [
     position: "bottom",
   },
   {
+    target: '[data-tour="ai-generate"]',
+    title: "AI Flow Generation",
+    description:
+      "Describe your scraping task in natural language and our AI will generate a complete flow for you -- including selectors, pagination, and output schema.",
+    position: "bottom",
+  },
+  {
     target: '[data-tour="playground"]',
     title: "Try the Playground",
     description:
-      "Test scraping instantly \u2014 paste any URL, describe what you need, and see results in seconds.",
+      "Test scraping instantly -- paste any URL, describe what you need, and see results in seconds.",
     position: "right",
   },
   {
@@ -60,17 +67,45 @@ const steps: TourStep[] = [
     target: '[data-tour="workflow-builder"]',
     title: "Visual Workflow Builder",
     description:
-      "Drag and drop nodes to build complex multi-step automations \u2014 no code required.",
+      "Drag and drop nodes to build complex multi-step automations -- no code required.",
     position: "right",
+  },
+  {
+    target: '[data-tour="analytics"]',
+    title: "Analytics & Insights",
+    description:
+      "Track run performance, success rates, data extraction volumes, and cost trends over time.",
+    position: "right",
+  },
+  {
+    target: '[data-tour="integrations"]',
+    title: "Integrations",
+    description:
+      "Connect your flows to Google Sheets, Slack, webhooks, Zapier, and more to automate your data pipeline.",
+    position: "right",
+  },
+  {
+    target: '[data-tour="help-button"]',
+    title: "Help & Bug Reporting",
+    description:
+      "Click the help button anytime to report issues visually, access docs, view keyboard shortcuts, or replay this tutorial.",
+    position: "top",
   },
   {
     target: null,
     title: "You're Ready!",
     description:
-      "Start by creating a flow or exploring the playground. Need help? Press Cmd+K for quick navigation or ? for keyboard shortcuts.",
+      "Start by creating a flow or exploring the playground. Need help? Press Cmd+K for quick navigation or ? for keyboard shortcuts. You can replay this tour anytime from the help menu.",
     position: "center",
   },
 ]
+
+const TOUR_REPLAY_EVENT = "scraper:replay-tour"
+
+export function triggerTourReplay() {
+  localStorage.removeItem("scraper_tour_complete")
+  window.dispatchEvent(new CustomEvent(TOUR_REPLAY_EVENT))
+}
 
 interface Rect {
   top: number
@@ -93,6 +128,15 @@ export function ProductTour() {
     if (!done) {
       setActive(true)
     }
+  }, [])
+
+  useEffect(() => {
+    function handleReplay() {
+      setCurrentStep(0)
+      setActive(true)
+    }
+    window.addEventListener(TOUR_REPLAY_EVENT, handleReplay)
+    return () => window.removeEventListener(TOUR_REPLAY_EVENT, handleReplay)
   }, [])
 
   const measureTarget = useCallback(() => {
@@ -141,7 +185,7 @@ export function ProductTour() {
         style.top = rect.top + rect.height / 2
         style.left = rect.left + rect.width + gap
         style.transform = "translateY(-50%)"
-        if (style.left as number + tooltipWidth > window.innerWidth) {
+        if ((style.left as number) + tooltipWidth > window.innerWidth) {
           style.left = rect.left - tooltipWidth - gap
         }
         break
@@ -149,7 +193,7 @@ export function ProductTour() {
         style.top = rect.top + rect.height + gap
         style.left = rect.left + rect.width / 2
         style.transform = "translateX(-50%)"
-        if (style.top as number + tooltipHeight > window.innerHeight) {
+        if ((style.top as number) + tooltipHeight > window.innerHeight) {
           style.top = rect.top - tooltipHeight - gap
         }
         break
@@ -228,9 +272,7 @@ export function ProductTour() {
               }}
             />
           )}
-          {!targetRect && (
-            <div className="fixed inset-0 bg-black/60" />
-          )}
+          {!targetRect && <div className="fixed inset-0 bg-black/60" />}
         </>
       )}
 
@@ -284,11 +326,7 @@ export function ProductTour() {
               >
                 Finish Tour
               </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                asChild
-              >
+              <Button size="sm" variant="outline" asChild>
                 <Link href="/extension">
                   <Download className="mr-1 size-3.5" />
                   Install Desktop App
@@ -327,8 +365,8 @@ export function ProductTour() {
                   i < currentStep
                     ? "bg-blue-600"
                     : i === currentStep - 1
-                    ? "bg-blue-600"
-                    : "bg-muted"
+                      ? "bg-blue-600"
+                      : "bg-muted"
                 )}
               />
             ))}

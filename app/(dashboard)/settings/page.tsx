@@ -163,7 +163,7 @@ function roleBadge(role: TeamRole) {
   switch (role) {
     case "owner":
       return (
-        <Badge className="bg-blue-500/15 text-blue-600 border-blue-500/25 dark:text-blue-400">
+        <Badge className="bg-muted text-foreground border-border">
           Owner
         </Badge>
       )
@@ -710,7 +710,7 @@ export default function SettingsPage() {
             {plans.map((plan) => (
               <Card
                 key={plan.name}
-                className={`${plan.current ? "border-blue-500 ring-1 ring-blue-500/25" : ""}`}
+                className={`${plan.current ? "border-foreground ring-1 ring-foreground/25" : ""}`}
               >
                 <CardHeader>
                   <CardTitle className="text-base">{plan.name}</CardTitle>
@@ -722,7 +722,7 @@ export default function SettingsPage() {
                   <p>{plan.runs === -1 ? "Unlimited" : plan.runs.toLocaleString()} runs/mo</p>
                   <p>{plan.apiCalls === -1 ? "Unlimited" : plan.apiCalls.toLocaleString()} API calls/mo</p>
                   {plan.current ? (
-                    <Badge className="mt-2 bg-blue-500/15 text-blue-600 border-blue-500/25 dark:text-blue-400">
+                    <Badge className="mt-2 bg-muted text-foreground border-border">
                       Current Plan
                     </Badge>
                   ) : (
@@ -1290,7 +1290,7 @@ export default function SettingsPage() {
             <CardContent>
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="flex gap-3">
-                  <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-blue-500/15 text-sm font-bold text-blue-600 dark:text-blue-400">
+                  <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-bold text-foreground">
                     1
                   </div>
                   <div>
@@ -1301,7 +1301,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-blue-500/15 text-sm font-bold text-blue-600 dark:text-blue-400">
+                  <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-bold text-foreground">
                     2
                   </div>
                   <div>
@@ -1312,7 +1312,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-blue-500/15 text-sm font-bold text-blue-600 dark:text-blue-400">
+                  <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-bold text-foreground">
                     3
                   </div>
                   <div>

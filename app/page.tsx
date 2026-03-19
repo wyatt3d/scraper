@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
+import { supabase } from "@/lib/supabase"
 import { Button } from "@/components/ui/button"
 import { Logo } from "@/components/brand/logo"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -41,6 +42,13 @@ import {
 export default function LandingPage() {
   const [showDemo, setShowDemo] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [isSignedIn, setIsSignedIn] = useState(false)
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setIsSignedIn(!!user)
+    })
+  }, [])
 
   return (
     <div className="min-h-screen bg-background">
@@ -62,16 +70,26 @@ export default function LandingPage() {
               <Link href="/docs" className="text-muted-foreground hover:text-foreground transition-colors">
                 Docs
               </Link>
-              <Link href="/sign-in">
-                <Button variant="outline" size="sm">
-                  Sign In
-                </Button>
-              </Link>
-              <Link href="/sign-up">
-                <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
-                  Get Started Free
-                </Button>
-              </Link>
+              {isSignedIn ? (
+                <Link href="/dashboard">
+                  <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+                    Go to Dashboard
+                  </Button>
+                </Link>
+              ) : (
+                <>
+                  <Link href="/sign-in">
+                    <Button variant="outline" size="sm">
+                      Sign In
+                    </Button>
+                  </Link>
+                  <Link href="/sign-up">
+                    <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+                      Get Started Free
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
 
             {/* Mobile hamburger */}
@@ -99,16 +117,26 @@ export default function LandingPage() {
                       Docs
                     </Link>
                     <hr className="border-border" />
-                    <Link href="/sign-in" onClick={() => setMobileOpen(false)}>
-                      <Button variant="outline" className="w-full">
-                        Sign In
-                      </Button>
-                    </Link>
-                    <Link href="/sign-up" onClick={() => setMobileOpen(false)}>
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                        Get Started Free
-                      </Button>
-                    </Link>
+                    {isSignedIn ? (
+                      <Link href="/dashboard" onClick={() => setMobileOpen(false)}>
+                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                          Go to Dashboard
+                        </Button>
+                      </Link>
+                    ) : (
+                      <>
+                        <Link href="/sign-in" onClick={() => setMobileOpen(false)}>
+                          <Button variant="outline" className="w-full">
+                            Sign In
+                          </Button>
+                        </Link>
+                        <Link href="/sign-up" onClick={() => setMobileOpen(false)}>
+                          <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                            Get Started Free
+                          </Button>
+                        </Link>
+                      </>
+                    )}
                   </nav>
                 </SheetContent>
               </Sheet>
@@ -130,9 +158,9 @@ export default function LandingPage() {
               Describe what you need in plain English. Get a live, deterministic API endpoint in minutes. No browser infrastructure, no maintenance, no code.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-              <Link href="/sign-up">
+              <Link href={isSignedIn ? "/dashboard" : "/sign-up"}>
                 <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white text-lg px-8 py-6">
-                  Start Building Free
+                  {isSignedIn ? "Go to Dashboard" : "Start Building Free"}
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>

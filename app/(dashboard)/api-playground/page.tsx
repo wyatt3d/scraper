@@ -564,7 +564,7 @@ export default function ApiPlaygroundPage() {
                     <div className="rounded-md border bg-muted/30 divide-y">
                       {Object.entries(response.headers).map(([key, val]) => (
                         <div key={key} className="flex items-center gap-3 px-3 py-2">
-                          <span className="text-xs font-mono font-medium text-blue-500 w-48 shrink-0">{key}</span>
+                          <span className="text-xs font-mono font-medium text-foreground w-48 shrink-0">{key}</span>
                           <span className="text-xs font-mono text-muted-foreground">{val}</span>
                         </div>
                       ))}

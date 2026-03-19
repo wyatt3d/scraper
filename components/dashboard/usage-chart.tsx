@@ -8,62 +8,62 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 
-const chartData = [
-  { day: "Mon", runs: 18, successful: 16 },
-  { day: "Tue", runs: 24, successful: 22 },
-  { day: "Wed", runs: 21, successful: 19 },
-  { day: "Thu", runs: 28, successful: 26 },
-  { day: "Fri", runs: 32, successful: 30 },
-  { day: "Sat", runs: 15, successful: 14 },
-  { day: "Sun", runs: 22, successful: 21 },
-]
+interface ChartDataPoint {
+  date: string
+  total: number
+  success: number
+}
 
 const chartConfig = {
-  runs: {
+  total: {
     label: "Total Runs",
     color: "hsl(221, 83%, 53%)",
   },
-  successful: {
+  success: {
     label: "Successful",
     color: "hsl(142, 71%, 45%)",
   },
 } satisfies ChartConfig
 
-export function UsageChart() {
+export function UsageChart({ data }: { data?: ChartDataPoint[] }) {
+  if (!data || data.length === 0) {
+    return (
+      <div className="flex h-[280px] items-center justify-center rounded-lg border border-dashed">
+        <p className="text-sm text-muted-foreground">
+          No run data yet. Create and run a flow to see chart data.
+        </p>
+      </div>
+    )
+  }
+
   return (
     <ChartContainer config={chartConfig} className="h-[280px] w-full">
       <AreaChart
-        data={chartData}
+        data={data}
         margin={{ top: 4, right: 4, bottom: 0, left: -20 }}
       >
         <defs>
-          <linearGradient id="fillRuns" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id="fillTotal" x1="0" y1="0" x2="0" y2="1">
             <stop
               offset="0%"
-              stopColor="var(--color-runs)"
+              stopColor="var(--color-total)"
               stopOpacity={0.3}
             />
             <stop
               offset="100%"
-              stopColor="var(--color-runs)"
+              stopColor="var(--color-total)"
               stopOpacity={0.02}
             />
           </linearGradient>
-          <linearGradient
-            id="fillSuccessful"
-            x1="0"
-            y1="0"
-            x2="0"
-            y2="1"
-          >
+          <linearGradient id="fillSuccess" x1="0" y1="0" x2="0" y2="1">
             <stop
               offset="0%"
-              stopColor="var(--color-successful)"
+              stopColor="var(--color-success)"
               stopOpacity={0.3}
             />
             <stop
               offset="100%"
-              stopColor="var(--color-successful)"
+              stopColor="var(--color-success)"
               stopOpacity={0.02}
             />
           </linearGradient>
@@ -73,7 +73,7 @@ export function UsageChart() {
           className="stroke-border"
         />
         <XAxis
-          dataKey="day"
+          dataKey="date"
           tickLine={false}
           axisLine={false}
           tickMargin={8}
@@ -81,17 +81,17 @@ export function UsageChart() {
         <YAxis tickLine={false} axisLine={false} tickMargin={8} />
         <ChartTooltip content={<ChartTooltipContent />} />
         <Area
-          dataKey="runs"
+          dataKey="total"
           type="monotone"
-          fill="url(#fillRuns)"
-          stroke="var(--color-runs)"
+          fill="url(#fillTotal)"
+          stroke="var(--color-total)"
           strokeWidth={2}
         />
         <Area
-          dataKey="successful"
+          dataKey="success"
           type="monotone"
-          fill="url(#fillSuccessful)"
-          stroke="var(--color-successful)"
+          fill="url(#fillSuccess)"
+          stroke="var(--color-success)"
           strokeWidth={2}
         />
       </AreaChart>

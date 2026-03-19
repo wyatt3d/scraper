@@ -37,7 +37,7 @@ import { mockTemplates, templateExampleData, templateRatings, templateUseCounts 
 import type { StepType } from "@/lib/types"
 
 const categoryColors: Record<string, string> = {
-  "E-commerce": "bg-blue-500/15 text-blue-600 border-blue-500/25 dark:text-blue-400",
+  "E-commerce": "bg-muted text-foreground border-border",
   "Jobs": "bg-violet-500/15 text-violet-600 border-violet-500/25 dark:text-violet-400",
   "Real Estate": "bg-emerald-500/15 text-emerald-600 border-emerald-500/25 dark:text-emerald-400",
   "Content": "bg-amber-500/15 text-amber-600 border-amber-500/25 dark:text-amber-400",
@@ -47,7 +47,7 @@ const categoryColors: Record<string, string> = {
 }
 
 const modeColors: Record<string, string> = {
-  extract: "bg-blue-500/15 text-blue-600 border-blue-500/25 dark:text-blue-400",
+  extract: "bg-muted text-foreground border-border",
   interact: "bg-amber-500/15 text-amber-600 border-amber-500/25 dark:text-amber-400",
   monitor: "bg-emerald-500/15 text-emerald-600 border-emerald-500/25 dark:text-emerald-400",
 }

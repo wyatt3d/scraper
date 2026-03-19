@@ -29,7 +29,7 @@ interface Post {
 
 const categoryStyles: Record<Category, string> = {
   "General": "bg-muted text-muted-foreground",
-  "Help & Support": "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300",
+  "Help & Support": "bg-muted text-foreground",
   "Show & Tell": "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300",
   "Feature Requests": "bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300",
   "Bug Reports": "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300",
@@ -181,11 +181,11 @@ function PostCard({ post }: { post: Post }) {
   return (
     <Link href={`/community/${post.id}`} className="block">
       <div className={cn(
-        "border rounded-lg p-4 hover:border-blue-300 dark:hover:border-blue-700 transition-colors bg-card",
-        post.pinned && "border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20"
+        "border rounded-lg p-4 hover:border-foreground/30 transition-colors bg-card",
+        post.pinned && "border-border bg-muted/50"
       )}>
         <div className="flex items-start gap-3">
-          <Avatar className={cn("mt-0.5", post.staff ? "ring-2 ring-blue-500" : "")}>
+          <Avatar className={cn("mt-0.5", post.staff ? "ring-2 ring-foreground" : "")}>
             <AvatarFallback className={cn(
               "text-xs font-medium",
               post.staff ? "bg-blue-600 text-white" : "bg-muted"
@@ -196,7 +196,7 @@ function PostCard({ post }: { post: Post }) {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap mb-1">
               {post.pinned && (
-                <Pin className="size-3.5 text-blue-600 dark:text-blue-400 shrink-0" />
+                <Pin className="size-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
               )}
               <span className={cn(
                 "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium border-0",

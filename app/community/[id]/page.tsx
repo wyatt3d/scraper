@@ -41,7 +41,7 @@ const threads: Record<string, ThreadData> = {
     id: "paginated-ecommerce",
     title: "How to scrape a paginated e-commerce site?",
     category: "Help & Support",
-    categoryStyle: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300",
+    categoryStyle: "bg-muted text-foreground",
     author: { name: "Alex Chen", initials: "AC" },
     date: "March 18, 2026 at 10:34 AM",
     tags: ["scraping", "pagination", "e-commerce"],
@@ -252,10 +252,10 @@ function ReplyCard({ reply, isNested = false }: { reply: Reply; isNested?: boole
       "flex gap-3",
       isNested && "ml-10 mt-3"
     )}>
-      <Avatar className={cn("size-8 shrink-0", reply.staff ? "ring-2 ring-blue-500" : "")}>
+      <Avatar className={cn("size-8 shrink-0", reply.staff ? "ring-2 ring-foreground" : "")}>
         <AvatarFallback className={cn(
           "text-xs font-medium",
-          reply.staff ? "bg-blue-600 text-white" : "bg-muted"
+          reply.staff ? "bg-foreground text-background" : "bg-muted"
         )}>
           {reply.author.initials}
         </AvatarFallback>
@@ -263,7 +263,7 @@ function ReplyCard({ reply, isNested = false }: { reply: Reply; isNested?: boole
       <div className={cn(
         "flex-1 border rounded-lg p-4",
         reply.bestAnswer && "border-green-300 dark:border-green-700 bg-green-50/50 dark:bg-green-950/20",
-        reply.staff && !reply.bestAnswer && "border-blue-200 dark:border-blue-800"
+        reply.staff && !reply.bestAnswer && "border-border"
       )}>
         <div className="flex items-center gap-2 mb-2">
           <span className="text-sm font-medium">{reply.author.name}</span>
@@ -373,10 +373,10 @@ export default function ThreadPage({ params }: { params: Promise<{ id: string }>
           </h1>
 
           <div className="flex items-center gap-3 mb-6 pb-6 border-b">
-            <Avatar className={cn(thread.staff ? "ring-2 ring-blue-500" : "")}>
+            <Avatar className={cn(thread.staff ? "ring-2 ring-foreground" : "")}>
               <AvatarFallback className={cn(
                 "text-xs font-medium",
-                thread.staff ? "bg-blue-600 text-white" : "bg-muted"
+                thread.staff ? "bg-foreground text-background" : "bg-muted"
               )}>
                 {thread.author.initials}
               </AvatarFallback>

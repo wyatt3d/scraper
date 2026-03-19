@@ -86,7 +86,7 @@ interface Connection {
 }
 
 const categoryColors: Record<NodeCategory, { bg: string; border: string; text: string; dot: string }> = {
-  trigger: { bg: "bg-blue-500/10 dark:bg-blue-500/20", border: "border-blue-500/30", text: "text-blue-600 dark:text-blue-400", dot: "bg-blue-500" },
+  trigger: { bg: "bg-sky-500/10 dark:bg-sky-500/20", border: "border-sky-500/30", text: "text-sky-600 dark:text-sky-400", dot: "bg-sky-500" },
   browser: { bg: "bg-emerald-500/10 dark:bg-emerald-500/20", border: "border-emerald-500/30", text: "text-emerald-600 dark:text-emerald-400", dot: "bg-emerald-500" },
   data: { bg: "bg-purple-500/10 dark:bg-purple-500/20", border: "border-purple-500/30", text: "text-purple-600 dark:text-purple-400", dot: "bg-purple-500" },
   logic: { bg: "bg-orange-500/10 dark:bg-orange-500/20", border: "border-orange-500/30", text: "text-orange-600 dark:text-orange-400", dot: "bg-orange-500" },
@@ -94,7 +94,7 @@ const categoryColors: Record<NodeCategory, { bg: string; border: string; text: s
 }
 
 const categoryHeaderColors: Record<NodeCategory, string> = {
-  trigger: "bg-blue-500",
+  trigger: "bg-sky-500",
   browser: "bg-emerald-500",
   data: "bg-purple-500",
   logic: "bg-orange-500",
@@ -1067,3 +1067,4 @@ export default function WorkflowBuilderPage() {
     </div>
   )
 }
+ 

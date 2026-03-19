@@ -18,6 +18,7 @@ import {
   ChevronLeft,
   Check,
   MousePointerClick,
+  RotateCcw,
 } from "lucide-react"
 import { useAuth } from "@/components/auth/auth-provider"
 import {
@@ -46,16 +47,17 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { triggerTourReplay } from "@/components/dashboard/product-tour"
 
 // --- Types ---
 
-interface HighlightRect {
-  x: number
-  y: number
-  w: number
-  h: number
+interface SelectedElement {
+  selector: string
+  xpath: string
+  tagName: string
+  textContent: string
+  boundingRect: { x: number; y: number; w: number; h: number }
   note: string
-  elementInfo: string
 }
 
 type Step = "capture" | "annotate" | "details" | "review" | "success"
@@ -73,43 +75,86 @@ const severityLevels = [
   { value: "critical", label: "Critical" },
 ]
 
-function getElementInfo(x: number, y: number, w: number, h: number): string {
-  const centerX = x + w / 2
-  const centerY = y + h / 2
-  try {
-    const el = document.elementFromPoint(centerX, centerY)
-    if (!el) return "Unknown area"
-    const tag = el.tagName.toLowerCase()
-    const text = el.textContent?.trim().slice(0, 30) || ""
-    const cls = el.className && typeof el.className === "string"
-      ? "." + el.className.split(" ").filter(Boolean).slice(0, 2).join(".")
-      : ""
-    const parent = el.parentElement
-    const parentCls = parent?.className && typeof parent.className === "string"
-      ? parent.className.split(" ").filter(Boolean).slice(0, 1).join(".")
-      : ""
-    const context = parentCls ? ` in .${parentCls}` : ""
-    if (text) return `${tag}${cls} "${text}"${context}`
-    return `${tag}${cls}${context}`
-  } catch {
-    return "Unknown area"
+function getSelector(el: Element): string {
+  if (el.id) return `#${el.id}`
+  const parts: string[] = []
+  let current: Element | null = el
+  while (current && current !== document.body) {
+    let selector = current.tagName.toLowerCase()
+    if (current.id) {
+      parts.unshift(`#${current.id}`)
+      break
+    }
+    if (current.className && typeof current.className === "string") {
+      const classes = current.className
+        .trim()
+        .split(/\s+/)
+        .filter((c) => !c.startsWith("_") && c.length < 30)
+        .slice(0, 2)
+      if (classes.length) selector += `.${classes.join(".")}`
+    }
+    const parent = current.parentElement
+    if (parent) {
+      const siblings = Array.from(parent.children).filter(
+        (c) => c.tagName === current!.tagName
+      )
+      if (siblings.length > 1) {
+        const index = siblings.indexOf(current) + 1
+        selector += `:nth-child(${index})`
+      }
+    }
+    parts.unshift(selector)
+    current = current.parentElement
   }
+  return parts.join(" > ")
 }
 
-function generateTitle(rects: HighlightRect[], type: string): string {
-  const notes = rects.map((r) => r.note).filter(Boolean)
+function getXPath(el: Element): string {
+  const parts: string[] = []
+  let current: Element | null = el
+  while (current && current !== document.body) {
+    let part = current.tagName.toLowerCase()
+    const parent = current.parentElement
+    if (parent) {
+      const siblings = Array.from(parent.children).filter(
+        (c) => c.tagName === current!.tagName
+      )
+      if (siblings.length > 1) {
+        part += `[${siblings.indexOf(current) + 1}]`
+      }
+    }
+    parts.unshift(part)
+    current = current.parentElement
+  }
+  return "//" + parts.join("/")
+}
+
+function getElementDisplayName(selector: string, tagName: string): string {
+  const short = selector.split(" > ").pop() || tagName
+  const parent = selector.split(" > ").slice(-2, -1)[0]
+  if (parent) return `${short} in ${parent}`
+  return short
+}
+
+function generateTitle(elements: SelectedElement[], type: string): string {
+  const notes = elements.map((r) => r.note).filter(Boolean)
   if (notes.length === 0) {
     if (type === "feature") return "Feature request"
     if (type === "question") return "Question about the interface"
     return "Visual bug report"
   }
   if (notes.length === 1) return notes[0].slice(0, 80)
-  return notes.slice(0, 2).map((n) => n.slice(0, 35)).join(" & ")
+  return notes
+    .slice(0, 2)
+    .map((n) => n.slice(0, 35))
+    .join(" & ")
 }
 
 function getSuggestedSeverity(pathname: string): string {
-  if (pathname.includes("dashboard") || pathname.includes("flows")) return "high"
-  if (pathname.includes("settings") || pathname.includes("api-keys")) return "medium"
+  if (pathname.includes("dashboard") || pathname.includes("flows"))
+    return "high"
+  if (pathname.includes("settings") || pathname.includes("api-keys"))
+    return "medium"
   return "medium"
 }
 
@@ -120,57 +165,122 @@ function CaptureOverlay({
   onCancel,
   onSkip,
 }: {
-  onDone: (rects: HighlightRect[]) => void
+  onDone: (elements: SelectedElement[]) => void
   onCancel: () => void
   onSkip: () => void
 }) {
-  const [rects, setRects] = useState<HighlightRect[]>([])
-  const [isDrawing, setIsDrawing] = useState(false)
-  const [startPos, setStartPos] = useState({ x: 0, y: 0 })
-  const [currentPos, setCurrentPos] = useState({ x: 0, y: 0 })
+  const [elements, setElements] = useState<SelectedElement[]>([])
+  const [hoveredEl, setHoveredEl] = useState<Element | null>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
   const [entering, setEntering] = useState(true)
+  const outlinedElementsRef = useRef<Map<Element, string>>(new Map())
 
   useEffect(() => {
     const t = setTimeout(() => setEntering(false), 50)
     return () => clearTimeout(t)
   }, [])
 
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      if ((e.target as HTMLElement).closest("[data-toolbar]")) return
-      setIsDrawing(true)
-      setStartPos({ x: e.clientX, y: e.clientY })
-      setCurrentPos({ x: e.clientX, y: e.clientY })
-    },
-    []
-  )
+  useEffect(() => {
+    return () => {
+      outlinedElementsRef.current.forEach((originalOutline, el) => {
+        ;(el as HTMLElement).style.outline = originalOutline
+        ;(el as HTMLElement).style.outlineOffset = ""
+      })
+      outlinedElementsRef.current.clear()
+      if (hoveredEl) {
+        ;(hoveredEl as HTMLElement).style.outline = ""
+        ;(hoveredEl as HTMLElement).style.outlineOffset = ""
+      }
+    }
+  }, [hoveredEl])
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
-      if (!isDrawing) return
-      setCurrentPos({ x: e.clientX, y: e.clientY })
+      if ((e.target as HTMLElement).closest("[data-toolbar]")) {
+        if (hoveredEl) {
+          ;(hoveredEl as HTMLElement).style.outline = ""
+          ;(hoveredEl as HTMLElement).style.outlineOffset = ""
+          setHoveredEl(null)
+        }
+        return
+      }
+      const el = document.elementFromPoint(e.clientX, e.clientY)
+      if (!el || el === overlayRef.current || el === document.body) return
+      if (el === hoveredEl) return
+      if (hoveredEl && !outlinedElementsRef.current.has(hoveredEl)) {
+        ;(hoveredEl as HTMLElement).style.outline = ""
+        ;(hoveredEl as HTMLElement).style.outlineOffset = ""
+      }
+      if (!outlinedElementsRef.current.has(el)) {
+        ;(el as HTMLElement).style.outline = "3px solid #3b82f6"
+        ;(el as HTMLElement).style.outlineOffset = "2px"
+      }
+      setHoveredEl(el)
     },
-    [isDrawing]
+    [hoveredEl]
   )
 
-  const handleMouseUp = useCallback(
+  const handleClick = useCallback(
     (e: React.MouseEvent) => {
-      if (!isDrawing) return
-      setIsDrawing(false)
-      const x = Math.min(startPos.x, e.clientX)
-      const y = Math.min(startPos.y, e.clientY)
-      const w = Math.abs(e.clientX - startPos.x)
-      const h = Math.abs(e.clientY - startPos.y)
-      if (w < 10 || h < 10) return
-      const elementInfo = getElementInfo(x, y, w, h)
-      setRects((prev) => [...prev, { x, y, w, h, note: "", elementInfo }])
+      if ((e.target as HTMLElement).closest("[data-toolbar]")) return
+      e.preventDefault()
+      e.stopPropagation()
+
+      const overlayEl = overlayRef.current
+      if (overlayEl) overlayEl.style.pointerEvents = "none"
+      const el = document.elementFromPoint(e.clientX, e.clientY)
+      if (overlayEl) overlayEl.style.pointerEvents = "auto"
+
+      if (!el || el === document.body) return
+
+      if (hoveredEl && !outlinedElementsRef.current.has(hoveredEl)) {
+        ;(hoveredEl as HTMLElement).style.outline = ""
+        ;(hoveredEl as HTMLElement).style.outlineOffset = ""
+      }
+
+      const originalOutline = (el as HTMLElement).style.outline
+      outlinedElementsRef.current.set(el, originalOutline)
+      ;(el as HTMLElement).style.outline = "3px solid red"
+      ;(el as HTMLElement).style.outlineOffset = "2px"
+
+      const selector = getSelector(el)
+      const xpath = getXPath(el)
+      const rect = el.getBoundingClientRect()
+
+      setElements((prev) => [
+        ...prev,
+        {
+          selector,
+          xpath,
+          tagName: el.tagName.toLowerCase(),
+          textContent: (el.textContent || "").trim().slice(0, 60),
+          boundingRect: {
+            x: rect.x,
+            y: rect.y,
+            w: rect.width,
+            h: rect.height,
+          },
+          note: "",
+        },
+      ])
+      setHoveredEl(null)
     },
-    [isDrawing, startPos]
+    [hoveredEl]
   )
 
   const handleUndo = useCallback(() => {
-    setRects((prev) => prev.slice(0, -1))
+    setElements((prev) => {
+      if (prev.length === 0) return prev
+      const last = prev[prev.length - 1]
+      const el = document.querySelector(last.selector)
+      if (el && outlinedElementsRef.current.has(el)) {
+        const original = outlinedElementsRef.current.get(el) || ""
+        ;(el as HTMLElement).style.outline = original
+        ;(el as HTMLElement).style.outlineOffset = ""
+        outlinedElementsRef.current.delete(el)
+      }
+      return prev.slice(0, -1)
+    })
   }, [])
 
   useEffect(() => {
@@ -182,15 +292,6 @@ function CaptureOverlay({
     return () => window.removeEventListener("keydown", onKeyDown)
   }, [onCancel, handleUndo])
 
-  const liveRect = isDrawing
-    ? {
-        left: Math.min(startPos.x, currentPos.x),
-        top: Math.min(startPos.y, currentPos.y),
-        width: Math.abs(currentPos.x - startPos.x),
-        height: Math.abs(currentPos.y - startPos.y),
-      }
-    : null
-
   return (
     <div
       ref={overlayRef}
@@ -198,10 +299,9 @@ function CaptureOverlay({
         "fixed inset-0 z-[100] cursor-crosshair select-none transition-opacity duration-200",
         entering ? "opacity-0" : "opacity-100"
       )}
-      style={{ backgroundColor: "rgba(0,0,0,0.15)" }}
-      onMouseDown={handleMouseDown}
+      style={{ backgroundColor: "rgba(0,0,0,0.15)", pointerEvents: "auto" }}
       onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
+      onClick={handleClick}
     >
       {/* Toolbar */}
       <div
@@ -210,13 +310,15 @@ function CaptureOverlay({
       >
         <div className="flex items-center gap-3">
           <Crosshair className="size-5" />
-          <span className="font-medium">Click and drag to highlight issue areas</span>
+          <span className="font-medium">
+            Click on elements to highlight issues
+          </span>
           <span className="rounded bg-blue-700/60 px-2 py-0.5 text-xs">
             Esc to cancel
           </span>
         </div>
         <div className="flex gap-2">
-          {rects.length > 0 && (
+          {elements.length > 0 && (
             <Button
               size="sm"
               variant="ghost"
@@ -246,42 +348,25 @@ function CaptureOverlay({
           <Button
             size="sm"
             className="bg-white text-blue-600 hover:bg-blue-50"
-            onClick={() => onDone(rects)}
-            disabled={rects.length === 0}
+            onClick={() => onDone(elements)}
+            disabled={elements.length === 0}
           >
-            Done ({rects.length} area{rects.length !== 1 ? "s" : ""})
+            Done ({elements.length} element{elements.length !== 1 ? "s" : ""})
           </Button>
         </div>
       </div>
 
-      {/* Drawn rectangles */}
-      {rects.map((rect, i) => (
-        <div
-          key={i}
-          className="absolute rounded border-2 border-red-500 bg-red-500/10 transition-all duration-150"
-          style={{ left: rect.x, top: rect.y, width: rect.w, height: rect.h }}
-        >
-          <span className="absolute -top-6 left-0 rounded bg-red-500 px-2 py-0.5 text-xs font-bold text-white shadow">
-            {i + 1}
-          </span>
-        </div>
-      ))}
-
-      {/* Live drawing rectangle */}
-      {liveRect && (
-        <div
-          className="absolute border-2 border-dashed border-red-500 bg-red-500/5"
-          style={liveRect}
-        />
-      )}
-
-      {/* Hint when no rects */}
-      {rects.length === 0 && !isDrawing && (
+      {/* Hint when no elements selected */}
+      {elements.length === 0 && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <div className="flex flex-col items-center gap-3 rounded-xl bg-black/60 px-8 py-6 text-white backdrop-blur-sm">
             <MousePointerClick className="size-8 opacity-80" />
-            <p className="text-sm font-medium">Drag to highlight a problem area</p>
-            <p className="text-xs opacity-60">You can highlight multiple areas</p>
+            <p className="text-sm font-medium">
+              Click on an element to select it
+            </p>
+            <p className="text-xs opacity-60">
+              Elements highlight on hover, click to select
+            </p>
           </div>
         </div>
       )}
@@ -291,7 +376,13 @@ function CaptureOverlay({
 
 // --- Step Indicator ---
 
-function StepIndicator({ current, steps }: { current: number; steps: string[] }) {
+function StepIndicator({
+  current,
+  steps,
+}: {
+  current: number
+  steps: string[]
+}) {
   return (
     <div className="flex items-center justify-center gap-1 py-4">
       {steps.map((label, i) => (
@@ -311,7 +402,9 @@ function StepIndicator({ current, steps }: { current: number; steps: string[] })
           <span
             className={cn(
               "hidden text-xs sm:inline",
-              i === current ? "font-medium text-foreground" : "text-muted-foreground"
+              i === current
+                ? "font-medium text-foreground"
+                : "text-muted-foreground"
             )}
           >
             {label}
@@ -328,18 +421,18 @@ function StepIndicator({ current, steps }: { current: number; steps: string[] })
 // --- Annotate Step ---
 
 function AnnotateStep({
-  rects,
+  elements,
   onChange,
 }: {
-  rects: HighlightRect[]
+  elements: SelectedElement[]
   onChange: (index: number, note: string) => void
 }) {
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm text-muted-foreground">
-        Describe what is wrong with each highlighted area.
+        Describe what is wrong with each selected element.
       </p>
-      {rects.map((rect, i) => (
+      {elements.map((el, i) => (
         <div
           key={i}
           className="flex flex-col gap-2 rounded-lg border p-3 transition-all hover:border-blue-300"
@@ -348,11 +441,21 @@ function AnnotateStep({
             <span className="flex size-6 items-center justify-center rounded-full bg-red-500 text-xs font-bold text-white">
               {i + 1}
             </span>
-            <span className="text-xs text-muted-foreground">{rect.elementInfo}</span>
+            <span className="text-xs text-muted-foreground">
+              Element: {getElementDisplayName(el.selector, el.tagName)}
+            </span>
+          </div>
+          <div className="flex flex-col gap-1 rounded bg-muted/50 px-2 py-1">
+            <code className="text-[10px] text-muted-foreground break-all">
+              {el.selector}
+            </code>
+            <code className="text-[10px] text-muted-foreground break-all">
+              {el.xpath}
+            </code>
           </div>
           <Input
-            placeholder="What's wrong with this area?"
-            value={rect.note}
+            placeholder="What's wrong with this element?"
+            value={el.note}
             onChange={(e) => onChange(i, e.target.value)}
             autoFocus={i === 0}
           />
@@ -476,14 +579,14 @@ function DetailsStep({
 // --- Review Step ---
 
 function ReviewStep({
-  rects,
+  elements,
   type,
   severity,
   title,
   description,
   pageUrl,
 }: {
-  rects: HighlightRect[]
+  elements: SelectedElement[]
   type: string
   severity: string
   title: string
@@ -491,7 +594,8 @@ function ReviewStep({
   pageUrl: string
 }) {
   const typeLabel = ticketTypes.find((t) => t.value === type)?.label || type
-  const severityLabel = severityLevels.find((s) => s.value === severity)?.label || severity
+  const severityLabel =
+    severityLevels.find((s) => s.value === severity)?.label || severity
 
   return (
     <div className="flex flex-col gap-3">
@@ -512,10 +616,14 @@ function ReviewStep({
                 <span
                   className={cn(
                     "rounded-full px-2 py-0.5 text-xs font-medium",
-                    severity === "critical" && "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-                    severity === "high" && "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
-                    severity === "medium" && "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-                    severity === "low" && "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                    severity === "critical" &&
+                      "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+                    severity === "high" &&
+                      "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400",
+                    severity === "medium" &&
+                      "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
+                    severity === "low" &&
+                      "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
                   )}
                 >
                   {severityLabel}
@@ -536,12 +644,12 @@ function ReviewStep({
         </dl>
       </div>
 
-      {rects.length > 0 && (
+      {elements.length > 0 && (
         <div className="flex flex-col gap-2">
           <p className="text-sm font-medium">
-            Highlighted Areas ({rects.length})
+            Selected Elements ({elements.length})
           </p>
-          {rects.map((rect, i) => (
+          {elements.map((el, i) => (
             <div
               key={i}
               className="flex items-start gap-2 rounded-md border px-3 py-2 text-sm"
@@ -549,13 +657,14 @@ function ReviewStep({
               <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
                 {i + 1}
               </span>
-              <div className="flex flex-col">
-                <span className="text-xs text-muted-foreground">
-                  {rect.elementInfo}
+              <div className="flex flex-col gap-1 min-w-0">
+                <span className="text-xs font-medium">
+                  {getElementDisplayName(el.selector, el.tagName)}
                 </span>
-                {rect.note && (
-                  <span className="text-sm">{rect.note}</span>
-                )}
+                <code className="text-[10px] text-muted-foreground break-all">
+                  {el.selector}
+                </code>
+                {el.note && <span className="text-sm">{el.note}</span>}
               </div>
             </div>
           ))}
@@ -586,7 +695,9 @@ function SuccessView({ ticketId }: { ticketId: string }) {
         <Check className="size-7 text-green-600" />
       </div>
       <div className="text-center">
-        <p className="text-base font-medium text-foreground">Ticket Submitted</p>
+        <p className="text-base font-medium text-foreground">
+          Ticket Submitted
+        </p>
         <p className="mt-1 text-sm text-muted-foreground">
           We will look into it shortly.
         </p>
@@ -612,10 +723,14 @@ function VisualBugReporter({
   const pathname = usePathname()
   const { user } = useAuth()
 
-  const [step, setStep] = useState<Step>(startAtCapture ? "capture" : "details")
-  const [rects, setRects] = useState<HighlightRect[]>([])
+  const [step, setStep] = useState<Step>(
+    startAtCapture ? "capture" : "details"
+  )
+  const [elements, setElements] = useState<SelectedElement[]>([])
   const [type, setType] = useState("bug")
-  const [severity, setSeverity] = useState(() => getSuggestedSeverity(pathname))
+  const [severity, setSeverity] = useState(() =>
+    getSuggestedSeverity(pathname)
+  )
   const [title, setTitle] = useState("")
   const [description, setDescription] = useState("")
   const [email, setEmail] = useState(user?.email || "")
@@ -624,7 +739,7 @@ function VisualBugReporter({
 
   function reset() {
     setStep(startAtCapture ? "capture" : "details")
-    setRects([])
+    setElements([])
     setType("bug")
     setSeverity(getSuggestedSeverity(pathname))
     setTitle("")
@@ -638,9 +753,9 @@ function VisualBugReporter({
     setTimeout(reset, 200)
   }
 
-  function handleCaptureDone(newRects: HighlightRect[]) {
-    setRects(newRects)
-    if (newRects.length > 0) {
+  function handleCaptureDone(newElements: SelectedElement[]) {
+    setElements(newElements)
+    if (newElements.length > 0) {
       setStep("annotate")
     } else {
       setStep("details")
@@ -648,19 +763,19 @@ function VisualBugReporter({
   }
 
   function handleCaptureSkip() {
-    setRects([])
+    setElements([])
     setStep("details")
   }
 
   function handleAnnotationChange(index: number, note: string) {
-    setRects((prev) =>
-      prev.map((r, i) => (i === index ? { ...r, note } : r))
+    setElements((prev) =>
+      prev.map((el, i) => (i === index ? { ...el, note } : el))
     )
   }
 
   function goToDetails() {
     if (!title) {
-      setTitle(generateTitle(rects, type))
+      setTitle(generateTitle(elements, type))
     }
     setStep("details")
   }
@@ -681,13 +796,12 @@ function VisualBugReporter({
         description: description.trim(),
         pageUrl: pathname,
         email,
-        annotations: rects.map((r) => ({
-          x: r.x,
-          y: r.y,
-          w: r.w,
-          h: r.h,
-          note: r.note,
-          elementInfo: r.elementInfo,
+        elements: elements.map((el) => ({
+          selector: el.selector,
+          xpath: el.xpath,
+          tag: el.tagName,
+          text: el.textContent,
+          note: el.note,
         })),
         screenWidth: typeof window !== "undefined" ? window.innerWidth : 0,
         screenHeight: typeof window !== "undefined" ? window.innerHeight : 0,
@@ -711,7 +825,6 @@ function VisualBugReporter({
     }
   }
 
-  // Capture mode renders as a full-screen overlay, not inside a dialog
   if (step === "capture" && open) {
     return (
       <CaptureOverlay
@@ -722,13 +835,22 @@ function VisualBugReporter({
     )
   }
 
-  const stepLabels = rects.length > 0
-    ? ["Capture", "Annotate", "Details", "Review"]
-    : ["Details", "Review"]
+  const stepLabels =
+    elements.length > 0
+      ? ["Capture", "Annotate", "Details", "Review"]
+      : ["Details", "Review"]
   const currentStepIndex =
-    rects.length > 0
-      ? step === "annotate" ? 1 : step === "details" ? 2 : step === "review" ? 3 : 0
-      : step === "details" ? 0 : 1
+    elements.length > 0
+      ? step === "annotate"
+        ? 1
+        : step === "details"
+          ? 2
+          : step === "review"
+            ? 3
+            : 0
+      : step === "details"
+        ? 0
+        : 1
 
   return (
     <Dialog
@@ -760,7 +882,10 @@ function VisualBugReporter({
 
             <div className="min-h-[200px]">
               {step === "annotate" && (
-                <AnnotateStep rects={rects} onChange={handleAnnotationChange} />
+                <AnnotateStep
+                  elements={elements}
+                  onChange={handleAnnotationChange}
+                />
               )}
               {step === "details" && (
                 <DetailsStep
@@ -778,7 +903,7 @@ function VisualBugReporter({
               )}
               {step === "review" && (
                 <ReviewStep
-                  rects={rects}
+                  elements={elements}
                   type={type}
                   severity={severity}
                   title={title}
@@ -801,7 +926,7 @@ function VisualBugReporter({
                     Re-capture
                   </Button>
                 )}
-                {step === "details" && rects.length > 0 && (
+                {step === "details" && elements.length > 0 && (
                   <Button
                     variant="ghost"
                     size="sm"
@@ -879,7 +1004,11 @@ export function TroubleTicketTrigger({
 
   return (
     <>
-      <button type="button" onClick={() => setOpen(true)} className={className}>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className={className}
+      >
         {children}
       </button>
       <VisualBugReporter
@@ -896,7 +1025,7 @@ export function FloatingHelpButton() {
 
   return (
     <>
-      <div className="fixed right-6 bottom-6 z-50">
+      <div className="fixed right-6 bottom-6 z-50" data-tour="help-button">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
@@ -907,13 +1036,29 @@ export function FloatingHelpButton() {
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent side="top" align="start" className="w-52">
-            <DropdownMenuItem onClick={() => setMode("visual")} className="gap-2">
+            <DropdownMenuItem
+              onClick={() => setMode("visual")}
+              className="gap-2"
+            >
               <Crosshair className="size-4" />
               Report Issue (Visual)
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setMode("quick")} className="gap-2">
+            <DropdownMenuItem
+              onClick={() => setMode("quick")}
+              className="gap-2"
+            >
               <Zap className="size-4" />
               Quick Report
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => {
+                triggerTourReplay()
+              }}
+              className="gap-2"
+            >
+              <RotateCcw className="size-4" />
+              Replay Tutorial
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>

@@ -719,56 +719,56 @@ export default function NightShiftReport() {
         <CardContent className="pt-6">
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6">
             <div className="flex items-center gap-3">
-              <Calendar className="size-5 text-blue-500 shrink-0" />
+              <Calendar className="size-5 text-muted-foreground shrink-0" />
               <div>
                 <div className="text-xs text-muted-foreground">Date</div>
                 <div className="font-medium">March 18-19, 2026</div>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Clock className="size-5 text-blue-500 shrink-0" />
+              <Clock className="size-5 text-muted-foreground shrink-0" />
               <div>
                 <div className="text-xs text-muted-foreground">Shift</div>
                 <div className="font-medium">Night (10 PM - 6 AM)</div>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <FileCode className="size-5 text-blue-500 shrink-0" />
+              <FileCode className="size-5 text-muted-foreground shrink-0" />
               <div>
                 <div className="text-xs text-muted-foreground">Total Files</div>
                 <div className="font-medium">200+</div>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Route className="size-5 text-blue-500 shrink-0" />
+              <Route className="size-5 text-muted-foreground shrink-0" />
               <div>
                 <div className="text-xs text-muted-foreground">Total Routes</div>
                 <div className="font-medium">89+</div>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <GitCommit className="size-5 text-blue-500 shrink-0" />
+              <GitCommit className="size-5 text-muted-foreground shrink-0" />
               <div>
                 <div className="text-xs text-muted-foreground">Commits</div>
                 <div className="font-medium">39+</div>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Code className="size-5 text-blue-500 shrink-0" />
+              <Code className="size-5 text-muted-foreground shrink-0" />
               <div>
                 <div className="text-xs text-muted-foreground">Lines of Code</div>
                 <div className="font-medium">48,000+</div>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Shield className="size-5 text-blue-500 shrink-0" />
+              <Shield className="size-5 text-muted-foreground shrink-0" />
               <div>
                 <div className="text-xs text-muted-foreground">Build Status</div>
                 <Badge className="bg-emerald-600 text-white border-emerald-600">CLEAN</Badge>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <ShieldCheck className="size-5 text-blue-500 shrink-0" />
+              <ShieldCheck className="size-5 text-muted-foreground shrink-0" />
               <div>
                 <div className="text-xs text-muted-foreground">Overall Status</div>
                 <Badge className="bg-emerald-600 text-white border-emerald-600">ON TRACK</Badge>
@@ -833,8 +833,8 @@ export default function NightShiftReport() {
               )}
 
               {report.businessImpact && (
-                <div className="bg-blue-500/5 border border-blue-500/20 rounded-lg p-3">
-                  <h4 className="text-sm font-medium mb-1 text-blue-600">What This Means</h4>
+                <div className="bg-muted/50 border border-border rounded-lg p-3">
+                  <h4 className="text-sm font-medium mb-1">What This Means</h4>
                   <p className="text-sm text-muted-foreground">{report.businessImpact}</p>
                 </div>
               )}
