@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { toast } from "sonner"
 import {
   ArrowLeft,
   ArrowRight,
@@ -75,6 +76,14 @@ export default function NewFlowPage() {
   )
 
   async function handleGenerate() {
+    if (!selectedMode) {
+      toast.error("Please select a mode first")
+      return
+    }
+    if (!url && !prompt) {
+      toast.error("Please enter a URL or describe what you want to scrape")
+      return
+    }
     setGenerating(true)
     try {
       const response = await fetch("/api/flows", {
@@ -82,20 +91,28 @@ export default function NewFlowPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: prompt ? prompt.slice(0, 60) : "New Flow",
-          url: url,
+          url: url || "https://example.com",
           mode: selectedMode,
-          description: prompt,
+          description: prompt || "",
           status: "draft",
         }),
       })
       const result = await response.json()
+      if (!response.ok) {
+        toast.error(result.error || "Failed to create flow")
+        setGenerating(false)
+        return
+      }
       const newId = result.data?.id || result.id
       if (newId) {
+        toast.success("Flow created!")
         router.push(`/flows/${newId}`)
       } else {
+        toast.error("Flow created but no ID returned")
         setGenerating(false)
       }
-    } catch {
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to create flow")
       setGenerating(false)
     }
   }
@@ -109,7 +126,7 @@ export default function NewFlowPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: template?.name || "New Flow",
-          url: template?.url || url || "",
+          url: template?.url || url || "https://example.com",
           mode: template?.mode || selectedMode || "extract",
           description: template?.description || "",
           status: "draft",
@@ -118,10 +135,17 @@ export default function NewFlowPage() {
         }),
       })
       const result = await response.json()
+      if (!response.ok) {
+        toast.error(result.error || "Failed to create flow from template")
+        setGenerating(false)
+        return
+      }
       const newId = result.data?.id || result.id
       if (newId) {
+        toast.success("Flow created from template!")
         router.push(`/flows/${newId}`)
       } else {
+        toast.error("Flow created but no ID returned")
         setGenerating(false)
       }
     } catch {

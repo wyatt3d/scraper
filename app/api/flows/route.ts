@@ -35,25 +35,34 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
-  const body = await req.json()
+  try {
+    const body = await req.json()
 
-  const { data, error } = await supabase
-    .from("flows")
-    .insert({
-      name: body.name || "Untitled Flow",
-      description: body.description || "",
-      url: body.url || "",
-      mode: body.mode || "extract",
-      status: body.status || "draft",
-      steps: body.steps || [],
-      output_schema: body.outputSchema || {},
-    })
-    .select()
-    .single()
+    if (!body.name && !body.url) {
+      return NextResponse.json({ error: "Name or URL is required" }, { status: 400 })
+    }
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    const { data, error } = await supabase
+      .from("flows")
+      .insert({
+        name: body.name || "Untitled Flow",
+        description: body.description || "",
+        url: body.url || "https://example.com",
+        mode: body.mode || "extract",
+        status: body.status || "draft",
+        steps: body.steps || [],
+        output_schema: body.outputSchema || body.output_schema || {},
+      })
+      .select()
+      .single()
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    return NextResponse.json({ data: toFlow(data) }, { status: 201 })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to create flow"
+    return NextResponse.json({ error: message }, { status: 500 })
   }
-
-  return NextResponse.json({ data: toFlow(data) }, { status: 201 })
 }
