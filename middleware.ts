@@ -5,8 +5,11 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const hostname = request.headers.get("host") || ""
 
+  // Never rewrite API routes, static assets, or system paths for subdomains
+  const isSystemPath = pathname.startsWith("/api/") || pathname.startsWith("/_next/") || pathname.startsWith("/icon") || pathname === "/favicon.ico"
+
   // Subdomain routing: admin.scraper.bot -> /admin
-  if (hostname.startsWith("admin.")) {
+  if (hostname.startsWith("admin.") && !isSystemPath) {
     if (!pathname.startsWith("/admin")) {
       const url = request.nextUrl.clone()
       url.pathname = `/admin${pathname === "/" ? "" : pathname}`
@@ -15,7 +18,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Subdomain routing: docs.scraper.bot -> /docs
-  if (hostname.startsWith("docs.")) {
+  if (hostname.startsWith("docs.") && !isSystemPath) {
     if (!pathname.startsWith("/docs")) {
       const url = request.nextUrl.clone()
       url.pathname = `/docs${pathname === "/" ? "" : pathname}`
@@ -24,7 +27,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Subdomain routing: status.scraper.bot -> /status
-  if (hostname.startsWith("status.")) {
+  if (hostname.startsWith("status.") && !isSystemPath) {
     if (!pathname.startsWith("/status")) {
       const url = request.nextUrl.clone()
       url.pathname = `/status${pathname}`
@@ -33,7 +36,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Subdomain routing: blog.scraper.bot -> /blog
-  if (hostname.startsWith("blog.")) {
+  if (hostname.startsWith("blog.") && !isSystemPath) {
     if (!pathname.startsWith("/blog")) {
       const url = request.nextUrl.clone()
       url.pathname = `/blog${pathname === "/" ? "" : pathname}`
@@ -42,7 +45,7 @@ export function middleware(request: NextRequest) {
   }
 
   // Subdomain routing: community.scraper.bot -> /community
-  if (hostname.startsWith("community.")) {
+  if (hostname.startsWith("community.") && !isSystemPath) {
     if (!pathname.startsWith("/community")) {
       const url = request.nextUrl.clone()
       url.pathname = `/community${pathname === "/" ? "" : pathname}`
