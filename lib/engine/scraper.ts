@@ -62,16 +62,28 @@ export async function scrapeWithBrowser(url: string, rules?: ExtractionRule[]): 
   }
 
   try {
-    const response = await fetch(`${browserlessUrl}/content?token=${browserlessToken}`, {
+    const response = await fetch(`${browserlessUrl}/content?token=${browserlessToken}&stealth`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         url,
         waitForSelector: "body",
-        waitForTimeout: 3000,
-        gotoOptions: { waitUntil: "networkidle2", timeout: 30000 },
+        waitForTimeout: 5000,
+        bestAttempt: true,
+        gotoOptions: { waitUntil: "networkidle2", timeout: 45000 },
+        addScriptTag: [
+          {
+            content: `
+              // Override navigator properties to avoid bot detection
+              Object.defineProperty(navigator, 'webdriver', { get: () => false });
+              Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
+              Object.defineProperty(navigator, 'plugins', { get: () => [1, 2, 3, 4, 5] });
+              window.chrome = { runtime: {} };
+            `
+          }
+        ],
       }),
-      signal: AbortSignal.timeout(35000),
+      signal: AbortSignal.timeout(50000),
     })
 
     if (!response.ok) {
@@ -101,15 +113,26 @@ export async function takeScreenshot(url: string): Promise<{ success: boolean; d
   }
 
   try {
-    const response = await fetch(`${browserlessUrl}/screenshot?token=${browserlessToken}`, {
+    const response = await fetch(`${browserlessUrl}/screenshot?token=${browserlessToken}&stealth`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         url,
         options: { fullPage: false, type: "png" },
-        gotoOptions: { waitUntil: "networkidle2", timeout: 15000 },
+        bestAttempt: true,
+        gotoOptions: { waitUntil: "networkidle2", timeout: 30000 },
+        addScriptTag: [
+          {
+            content: `
+              Object.defineProperty(navigator, 'webdriver', { get: () => false });
+              Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
+              window.chrome = { runtime: {} };
+            `
+          }
+        ],
+        waitForTimeout: 3000,
       }),
-      signal: AbortSignal.timeout(20000),
+      signal: AbortSignal.timeout(40000),
     })
 
     if (!response.ok) return { success: false, error: `HTTP ${response.status}` }
