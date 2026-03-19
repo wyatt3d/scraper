@@ -1258,7 +1258,7 @@ export default function RedTeamPage() {
                 <ExternalLink className="size-4" />
                 Parse.bot Advantages
               </CardTitle>
-              <CardDescription>What they have that we don't</CardDescription>
+              <CardDescription>What they have that we don&apos;t</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3 text-sm text-muted-foreground">
@@ -1300,7 +1300,7 @@ export default function RedTeamPage() {
                 <ExternalLink className="size-4" />
                 Notte Advantages
               </CardTitle>
-              <CardDescription>What they have that we don't</CardDescription>
+              <CardDescription>What they have that we don&apos;t</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3 text-sm text-muted-foreground">
@@ -1346,7 +1346,7 @@ export default function RedTeamPage() {
           <Card className="border-l-4 border-l-amber-500">
             <CardHeader>
               <CardTitle className="text-base font-semibold">Our Gaps</CardTitle>
-              <CardDescription>What we're missing vs. both competitors</CardDescription>
+              <CardDescription>What we&apos;re missing vs. both competitors</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-3 text-sm text-muted-foreground">
@@ -1375,7 +1375,7 @@ export default function RedTeamPage() {
                   <span className="mt-1 size-1.5 shrink-0 rounded-full bg-amber-500" />
                   <span>
                     <span className="font-medium text-foreground">No real AI</span> --
-                    The "AI generation" is a hardcoded timeout. The playground chat is a script. The workflow builder is a static canvas.
+                    The &quot;AI generation&quot; is a hardcoded timeout. The playground chat is a script. The workflow builder is a static canvas.
                   </span>
                 </li>
                 <li className="flex gap-2">
@@ -1408,7 +1408,7 @@ export default function RedTeamPage() {
             <p>
               <span className="font-semibold text-foreground">The pattern:</span> A new feature gets built with polished UI, hardcoded mock data,
               and buttons that look interactive but have no onClick handlers. The workflow builder looks like a professional node editor
-              but you cannot add nodes from the palette. The marketplace looks like a real app store but "Use Flow" does nothing.
+              but you cannot add nodes from the palette. The marketplace looks like a real app store but &quot;Use Flow&quot; does nothing.
               The analytics page imports chart components that do not exist in the codebase.
             </p>
             <p>

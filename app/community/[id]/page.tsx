@@ -334,7 +334,7 @@ export default function ThreadPage({ params }: { params: Promise<{ id: string }>
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <h1 className="font-serif text-2xl font-bold mb-2">Post not found</h1>
-          <p className="text-muted-foreground mb-4">This post doesn't exist or has been removed.</p>
+          <p className="text-muted-foreground mb-4">This post doesn&apos;t exist or has been removed.</p>
           <Link href="/community">
             <Button variant="outline">Back to Community</Button>
           </Link>

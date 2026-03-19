@@ -40,6 +40,7 @@ export function RecorderPanel({
     if (currentUrl && currentUrl !== inputUrl) {
       setInputUrl(currentUrl)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally sync URL bar only when currentUrl changes from API
   }, [currentUrl])
 
   const handleNavigate = () => {

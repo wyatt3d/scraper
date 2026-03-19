@@ -211,7 +211,7 @@ export default function NewFlowPage() {
             <div>
               <h3 className="font-semibold text-lg">Record a Flow</h3>
               <p className="text-sm text-muted-foreground">
-                The fastest way to create a flow. Navigate to your target site, point and click on the data you want, and we'll build the flow for you.
+                The fastest way to create a flow. Navigate to your target site, point and click on the data you want, and we&apos;ll build the flow for you.
               </p>
             </div>
             <ArrowRight className="size-5 text-muted-foreground shrink-0" />

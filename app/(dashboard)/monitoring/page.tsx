@@ -507,7 +507,7 @@ export default function MonitoringPage() {
           ))}
           {rules.length === 0 && (
             <div className="py-8 text-center text-sm text-muted-foreground">
-              No monitoring rules configured. Click "Add Rule" to get started.
+              No monitoring rules configured. Click &quot;Add Rule&quot; to get started.
             </div>
           )}
         </CardContent>

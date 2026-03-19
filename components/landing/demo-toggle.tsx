@@ -49,7 +49,7 @@ export function DemoToggle() {
             <p className="text-green-400 pl-12">&quot;url&quot;: &quot;https://blog.example.com/deterministic&quot;,</p>
             <p className="text-green-400 pl-12">&quot;points&quot;: 287</p>
             <p className="text-green-400 pl-8">&#125;,</p>
-            <p className="text-zinc-600 pl-8">// ... 3 more results</p>
+            <p className="text-zinc-600 pl-8">{/* ... 3 more results */}</p>
             <p className="text-green-400 pl-4">],</p>
             <p className="text-green-400 pl-4">&quot;meta&quot;: &#123; &quot;total&quot;: 5, &quot;cached&quot;: false &#125;</p>
             <p className="text-green-400">&#125;</p>

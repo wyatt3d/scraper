@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { AlertTriangle } from "lucide-react"
 import { errorTracker } from "@/lib/error-tracking"
@@ -36,7 +37,7 @@ export default function Error({
             Try Again
           </Button>
           <Button variant="outline" asChild>
-            <a href="/">Go Home</a>
+            <Link href="/">Go Home</Link>
           </Button>
         </div>
         {error.digest && (

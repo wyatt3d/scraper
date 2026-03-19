@@ -522,7 +522,7 @@ export default async function LandingPage() {
             <div>
               <h4 className="font-serif font-bold text-foreground text-lg mb-4">Product</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="/#features" className="hover:text-foreground transition-colors">Features</a></li>
+                <li><Link href="/#features" className="hover:text-foreground transition-colors">Features</Link></li>
                 <li><Link href="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
                 <li><Link href="/docs" className="hover:text-foreground transition-colors">Documentation</Link></li>
                 <li><Link href="/docs/api-reference" className="hover:text-foreground transition-colors">API Reference</Link></li>
