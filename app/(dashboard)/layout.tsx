@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
+import { DashboardShortcuts } from "@/components/dashboard/dashboard-shortcuts"
 
 export default async function DashboardLayout({
   children,
@@ -27,6 +28,7 @@ export default async function DashboardLayout({
           <DashboardHeader />
           <main className="flex-1 p-6">{children}</main>
         </SidebarInset>
+        <DashboardShortcuts />
       </SidebarProvider>
     </ThemeProvider>
   )

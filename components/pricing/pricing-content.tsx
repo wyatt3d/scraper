@@ -13,6 +13,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Fragment } from "react"
+import { Slider } from "@/components/ui/slider"
 import { Check, X, ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -175,6 +176,16 @@ function CellIcon({ value }: { value: CellValue }) {
 
 export function PricingContent() {
   const [annual, setAnnual] = useState(false)
+  const [monthlyRuns, setMonthlyRuns] = useState(1000)
+  const [pagesPerRun, setPagesPerRun] = useState(5)
+  const [teamMembers, setTeamMembers] = useState(3)
+
+  const recommendedPlan = monthlyRuns < 100 ? "Free" : monthlyRuns < 5000 ? "Pro" : "Enterprise"
+  const estimatedCost = recommendedPlan === "Free" ? 0 : recommendedPlan === "Pro" ? 29 : 299
+  const totalDataPoints = monthlyRuns * pagesPerRun
+  const costPerRun = estimatedCost > 0 ? estimatedCost / monthlyRuns : 0
+  const costPerDataPoint = totalDataPoints > 0 && estimatedCost > 0 ? estimatedCost / totalDataPoints : 0
+  const ctaHref = recommendedPlan === "Enterprise" ? "/contact" : "/sign-up"
 
   return (
     <div className="min-h-screen bg-background">
@@ -359,8 +370,119 @@ export function PricingContent() {
         </div>
       </section>
 
-      {/* FAQ */}
+      {/* Cost Calculator */}
       <section className="py-24 bg-background">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="font-serif font-black text-3xl md:text-5xl text-balance mb-6">
+              Estimate Your Monthly Cost
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Adjust the sliders to see which plan fits your needs.
+            </p>
+          </div>
+
+          <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-10">
+            <div className="space-y-10">
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-sm font-medium text-foreground">Monthly Runs</label>
+                  <span className="text-sm font-semibold text-blue-600">{monthlyRuns.toLocaleString()}</span>
+                </div>
+                <Slider
+                  value={[monthlyRuns]}
+                  onValueChange={([v]) => setMonthlyRuns(v)}
+                  min={0}
+                  max={50000}
+                  step={100}
+                />
+                <div className="flex justify-between text-xs text-muted-foreground mt-1.5">
+                  <span>0</span>
+                  <span>50,000</span>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-sm font-medium text-foreground">Average Pages per Run</label>
+                  <span className="text-sm font-semibold text-blue-600">{pagesPerRun}</span>
+                </div>
+                <Slider
+                  value={[pagesPerRun]}
+                  onValueChange={([v]) => setPagesPerRun(v)}
+                  min={1}
+                  max={100}
+                  step={1}
+                />
+                <div className="flex justify-between text-xs text-muted-foreground mt-1.5">
+                  <span>1</span>
+                  <span>100</span>
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <label className="text-sm font-medium text-foreground">Team Members</label>
+                  <span className="text-sm font-semibold text-blue-600">{teamMembers}</span>
+                </div>
+                <Slider
+                  value={[teamMembers]}
+                  onValueChange={([v]) => setTeamMembers(v)}
+                  min={1}
+                  max={50}
+                  step={1}
+                />
+                <div className="flex justify-between text-xs text-muted-foreground mt-1.5">
+                  <span>1</span>
+                  <span>50</span>
+                </div>
+              </div>
+            </div>
+
+            <Card className="border-blue-600/30 shadow-lg">
+              <CardHeader>
+                <CardDescription className="text-sm">Recommended Plan</CardDescription>
+                <CardTitle className="font-serif font-black text-3xl text-blue-600">
+                  {recommendedPlan}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex justify-between items-baseline border-b border-border/50 pb-3">
+                  <span className="text-sm text-muted-foreground">Estimated monthly cost</span>
+                  <span className="font-serif font-black text-2xl">
+                    {recommendedPlan === "Enterprise" ? "Custom" : `$${estimatedCost}`}
+                  </span>
+                </div>
+                <div className="flex justify-between items-baseline border-b border-border/50 pb-3">
+                  <span className="text-sm text-muted-foreground">Cost per run</span>
+                  <span className="font-medium">
+                    {recommendedPlan === "Enterprise" ? "--" : `$${costPerRun.toFixed(4)}`}
+                  </span>
+                </div>
+                <div className="flex justify-between items-baseline border-b border-border/50 pb-3">
+                  <span className="text-sm text-muted-foreground">Cost per data point</span>
+                  <span className="font-medium">
+                    {recommendedPlan === "Enterprise" ? "--" : `$${costPerDataPoint.toFixed(6)}`}
+                  </span>
+                </div>
+                <div className="flex justify-between items-baseline pb-3">
+                  <span className="text-sm text-muted-foreground">Total data points/mo</span>
+                  <span className="font-medium">{totalDataPoints.toLocaleString()}</span>
+                </div>
+                <Link href={ctaHref}>
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white mt-2">
+                    Get Started with {recommendedPlan}
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-24 bg-muted/20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="font-serif font-black text-3xl md:text-5xl text-balance mb-6">

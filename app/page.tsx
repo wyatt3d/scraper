@@ -9,6 +9,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { TrustedBy } from "@/components/landing/trusted-by"
 import {
   ArrowRight,
   CheckCircle,
@@ -139,6 +140,9 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      {/* Trusted By + Stats */}
+      <TrustedBy />
 
       {/* How It Works */}
       <section id="how-it-works" className="py-24 bg-muted/20">

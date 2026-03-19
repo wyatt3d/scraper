@@ -8,9 +8,11 @@ import {
   CreditCard,
   Key,
   LayoutDashboard,
+  LayoutTemplate,
   LogOut,
   Play,
   Settings,
+  Sparkles,
   Workflow,
 } from "lucide-react"
 
@@ -41,7 +43,9 @@ import {
 
 const navItems = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { title: "Playground", href: "/playground", icon: Sparkles },
   { title: "Flows", href: "/flows", icon: Workflow },
+  { title: "Templates", href: "/templates", icon: LayoutTemplate },
   { title: "Runs", href: "/runs", icon: Play },
   { title: "Monitoring", href: "/monitoring", icon: Bell },
   { title: "API Keys", href: "/api-keys", icon: Key },
