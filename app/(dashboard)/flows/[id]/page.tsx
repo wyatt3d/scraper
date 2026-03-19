@@ -50,6 +50,7 @@ import {
   Timer,
   Layers,
   Ban,
+  Sparkles,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -199,6 +200,10 @@ export default function FlowDetailPage() {
   const [mobileBuilderTab, setMobileBuilderTab] = useState<"steps" | "preview" | "config">("steps")
   const [steps, setSteps] = useState<FlowStep[]>([])
   const [selectedStepId, setSelectedStepId] = useState<string | null>(null)
+  const [previewLoading, setPreviewLoading] = useState(false)
+  const [previewImage, setPreviewImage] = useState<string | null>(null)
+  const [previewError, setPreviewError] = useState<string | null>(null)
+  const [runningFlow, setRunningFlow] = useState(false)
 
   useEffect(() => {
     if (flow) {
@@ -206,6 +211,42 @@ export default function FlowDetailPage() {
       setSelectedStepId(flow.steps?.[0]?.id ?? null)
     }
   }, [flow])
+
+  async function handleLoadPreview() {
+    if (!flow?.url) {
+      toast.error("No URL set for this flow")
+      return
+    }
+    setPreviewLoading(true)
+    setPreviewError(null)
+    try {
+      const res = await fetch("/api/screenshot", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: flow.url }),
+      })
+      const data = await res.json()
+      if (data.success && data.screenshot) {
+        setPreviewImage(data.screenshot)
+        toast.success("Preview loaded")
+      } else {
+        setPreviewError(data.error || "Failed to load preview")
+        toast.error("Could not load preview")
+      }
+    } catch {
+      setPreviewError("Preview service unavailable")
+    } finally {
+      setPreviewLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (flow?.url && !previewImage && !previewLoading) {
+      const timer = setTimeout(() => handleLoadPreview(), 1000)
+      return () => clearTimeout(timer)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [flow?.url])
 
   const selectedStep = useMemo(() => {
     function findStep(s: FlowStep[]): FlowStep | undefined {
@@ -268,9 +309,17 @@ export default function FlowDetailPage() {
               </Link>
             </Button>
             <div>
-              <h1 className="font-[family-name:var(--font-crimson-text)] text-xl font-bold">
-                {flow.name}
-              </h1>
+              <div className="flex items-center gap-2">
+                <h1 className="font-[family-name:var(--font-crimson-text)] text-xl font-bold">
+                  {flow.name}
+                </h1>
+                {flow.description && (
+                  <Badge variant="secondary" className="text-xs">
+                    <Sparkles className="mr-1 h-3 w-3" />
+                    AI Generated
+                  </Badge>
+                )}
+              </div>
               <p className="text-muted-foreground text-xs">{flow.url}</p>
             </div>
           </div>
@@ -344,7 +393,14 @@ export default function FlowDetailPage() {
                     />
                   )}
                   {mobileBuilderTab === "preview" && (
-                    <PreviewPanel url={flow.url} selectedStep={selectedStep} />
+                    <PreviewPanel
+                      url={flow.url}
+                      selectedStep={selectedStep}
+                      previewLoading={previewLoading}
+                      previewImage={previewImage}
+                      previewError={previewError}
+                      onLoadPreview={handleLoadPreview}
+                    />
                   )}
                   {mobileBuilderTab === "config" && (
                     <ConfigPanel step={selectedStep} outputSchema={flow.outputSchema} />
@@ -363,7 +419,14 @@ export default function FlowDetailPage() {
                 </ResizablePanel>
                 <ResizableHandle withHandle />
                 <ResizablePanel defaultSize={48} minSize={30}>
-                  <PreviewPanel url={flow.url} selectedStep={selectedStep} />
+                  <PreviewPanel
+                      url={flow.url}
+                      selectedStep={selectedStep}
+                      previewLoading={previewLoading}
+                      previewImage={previewImage}
+                      previewError={previewError}
+                      onLoadPreview={handleLoadPreview}
+                    />
                 </ResizablePanel>
                 <ResizableHandle withHandle />
                 <ResizablePanel defaultSize={30} minSize={22} maxSize={45}>
@@ -412,7 +475,8 @@ export default function FlowDetailPage() {
               <Save className="mr-2 h-3.5 w-3.5" />
               Save
             </Button>
-            <Button size="sm" className="bg-blue-600 hover:bg-blue-700" onClick={async () => {
+            <Button size="sm" className="bg-blue-600 hover:bg-blue-700" disabled={runningFlow} onClick={async () => {
+              setRunningFlow(true)
               toast.info(`Running "${flow.name}"...`)
               try {
                 const res = await fetch("/api/runs/trigger", {
@@ -425,13 +489,21 @@ export default function FlowDetailPage() {
                   toast.error(data.error)
                 } else {
                   toast.success(`Completed! ${data.itemsExtracted} items extracted in ${(data.duration / 1000).toFixed(1)}s`)
+                  setActiveTab("runs")
+                  const runsRes = await fetch(`/api/runs?flowId=${flowId}`)
+                  if (runsRes.ok) {
+                    const runsData = await runsRes.json()
+                    setFlowRuns(Array.isArray(runsData) ? runsData : runsData.data || [])
+                  }
                 }
               } catch {
                 toast.error("Failed to run flow")
+              } finally {
+                setRunningFlow(false)
               }
             }}>
-              <Play className="mr-2 h-3.5 w-3.5" />
-              Run Flow
+              {runningFlow ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : <Play className="mr-2 h-3.5 w-3.5" />}
+              {runningFlow ? "Running..." : "Run Flow"}
             </Button>
           </div>
         </div>
@@ -521,9 +593,17 @@ function StepsPanel({
 function PreviewPanel({
   url,
   selectedStep,
+  previewLoading,
+  previewImage,
+  previewError,
+  onLoadPreview,
 }: {
   url: string
   selectedStep?: FlowStep
+  previewLoading: boolean
+  previewImage: string | null
+  previewError: string | null
+  onLoadPreview: () => void
 }) {
   return (
     <div className="flex h-full flex-col bg-muted/20">
@@ -537,48 +617,60 @@ function PreviewPanel({
           <Lock className="h-3 w-3 text-green-600" />
           <span className="text-muted-foreground font-mono truncate">{url}</span>
         </div>
-        <Button variant="ghost" size="icon" className="h-7 w-7">
-          <RefreshCw className="h-3.5 w-3.5" />
+        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onLoadPreview} disabled={previewLoading}>
+          <RefreshCw className={cn("h-3.5 w-3.5", previewLoading && "animate-spin")} />
         </Button>
       </div>
-      <div className="flex flex-1 items-center justify-center p-8">
-        <div className="flex flex-col items-center gap-4 text-center max-w-sm">
-          <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-muted">
-            <Eye className="h-8 w-8 text-muted-foreground" />
+      <div className="flex flex-1 items-center justify-center overflow-auto">
+        {previewLoading ? (
+          <div className="flex flex-col items-center gap-3">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <p className="text-sm text-muted-foreground">Loading preview of {url}...</p>
           </div>
-          <div>
-            <p className="font-[family-name:var(--font-crimson-text)] text-lg font-semibold">
-              Live Preview
-            </p>
-            <p className="text-muted-foreground mt-1 text-sm">
-              The target page will render here when you run the flow. Selectors from the
-              active step will be highlighted on the page.
-            </p>
+        ) : previewImage ? (
+          <div className="w-full h-full overflow-auto">
+            <img src={previewImage} alt="Page preview" className="w-full" />
           </div>
-          {selectedStep && (
-            <Card className="w-full">
-              <CardContent className="p-3">
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="text-muted-foreground">Active step:</span>
-                  <Badge variant="secondary" className="text-xs">
-                    {stepTypeConfig[selectedStep.type].label}
-                  </Badge>
-                  <span className="font-medium">{selectedStep.label}</span>
-                </div>
-                {selectedStep.selector && (
-                  <div className="mt-2 rounded bg-muted p-2 font-mono text-xs">
-                    <span className="text-muted-foreground">selector: </span>
-                    <span className="text-blue-600">{selectedStep.selector}</span>
+        ) : (
+          <div className="flex flex-col items-center gap-4 text-center max-w-sm p-8">
+            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-muted">
+              <Eye className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <div>
+              <p className="font-[family-name:var(--font-crimson-text)] text-lg font-semibold">
+                Live Preview
+              </p>
+              <p className="text-muted-foreground mt-1 text-sm">
+                {previewError
+                  ? previewError
+                  : "The target page will render here. Click Load Preview or run the flow to see it."}
+              </p>
+            </div>
+            {selectedStep && (
+              <Card className="w-full">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="text-muted-foreground">Active step:</span>
+                    <Badge variant="secondary" className="text-xs">
+                      {stepTypeConfig[selectedStep.type].label}
+                    </Badge>
+                    <span className="font-medium">{selectedStep.label}</span>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-          <Button variant="outline" size="sm">
-            <Play className="mr-2 h-3.5 w-3.5" />
-            Load Preview
-          </Button>
-        </div>
+                  {selectedStep.selector && (
+                    <div className="mt-2 rounded bg-muted p-2 font-mono text-xs">
+                      <span className="text-muted-foreground">selector: </span>
+                      <span className="text-blue-600">{selectedStep.selector}</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+            <Button variant="outline" size="sm" onClick={onLoadPreview} disabled={previewLoading}>
+              <Play className="mr-2 h-3.5 w-3.5" />
+              Load Preview
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   )

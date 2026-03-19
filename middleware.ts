@@ -59,8 +59,10 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // API routes require API key validation
-  if (pathname.startsWith("/api/") && !pathname.startsWith("/api/auth")) {
+  // API routes require API key validation (except public endpoints)
+  const publicApiPaths = ["/api/auth", "/api/tickets", "/api/health", "/api/extract", "/api/generate", "/api/checkout", "/api/email"]
+  const isPublicApi = publicApiPaths.some(p => pathname.startsWith(p))
+  if (pathname.startsWith("/api/") && !isPublicApi) {
     const apiKey = request.headers.get("x-api-key") || request.headers.get("authorization")?.replace("Bearer ", "")
     if (!apiKey) {
       const referer = request.headers.get("referer")
