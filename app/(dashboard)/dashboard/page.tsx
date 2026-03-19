@@ -177,26 +177,27 @@ export default function DashboardPage() {
   const [alerts, setAlerts] = useState<MonitorAlert[]>([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [flowsRes, runsRes, alertsRes] = await Promise.all([
-          fetch("/api/flows"),
-          fetch("/api/runs"),
-          fetch("/api/alerts"),
-        ])
-        const flowsData = await flowsRes.json()
-        const runsData = await runsRes.json()
-        const alertsData = await alertsRes.json()
-        setFlows(Array.isArray(flowsData.data) ? flowsData.data : [])
-        setRuns(Array.isArray(runsData.data) ? runsData.data : [])
-        setAlerts(Array.isArray(alertsData.data) ? alertsData.data : [])
-      } catch {
-        // API failed, data stays empty
-      } finally {
-        setLoading(false)
-      }
+  async function loadData() {
+    try {
+      const [flowsRes, runsRes, alertsRes] = await Promise.all([
+        fetch("/api/flows"),
+        fetch("/api/runs"),
+        fetch("/api/alerts"),
+      ])
+      const flowsData = await flowsRes.json()
+      const runsData = await runsRes.json()
+      const alertsData = await alertsRes.json()
+      setFlows(Array.isArray(flowsData.data) ? flowsData.data : [])
+      setRuns(Array.isArray(runsData.data) ? runsData.data : [])
+      setAlerts(Array.isArray(alertsData.data) ? alertsData.data : [])
+    } catch {
+      // API failed, data stays empty
+    } finally {
+      setLoading(false)
     }
+  }
+
+  useEffect(() => {
     loadData()
   }, [])
 
@@ -247,8 +248,24 @@ export default function DashboardPage() {
     },
   ]
 
-  function handleRunFlow(flowName: string) {
-    toast.success("Flow triggered successfully", { description: flowName })
+  async function handleRunFlow(flowId: string, flowName: string) {
+    toast.info(`Running "${flowName}"...`)
+    try {
+      const res = await fetch("/api/runs/trigger", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ flowId }),
+      })
+      const data = await res.json()
+      if (data.error) {
+        toast.error(data.error)
+      } else {
+        toast.success(`Completed! ${data.itemsExtracted} items extracted in ${(data.duration / 1000).toFixed(1)}s`)
+        loadData()
+      }
+    } catch {
+      toast.error("Failed to run flow")
+    }
   }
 
   function handleTogglePause(flowId: string) {
@@ -485,7 +502,7 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-1 pl-4">
-                    <Button variant="outline" size="sm" className="h-8 gap-1" onClick={() => handleRunFlow(flow.name)}>
+                    <Button variant="outline" size="sm" className="h-8 gap-1" onClick={() => handleRunFlow(flow.id, flow.name)}>
                       <Play className="size-3" />
                       Run
                     </Button>

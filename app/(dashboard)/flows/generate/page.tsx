@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useRef, useCallback } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import {
@@ -10,7 +10,6 @@ import {
   Globe,
   FileText,
   MousePointerClick,
-  Eye,
   RotateCcw,
   Pencil,
   Rocket,
@@ -48,28 +47,29 @@ type Step = "describe" | "generating" | "review"
 
 interface GenerationStep {
   label: string
-  delay: number
   done: boolean
 }
 
-interface FlowStep {
-  type: "navigate" | "wait" | "extract" | "paginate"
-  selector?: string
-  description: string
+interface ExtractionRule {
+  field: string
+  selector: string
+  transform: string
 }
 
-interface SchemaField {
-  name: string
+interface FlowStep {
+  id: string
   type: string
-  selector: string
+  label: string
+  extractionRules?: ExtractionRule[]
 }
 
 interface GeneratedFlow {
   name: string
+  description: string
   url: string
+  mode: string
   steps: FlowStep[]
-  schema: SchemaField[]
-  exampleData: Record<string, string>[]
+  outputSchema: Record<string, string>
 }
 
 const suggestedPrompts = [
@@ -91,121 +91,23 @@ const suggestedPrompts = [
   },
 ]
 
-const generationSteps: GenerationStep[] = [
-  { label: "Analyzing target URL...", delay: 1000, done: false },
-  { label: "Identifying page structure...", delay: 1500, done: false },
-  { label: "Generating CSS selectors...", delay: 1000, done: false },
-  { label: "Building extraction flow...", delay: 1000, done: false },
-  { label: "Optimizing for reliability...", delay: 500, done: false },
+const generationStepLabels = [
+  "Analyzing target URL...",
+  "Identifying page structure...",
+  "Generating CSS selectors...",
+  "Building extraction flow...",
+  "Optimizing for reliability...",
 ]
-
-function getFlowForDescription(description: string): GeneratedFlow {
-  const lower = description.toLowerCase()
-
-  if (lower.includes("job")) {
-    return {
-      name: "Indeed Job Listings Extractor",
-      url: "https://www.indeed.com/jobs?q=software+engineer",
-      steps: [
-        { type: "navigate", description: "Navigate to Indeed search results" },
-        { type: "wait", selector: ".job_seen_beacon", description: "Wait for job cards to load" },
-        { type: "extract", selector: ".job_seen_beacon", description: "Extract job listing data" },
-        { type: "paginate", selector: "a[data-testid='pagination-page-next']", description: "Navigate to next page" },
-      ],
-      schema: [
-        { name: "title", type: "string", selector: ".jobTitle span" },
-        { name: "company", type: "string", selector: ".companyName" },
-        { name: "location", type: "string", selector: ".companyLocation" },
-        { name: "salary", type: "string", selector: ".salary-snippet-container" },
-        { name: "description", type: "string", selector: ".job-snippet" },
-        { name: "url", type: "url", selector: ".jobTitle a[href]" },
-      ],
-      exampleData: [
-        { title: "Senior Software Engineer", company: "TechCorp", location: "San Francisco, CA", salary: "$150,000 - $200,000", description: "We are looking for an experienced...", url: "https://indeed.com/jobs/123" },
-        { title: "Full Stack Developer", company: "StartupXYZ", location: "Remote", salary: "$120,000 - $160,000", description: "Join our growing team to build...", url: "https://indeed.com/jobs/456" },
-        { title: "Backend Engineer", company: "DataFlow Inc", location: "Austin, TX", salary: "$130,000 - $175,000", description: "Design and implement scalable...", url: "https://indeed.com/jobs/789" },
-      ],
-    }
-  }
-
-  if (lower.includes("property") || lower.includes("real estate") || lower.includes("zillow")) {
-    return {
-      name: "Zillow Property Monitor",
-      url: "https://www.zillow.com/austin-tx/",
-      steps: [
-        { type: "navigate", description: "Navigate to Zillow search results" },
-        { type: "wait", selector: "article[data-test='property-card']", description: "Wait for property cards to load" },
-        { type: "extract", selector: "article[data-test='property-card']", description: "Extract property listing data" },
-        { type: "paginate", selector: "a[rel='next']", description: "Navigate to next page" },
-      ],
-      schema: [
-        { name: "address", type: "string", selector: "address[data-test='property-card-addr']" },
-        { name: "price", type: "number", selector: "span[data-test='property-card-price']" },
-        { name: "beds", type: "number", selector: "ul.StyledPropertyCardHomeDetailsList li:nth-child(1)" },
-        { name: "baths", type: "number", selector: "ul.StyledPropertyCardHomeDetailsList li:nth-child(2)" },
-        { name: "sqft", type: "number", selector: "ul.StyledPropertyCardHomeDetailsList li:nth-child(3)" },
-        { name: "url", type: "url", selector: "a.property-card-link[href]" },
-      ],
-      exampleData: [
-        { address: "1234 Oak Hill Dr, Austin, TX", price: "$425,000", beds: "3", baths: "2", sqft: "1,850", url: "https://zillow.com/homedetails/123" },
-        { address: "5678 Riverside Blvd, Austin, TX", price: "$389,000", beds: "2", baths: "2", sqft: "1,400", url: "https://zillow.com/homedetails/456" },
-        { address: "9012 Barton Creek Ln, Austin, TX", price: "$475,000", beds: "4", baths: "3", sqft: "2,200", url: "https://zillow.com/homedetails/789" },
-      ],
-    }
-  }
-
-  if (lower.includes("product") || lower.includes("price") || lower.includes("amazon")) {
-    return {
-      name: "Amazon Product Monitor",
-      url: "https://www.amazon.com/s?k=wireless+headphones",
-      steps: [
-        { type: "navigate", description: "Navigate to Amazon search results" },
-        { type: "wait", selector: "div[data-component-type='s-search-result']", description: "Wait for product grid to load" },
-        { type: "extract", selector: "div[data-component-type='s-search-result']", description: "Extract product data from each card" },
-        { type: "paginate", selector: "a.s-pagination-next", description: "Navigate to next page of results" },
-      ],
-      schema: [
-        { name: "name", type: "string", selector: "h2 a span" },
-        { name: "price", type: "number", selector: ".a-price .a-offscreen" },
-        { name: "rating", type: "number", selector: "span.a-icon-alt" },
-        { name: "reviews", type: "number", selector: "span.a-size-base.s-underline-text" },
-        { name: "url", type: "url", selector: "h2 a.a-link-normal[href]" },
-      ],
-      exampleData: [
-        { name: "Sony WH-1000XM5 Wireless Headphones", price: "$278.00", rating: "4.6", reviews: "12,453", url: "https://amazon.com/dp/B09XS7JWHH" },
-        { name: "Apple AirPods Max", price: "$449.99", rating: "4.7", reviews: "8,291", url: "https://amazon.com/dp/B08PZHYWJS" },
-        { name: "Bose QuietComfort Ultra", price: "$329.00", rating: "4.5", reviews: "6,102", url: "https://amazon.com/dp/B0CCZ1L489" },
-      ],
-    }
-  }
-
-  return {
-    name: "Web Data Extractor",
-    url: "https://example.com",
-    steps: [
-      { type: "navigate", description: "Navigate to target page" },
-      { type: "wait", selector: "main", description: "Wait for main content to load" },
-      { type: "extract", selector: ".item, article, tr", description: "Extract data from repeated elements" },
-    ],
-    schema: [
-      { name: "title", type: "string", selector: "h2, h3, .title" },
-      { name: "description", type: "string", selector: "p, .description" },
-      { name: "link", type: "url", selector: "a[href]" },
-      { name: "date", type: "string", selector: "time, .date" },
-    ],
-    exampleData: [
-      { title: "Item 1", description: "Description of the first item", link: "https://example.com/1", date: "2025-03-19" },
-      { title: "Item 2", description: "Description of the second item", link: "https://example.com/2", date: "2025-03-18" },
-      { title: "Item 3", description: "Description of the third item", link: "https://example.com/3", date: "2025-03-17" },
-    ],
-  }
-}
 
 const stepTypeIcons: Record<string, typeof Globe> = {
   navigate: Globe,
   wait: Loader2,
   extract: FileText,
-  paginate: MousePointerClick,
+  click: MousePointerClick,
+  fill: FileText,
+  scroll: Globe,
+  condition: Globe,
+  loop: Globe,
 }
 
 export default function GenerateFlowPage() {
@@ -214,43 +116,73 @@ export default function GenerateFlowPage() {
   const [description, setDescription] = useState("")
   const [targetUrl, setTargetUrl] = useState("")
   const [genSteps, setGenSteps] = useState<GenerationStep[]>(
-    generationSteps.map((s) => ({ ...s }))
+    generationStepLabels.map((label) => ({ label, done: false }))
   )
   const [progress, setProgress] = useState(0)
   const [generatedFlow, setGeneratedFlow] = useState<GeneratedFlow | null>(null)
   const [flowName, setFlowName] = useState("")
   const [editingName, setEditingName] = useState(false)
+  const [deploying, setDeploying] = useState(false)
+  const animationTimers = useRef<ReturnType<typeof setTimeout>[]>([])
 
-  const runGeneration = useCallback(() => {
-    setStep("generating")
-    setGenSteps(generationSteps.map((s) => ({ ...s, done: false })))
+  const clearTimers = useCallback(() => {
+    animationTimers.current.forEach(clearTimeout)
+    animationTimers.current = []
+  }, [])
+
+  const completeAllSteps = useCallback(() => {
+    clearTimers()
+    setGenSteps(generationStepLabels.map((label) => ({ label, done: true })))
+    setProgress(100)
+  }, [clearTimers])
+
+  const startProgressAnimation = useCallback(() => {
+    setGenSteps(generationStepLabels.map((label) => ({ label, done: false })))
     setProgress(0)
 
-    const totalDelay = generationSteps.reduce((sum, s) => sum + s.delay, 0)
-    let elapsed = 0
-
-    generationSteps.forEach((gs, i) => {
-      elapsed += gs.delay
-      const currentElapsed = elapsed
-      setTimeout(() => {
+    const stepInterval = 1200
+    generationStepLabels.forEach((_, i) => {
+      const timer = setTimeout(() => {
         setGenSteps((prev) =>
           prev.map((s, j) => (j <= i ? { ...s, done: true } : s))
         )
-        setProgress(Math.round((currentElapsed / totalDelay) * 100))
-      }, currentElapsed)
+        setProgress(Math.min(90, Math.round(((i + 1) / generationStepLabels.length) * 90)))
+      }, stepInterval * (i + 1))
+      animationTimers.current.push(timer)
     })
+  }, [])
 
-    setTimeout(() => {
-      const flow = getFlowForDescription(description)
-      setGeneratedFlow(flow)
-      setFlowName(flow.name)
-      setStep("review")
-    }, totalDelay + 300)
-  }, [description])
-
-  function handleGenerate() {
+  async function handleGenerate() {
     if (!description.trim()) return
-    runGeneration()
+    setStep("generating")
+    startProgressAnimation()
+
+    try {
+      const res = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url: targetUrl, description }),
+      })
+      const data = await res.json()
+
+      if (data.error) {
+        toast.error(data.error)
+        clearTimers()
+        setStep("describe")
+        return
+      }
+
+      completeAllSteps()
+      setTimeout(() => {
+        setGeneratedFlow(data.flow)
+        setFlowName(data.flow.name || "Generated Flow")
+        setStep("review")
+      }, 400)
+    } catch {
+      toast.error("Failed to generate flow")
+      clearTimers()
+      setStep("describe")
+    }
   }
 
   function handlePromptClick(text: string) {
@@ -258,15 +190,48 @@ export default function GenerateFlowPage() {
   }
 
   function handleRegenerate() {
-    runGeneration()
+    handleGenerate()
   }
 
-  function handleDeploy() {
-    toast.success("Flow deployed", {
-      description: `"${flowName}" is now active.`,
-    })
-    router.push("/dashboard")
+  async function handleDeploy() {
+    if (!generatedFlow) return
+    setDeploying(true)
+
+    try {
+      const res = await fetch("/api/flows", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: flowName,
+          description: generatedFlow.description,
+          url: generatedFlow.url,
+          mode: generatedFlow.mode,
+          status: "active",
+          steps: generatedFlow.steps,
+          outputSchema: generatedFlow.outputSchema,
+        }),
+      })
+      const data = await res.json()
+
+      if (data.error) {
+        toast.error(data.error)
+        setDeploying(false)
+        return
+      }
+
+      toast.success("Flow deployed", {
+        description: `"${flowName}" is now active.`,
+      })
+      router.push("/dashboard")
+    } catch {
+      toast.error("Failed to deploy flow")
+      setDeploying(false)
+    }
   }
+
+  const outputSchemaEntries = generatedFlow
+    ? Object.entries(generatedFlow.outputSchema || {})
+    : []
 
   return (
     <div className="mx-auto max-w-3xl space-y-8">
@@ -417,6 +382,11 @@ export default function GenerateFlowPage() {
               <CardDescription>
                 Target: {generatedFlow.url}
               </CardDescription>
+              {generatedFlow.description && (
+                <p className="text-sm text-muted-foreground mt-1">
+                  {generatedFlow.description}
+                </p>
+              )}
             </CardHeader>
           </Card>
 
@@ -430,7 +400,7 @@ export default function GenerateFlowPage() {
                   const Icon = stepTypeIcons[flowStep.type] || Globe
                   return (
                     <div
-                      key={i}
+                      key={flowStep.id || i}
                       className="flex items-center gap-3 rounded-lg border p-3"
                     >
                       <div className="flex size-8 items-center justify-center rounded-md bg-blue-600/10 text-blue-600">
@@ -441,15 +411,22 @@ export default function GenerateFlowPage() {
                           <span className="text-sm font-medium capitalize">
                             {flowStep.type}
                           </span>
-                          {flowStep.selector && (
-                            <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-mono text-muted-foreground">
-                              {flowStep.selector}
-                            </code>
-                          )}
                         </div>
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          {flowStep.description}
+                          {flowStep.label}
                         </p>
+                        {flowStep.extractionRules && flowStep.extractionRules.length > 0 && (
+                          <div className="mt-2 space-y-1">
+                            {flowStep.extractionRules.map((rule) => (
+                              <div key={rule.field} className="flex items-center gap-2 text-xs">
+                                <span className="font-medium">{rule.field}</span>
+                                <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-muted-foreground">
+                                  {rule.selector}
+                                </code>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                       <span className="text-xs text-muted-foreground font-mono shrink-0">
                         #{i + 1}
@@ -461,75 +438,35 @@ export default function GenerateFlowPage() {
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-serif text-lg">Output Schema</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Field</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Selector</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {generatedFlow.schema.map((field) => (
-                    <TableRow key={field.name}>
-                      <TableCell className="font-medium">{field.name}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="font-mono text-xs">
-                          {field.type}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <code className="text-xs font-mono text-muted-foreground">
-                          {field.selector}
-                        </code>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-serif text-lg">Example Output</CardTitle>
-              <CardDescription>
-                Preview of extracted data based on the generated schema
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
+          {outputSchemaEntries.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="font-serif text-lg">Output Schema</CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      {generatedFlow.schema.map((field) => (
-                        <TableHead key={field.name}>{field.name}</TableHead>
-                      ))}
+                      <TableHead>Field</TableHead>
+                      <TableHead>Type</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {generatedFlow.exampleData.map((row, i) => (
-                      <TableRow key={i}>
-                        {generatedFlow.schema.map((field) => (
-                          <TableCell
-                            key={field.name}
-                            className="text-sm max-w-[200px] truncate"
-                          >
-                            {row[field.name] || "--"}
-                          </TableCell>
-                        ))}
+                    {outputSchemaEntries.map(([field, type]) => (
+                      <TableRow key={field}>
+                        <TableCell className="font-medium">{field}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className="font-mono text-xs">
+                            {type}
+                          </Badge>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>
                 </Table>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
 
           <div className="flex items-center gap-3">
             <Button variant="outline" className="gap-2" onClick={handleRegenerate}>
@@ -545,9 +482,14 @@ export default function GenerateFlowPage() {
             <Button
               className="flex-1 bg-blue-600 hover:bg-blue-700 gap-2"
               onClick={handleDeploy}
+              disabled={deploying}
             >
-              <Rocket className="size-4" />
-              Deploy Now
+              {deploying ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <Rocket className="size-4" />
+              )}
+              {deploying ? "Deploying..." : "Deploy Now"}
             </Button>
           </div>
         </div>

@@ -8,6 +8,8 @@ import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { DashboardShortcuts } from "@/components/dashboard/dashboard-shortcuts"
 import { Toaster } from "@/components/ui/sonner"
 import { AuthProvider } from "@/components/auth/auth-provider"
+import { BetaBanner } from "@/components/dashboard/beta-banner"
+import { FloatingHelpButton } from "@/components/dashboard/trouble-ticket"
 
 export default async function DashboardLayout({
   children,
@@ -32,15 +34,11 @@ export default async function DashboardLayout({
           <AppSidebar />
           <SidebarInset>
             <DashboardHeader />
-            <div role="status" className="bg-blue-600 text-white text-center text-sm py-2 px-4 flex items-center justify-center gap-2">
-              <span className="font-medium">Early Beta</span>
-              <span className="opacity-80">—</span>
-              <span className="opacity-90">You&apos;re using an early version of Scraper.bot.</span>
-              <a href="https://github.com/wyatt3d/scraper/issues" target="_blank" rel="noopener noreferrer" className="underline font-medium hover:opacity-80">Submit a trouble ticket</a>
-            </div>
+            <BetaBanner />
             <main id="main-content" className="flex-1 p-6">{children}</main>
           </SidebarInset>
           <DashboardShortcuts />
+          <FloatingHelpButton />
           <Toaster />
         </SidebarProvider>
       </AuthProvider>

@@ -528,6 +528,40 @@ const reports: TeamReport[] = [
     businessImpact: "Subtle animations make the product feel alive and responsive — pages don't just appear, they smoothly fade in. Mobile responsiveness is critical: 40% of SaaS evaluations start on a phone. A broken mobile experience means losing nearly half of potential customers before they even sign up.",
   },
 
+  // ─── DAY SHIFT DELIVERIES ───
+  {
+    team: "CTO Office",
+    division: "Scraping Engine",
+    title: "Real Scraping Infrastructure",
+    status: "COMPLETE",
+    timestamp: "Day Shift",
+    completed: [
+      "Cheerio HTTP scraping engine for static/SSR pages (lib/engine/scraper.ts)",
+      "Browserless Chrome deployed on Hostinger VPS (72.62.83.124:3000)",
+      "Browser mode scraping via Browserless /content API for JS-heavy sites",
+      "Screenshot API via Browserless /screenshot endpoint",
+      "Extract API rewritten to use real scraping (no more mock data)",
+      "Playground wired to real /api/extract with HTTP/Browser mode toggle",
+      "Flow execution engine (lib/engine/runner.ts) executing real flow steps",
+      "Run trigger API that executes flows and saves results to Supabase",
+    ],
+    businessImpact: "The product now ACTUALLY SCRAPES real websites. When a user pastes a URL into the playground, they get real data back from the real website. This is the core value proposition of the entire product — without this, everything else is just UI.",
+  },
+  {
+    team: "CTO Office",
+    division: "Integrations",
+    title: "Real Payment, Email & AI Integration",
+    status: "COMPLETE",
+    timestamp: "Day Shift",
+    completed: [
+      "Stripe checkout API with real payment session creation (lib/stripe.ts)",
+      "Resend email client with welcome and alert email templates (lib/email.ts)",
+      "Anthropic Claude API integration for AI-powered flow generation",
+      "All API keys set in Vercel production environment",
+    ],
+    businessImpact: "Users can now pay for Pro plans with real Stripe checkout, receive real emails from the platform, and generate scraping flows using Claude AI. These are the three pillars of a real SaaS: payments, communication, and AI intelligence.",
+  },
+
   // ─── SECURITY TEAMS ───
   {
     team: "Red Team",
@@ -647,15 +681,18 @@ const completedTodoItems = [
   "Investor pitch deck (10 slides)",
   "Go-to-market strategy page",
   "Competitive analysis page",
+  "Real Cheerio scraping engine (HTTP-based, works on Vercel)",
+  "Browserless Chrome on Hostinger VPS for JS rendering",
+  "Screenshot API for page capture",
+  "Real Stripe checkout integration",
+  "Real Resend email integration",
+  "Real Claude AI flow generation",
+  "Flow execution engine with Supabase persistence",
 ]
 
 const todoItems = [
   "Database integration (Supabase or Neon PostgreSQL)",
   "Real authentication (NextAuth.js or Clerk)",
-  "AI-powered flow generation (Anthropic Claude API)",
-  "Real scraping engine (Playwright / Browserless)",
-  "Stripe payment integration",
-  "Email notifications (Resend)",
   "WebSocket for real-time run updates",
   "Browser extension for visual selector picking",
   "MCP server integration",
@@ -706,21 +743,21 @@ export default function NightShiftReport() {
               <Route className="size-5 text-blue-500 shrink-0" />
               <div>
                 <div className="text-xs text-muted-foreground">Total Routes</div>
-                <div className="font-medium">52</div>
+                <div className="font-medium">89+</div>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <GitCommit className="size-5 text-blue-500 shrink-0" />
               <div>
                 <div className="text-xs text-muted-foreground">Commits</div>
-                <div className="font-medium">12</div>
+                <div className="font-medium">39+</div>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <Code className="size-5 text-blue-500 shrink-0" />
               <div>
                 <div className="text-xs text-muted-foreground">Lines of Code</div>
-                <div className="font-medium">32,000+</div>
+                <div className="font-medium">48,000+</div>
               </div>
             </div>
             <div className="flex items-center gap-3">

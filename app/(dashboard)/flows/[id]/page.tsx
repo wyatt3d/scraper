@@ -374,7 +374,13 @@ export default function FlowDetailPage() {
           </TabsContent>
 
           <TabsContent value="runs" className="flex-1 overflow-auto mt-0 p-0">
-            <RunsTab runs={flowRuns} />
+            <RunsTab runs={flowRuns} flowId={flow.id} flowName={flow.name} onRunComplete={async () => {
+              const runsRes = await fetch(`/api/runs?flowId=${flowId}`)
+              if (runsRes.ok) {
+                const runsData = await runsRes.json()
+                setFlowRuns(Array.isArray(runsData) ? runsData : runsData.data || [])
+              }
+            }} />
           </TabsContent>
 
           <TabsContent value="api" className="flex-1 overflow-auto mt-0 p-0">
@@ -406,7 +412,24 @@ export default function FlowDetailPage() {
               <Save className="mr-2 h-3.5 w-3.5" />
               Save
             </Button>
-            <Button size="sm" className="bg-blue-600 hover:bg-blue-700" onClick={() => toast.success("Flow run triggered")}>
+            <Button size="sm" className="bg-blue-600 hover:bg-blue-700" onClick={async () => {
+              toast.info(`Running "${flow.name}"...`)
+              try {
+                const res = await fetch("/api/runs/trigger", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ flowId: flow.id }),
+                })
+                const data = await res.json()
+                if (data.error) {
+                  toast.error(data.error)
+                } else {
+                  toast.success(`Completed! ${data.itemsExtracted} items extracted in ${(data.duration / 1000).toFixed(1)}s`)
+                }
+              } catch {
+                toast.error("Failed to run flow")
+              }
+            }}>
               <Play className="mr-2 h-3.5 w-3.5" />
               Run Flow
             </Button>
@@ -743,7 +766,32 @@ function ConfigPanel({
   )
 }
 
-function RunsTab({ runs }: { runs: Run[] }) {
+function RunsTab({ runs, flowId, flowName, onRunComplete }: { runs: Run[]; flowId: string; flowName: string; onRunComplete: () => void }) {
+  const [running, setRunning] = useState(false)
+
+  async function handleRun() {
+    setRunning(true)
+    toast.info(`Running "${flowName}"...`)
+    try {
+      const res = await fetch("/api/runs/trigger", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ flowId }),
+      })
+      const data = await res.json()
+      if (data.error) {
+        toast.error(data.error)
+      } else {
+        toast.success(`Completed! ${data.itemsExtracted} items extracted in ${(data.duration / 1000).toFixed(1)}s`)
+        onRunComplete()
+      }
+    } catch {
+      toast.error("Failed to run flow")
+    } finally {
+      setRunning(false)
+    }
+  }
+
   return (
     <div className="p-6">
       <div className="flex flex-col gap-4">
@@ -751,9 +799,9 @@ function RunsTab({ runs }: { runs: Run[] }) {
           <h2 className="font-[family-name:var(--font-crimson-text)] text-xl font-semibold">
             Run History
           </h2>
-          <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-            <Play className="mr-2 h-3.5 w-3.5" />
-            Run Now
+          <Button size="sm" className="bg-blue-600 hover:bg-blue-700" onClick={handleRun} disabled={running}>
+            {running ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : <Play className="mr-2 h-3.5 w-3.5" />}
+            {running ? "Running..." : "Run Now"}
           </Button>
         </div>
 

@@ -14,7 +14,9 @@ import {
   LayoutDashboard,
   Map,
   Menu,
+  MessageSquareWarning,
   Moon,
+  Network,
   Presentation,
   Rocket,
   Shield,
@@ -41,9 +43,11 @@ const navGroups = [
     label: "Operations",
     items: [
       { label: "Night Shift Report", href: "/admin/night-shift", icon: FileText },
+      { label: "Tickets", href: "/admin/tickets", icon: MessageSquareWarning },
       { label: "Teams", href: "/admin/teams", icon: Users },
       { label: "Roadmap", href: "/admin/roadmap", icon: Map },
       { label: "System Health", href: "/admin/system", icon: Activity },
+      { label: "Architecture", href: "/admin/architecture", icon: Network },
     ],
   },
   {
