@@ -17,8 +17,8 @@
   --secondary-foreground: oklch(1 0 0); /* #ffffff - Text on secondary */
   --muted: oklch(0.97 0 0); /* #f1f5f9 - Muted background */
   --muted-foreground: oklch(0.269 0 0); /* #374151 - Text on muted */
-  --accent: oklch(0.588 0.162 231.69); /* #2563eb - Blue accent matching logo */
-  --accent-foreground: oklch(1 0 0); /* #ffffff - Text on accent */
+  --accent: oklch(0.93 0 0); /* Subtle gray accent for hover/active states */
+  --accent-foreground: oklch(0.205 0 0); /* Dark text on accent */
   --destructive: oklch(0.577 0.245 27.325); /* #ea580c - Orange for destructive actions */
   --destructive-foreground: oklch(1 0 0); /* #ffffff - Text on destructive */
   --border: oklch(0.922 0 0); /* #e5e7eb - Light gray borders */
@@ -34,10 +34,10 @@
   --sidebar-foreground: oklch(0.269 0 0); /* #374151 - Sidebar text */
   --sidebar-primary: oklch(0.205 0 0); /* #1f2937 - Sidebar primary */
   --sidebar-primary-foreground: oklch(1 0 0); /* #ffffff - Sidebar primary text */
-  --sidebar-accent: oklch(0.588 0.162 231.69); /* #2563eb - Sidebar accent (blue) */
-  --sidebar-accent-foreground: oklch(1 0 0); /* #ffffff - Sidebar accent text */
+  --sidebar-accent: oklch(0.93 0 0); /* Subtle gray for active sidebar items */
+  --sidebar-accent-foreground: oklch(0.205 0 0); /* Dark text on active items */
   --sidebar-border: oklch(0.922 0 0); /* #e5e7eb - Sidebar border */
-  --sidebar-ring: oklch(0.588 0.162 231.69 / 0.5); /* Sidebar focus ring (blue) */
+  --sidebar-ring: oklch(0.439 0 0 / 0.3); /* Subtle focus ring */
 }
 
 .dark {

@@ -166,7 +166,7 @@ export function AppSidebar() {
                 >
                   <Avatar className="size-8">
                     <AvatarImage src={user?.user_metadata?.avatar_url} alt={userName} />
-                    <AvatarFallback className="bg-accent text-accent-foreground text-xs">
+                    <AvatarFallback className="bg-muted text-muted-foreground text-xs font-medium">
                       {userInitials}
                     </AvatarFallback>
                   </Avatar>
