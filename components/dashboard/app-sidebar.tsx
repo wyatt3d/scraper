@@ -113,13 +113,12 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/dashboard">
-                <span className="flex size-8 items-center justify-center rounded-md bg-blue-600 text-white font-serif font-bold text-sm">S</span>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="inline-flex items-baseline">
-                    <span className="font-serif text-base font-semibold">Scraper</span>
-                    <span className="font-serif text-base font-semibold text-blue-600">.bot</span>
+                    <span className="font-serif text-lg font-bold">Scraper</span>
+                    <span className="font-serif text-lg font-bold text-blue-600">.bot</span>
                   </span>
-                  <span className="text-muted-foreground text-xs">Web Automation</span>
+                  <span className="text-muted-foreground text-[10px] uppercase tracking-wider">Dashboard</span>
                 </div>
               </Link>
             </SidebarMenuButton>

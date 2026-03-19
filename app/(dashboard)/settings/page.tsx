@@ -125,23 +125,11 @@ interface Integration {
   icon: typeof Mail
 }
 
-const initialTeamMembers: TeamMember[] = [
-  { id: "tm-1", name: "Wyatt", email: "wyatt@scraper.bot", role: "owner", lastActive: "Now", isYou: true },
-  { id: "tm-2", name: "Sarah Chen", email: "sarah@team.com", role: "admin", lastActive: "2 hours ago" },
-  { id: "tm-3", name: "Mike Johnson", email: "mike@team.com", role: "editor", lastActive: "1 day ago" },
-  { id: "tm-4", name: "Alex Rivera", email: "alex@team.com", role: "viewer", lastActive: "3 days ago" },
-]
+const initialTeamMembers: TeamMember[] = []
 
-const initialPendingInvites: PendingInvite[] = [
-  { id: "inv-1", email: "newuser@company.com", role: "editor", sent: "2 hours ago", status: "pending" },
-]
+const initialPendingInvites: PendingInvite[] = []
 
-const activityLog: ActivityEntry[] = [
-  { id: "act-1", description: "Wyatt changed Mike's role from Viewer to Editor", time: "1 hour ago" },
-  { id: "act-2", description: "Sarah created flow 'Amazon Monitor'", time: "3 hours ago" },
-  { id: "act-3", description: "Alex viewed run results for 'Job Scraper'", time: "5 hours ago" },
-  { id: "act-4", description: "Wyatt invited alex@team.com as Viewer", time: "2 days ago" },
-]
+const activityLog: ActivityEntry[] = []
 
 const roleDescriptions: Record<TeamRole, string> = {
   owner: "Full access, billing, team management, delete account",
@@ -370,54 +358,64 @@ function TeamSection() {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Member</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Last Active</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {members.map((member) => (
-                <TableRow key={member.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Avatar className="size-7">
-                        <AvatarFallback className="text-xs">
-                          {member.name.split(" ").map((n) => n[0]).join("").toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="font-medium text-sm">
-                        {member.name}
-                        {member.isYou && <span className="text-muted-foreground ml-1">(You)</span>}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground text-sm">{member.email}</TableCell>
-                  <TableCell>{roleBadge(member.role)}</TableCell>
-                  <TableCell className="text-muted-foreground text-sm">{member.lastActive}</TableCell>
-                  <TableCell className="text-right">
-                    {!member.isYou && (
-                      <div className="flex items-center justify-end gap-1">
-                        <ChangeRoleDialog member={member} onRoleChange={handleRoleChange} />
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-7 text-red-500 hover:text-red-600"
-                          onClick={() => removeMember(member.id)}
-                        >
-                          <Trash2 className="size-3.5" />
-                        </Button>
-                      </div>
-                    )}
-                  </TableCell>
+          {members.length === 0 ? (
+            <div className="py-8 text-center">
+              <Users className="size-8 mx-auto text-muted-foreground/50 mb-3" />
+              <p className="text-sm font-medium">No team members yet</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Invite team members to collaborate on your scraping flows.
+              </p>
+            </div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Member</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Last Active</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {members.map((member) => (
+                  <TableRow key={member.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Avatar className="size-7">
+                          <AvatarFallback className="text-xs">
+                            {member.name.split(" ").map((n) => n[0]).join("").toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="font-medium text-sm">
+                          {member.name}
+                          {member.isYou && <span className="text-muted-foreground ml-1">(You)</span>}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground text-sm">{member.email}</TableCell>
+                    <TableCell>{roleBadge(member.role)}</TableCell>
+                    <TableCell className="text-muted-foreground text-sm">{member.lastActive}</TableCell>
+                    <TableCell className="text-right">
+                      {!member.isYou && (
+                        <div className="flex items-center justify-end gap-1">
+                          <ChangeRoleDialog member={member} onRoleChange={handleRoleChange} />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="size-7 text-red-500 hover:text-red-600"
+                            onClick={() => removeMember(member.id)}
+                          >
+                            <Trash2 className="size-3.5" />
+                          </Button>
+                        </div>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 
@@ -503,17 +501,23 @@ function TeamSection() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {activityLog.map((entry) => (
-              <div key={entry.id} className="flex items-start justify-between gap-4 text-sm">
-                <p className="text-muted-foreground">{entry.description}</p>
-                <span className="text-xs text-muted-foreground/70 shrink-0 flex items-center gap-1">
-                  <Clock className="size-3" />
-                  {entry.time}
-                </span>
-              </div>
-            ))}
-          </div>
+          {activityLog.length === 0 ? (
+            <p className="py-6 text-center text-sm text-muted-foreground">
+              No activity yet. Team actions will appear here.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              {activityLog.map((entry) => (
+                <div key={entry.id} className="flex items-start justify-between gap-4 text-sm">
+                  <p className="text-muted-foreground">{entry.description}</p>
+                  <span className="text-xs text-muted-foreground/70 shrink-0 flex items-center gap-1">
+                    <Clock className="size-3" />
+                    {entry.time}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </>

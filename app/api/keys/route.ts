@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
 import { listApiKeys, createApiKey } from "@/lib/db"
-import { mockApiKeys } from "@/lib/mock-data"
 
 export async function GET() {
   try {
@@ -11,11 +10,7 @@ export async function GET() {
     }))
     return NextResponse.json({ data: masked, total: masked.length })
   } catch {
-    const masked = mockApiKeys.map((key) => ({
-      ...key,
-      key: key.prefix + "****" + key.key.slice(-4),
-    }))
-    return NextResponse.json({ data: masked, total: masked.length })
+    return NextResponse.json({ data: [], total: 0 })
   }
 }
 

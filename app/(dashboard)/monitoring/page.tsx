@@ -58,40 +58,7 @@ interface MonitoringRule {
   enabled: boolean
 }
 
-const initialRules: MonitoringRule[] = [
-  {
-    id: "rule-1",
-    flowId: "flow-1",
-    flowName: "Product Price Monitor",
-    condition: "Price change exceeds 10%",
-    channel: "Email + Slack",
-    enabled: true,
-  },
-  {
-    id: "rule-2",
-    flowId: "flow-5",
-    flowName: "Craigslist Cars Aggregator",
-    condition: "Run fails 2 times consecutively",
-    channel: "Email",
-    enabled: true,
-  },
-  {
-    id: "rule-3",
-    flowId: "flow-3",
-    flowName: "Real Estate Auction Monitor",
-    condition: "New listings detected",
-    channel: "Slack + Discord",
-    enabled: true,
-  },
-  {
-    id: "rule-4",
-    flowId: "flow-4",
-    flowName: "Contact Form Submitter",
-    condition: "Schedule missed for > 1 hour",
-    channel: "Email",
-    enabled: false,
-  },
-]
+const initialRules: MonitoringRule[] = []
 
 function formatRelativeTime(dateString: string) {
   const date = new Date(dateString)
