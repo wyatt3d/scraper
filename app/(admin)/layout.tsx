@@ -22,6 +22,7 @@ import {
   Shield,
   ShieldAlert,
   Sun,
+  UserCog,
   Users,
 } from "lucide-react"
 import {
@@ -42,6 +43,7 @@ const navGroups = [
   {
     label: "Operations",
     items: [
+      { label: "Users", href: "/admin/users", icon: UserCog },
       { label: "Night Shift Report", href: "/admin/night-shift", icon: FileText },
       { label: "Tickets", href: "/admin/tickets", icon: MessageSquareWarning },
       { label: "Teams", href: "/admin/teams", icon: Users },
