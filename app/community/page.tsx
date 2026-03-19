@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Search, Plus, Pin, MessageSquare, Eye, Heart, Home, BookOpen, LayoutDashboard, Users, FileText, Wifi } from "lucide-react"
+import { Search, Plus, Pin, MessageSquare, Eye, Heart, Home, BookOpen, LayoutDashboard, FileText, Wifi } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -277,11 +277,15 @@ export default function CommunityPage() {
 
   return (
     <div className="min-h-screen bg-background">
+      <div className="bg-blue-600 text-white text-center py-3 text-sm font-medium">
+        Community launching soon. Below is a preview of what it will look like.
+      </div>
+
       <header className="border-b bg-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between gap-4">
             <h1 className="font-serif text-2xl font-bold tracking-tight shrink-0">
-              Scraper.bot Community
+              Scraper.bot Demo Community
             </h1>
             <div className="flex items-center gap-3 flex-1 max-w-xl">
               <div className="relative flex-1">
@@ -325,19 +329,8 @@ export default function CommunityPage() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="flex items-center gap-6 mb-6 text-sm text-muted-foreground">
-          <span className="flex items-center gap-1.5">
-            <Users className="size-4" />
-            <strong className="text-foreground">2,847</strong> members
-          </span>
-          <span className="flex items-center gap-1.5">
-            <FileText className="size-4" />
-            <strong className="text-foreground">1,234</strong> posts
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Wifi className="size-4" />
-            <strong className="text-foreground">89</strong> online now
-          </span>
+        <div className="flex items-center gap-6 mb-6 text-sm text-muted-foreground italic">
+          <span>Sample data shown for preview purposes</span>
         </div>
 
         <div className="flex gap-6">

@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { AlertTriangle, AlertOctagon, Info, ShieldAlert, ExternalLink } from "lucide-react"
+import { AlertTriangle, AlertOctagon, Info, ShieldAlert, ExternalLink, CheckCircle, XCircle } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 type Severity = "CRITICAL" | "HIGH" | "MEDIUM" | "LOW"
@@ -18,6 +18,14 @@ interface Finding {
   fixed: boolean
 }
 
+interface FixVerification {
+  id: string
+  title: string
+  blueTeamClaim: string
+  verified: boolean
+  notes: string
+}
+
 const findings: Finding[] = [
   {
     id: "RT-001",
@@ -29,7 +37,7 @@ const findings: Finding[] = [
     location: "app/(auth)/sign-in/page.tsx:29, app/(auth)/sign-up/page.tsx:44",
     recommendation:
       "Integrate a real auth provider (Clerk, NextAuth, Supabase Auth). At minimum, redirect to /dashboard after submit and store a session cookie.",
-    fixed: false,
+    fixed: true,
   },
   {
     id: "RT-002",
@@ -41,7 +49,7 @@ const findings: Finding[] = [
     location: "app/(auth)/sign-in/page.tsx:95-121, app/(auth)/sign-up/page.tsx:151-177",
     recommendation:
       "Wire up OAuth providers or remove the buttons entirely. Half-functional auth is worse than no auth.",
-    fixed: false,
+    fixed: true,
   },
   {
     id: "RT-003",
@@ -53,7 +61,7 @@ const findings: Finding[] = [
     location: "app/page.tsx:287-289",
     recommendation:
       "Either make it a real interactive demo (link to /playground with pre-filled URL) or remove the button and label it as a static example.",
-    fixed: false,
+    fixed: true,
   },
   {
     id: "RT-004",
@@ -65,7 +73,7 @@ const findings: Finding[] = [
     location: "app/page.tsx:425-427, components/pricing/pricing-content.tsx:67",
     recommendation:
       "Link to a contact form, mailto, or Calendly link. Every enterprise lead that clicks this and gets nothing is lost revenue.",
-    fixed: false,
+    fixed: true,
   },
   {
     id: "RT-005",
@@ -77,7 +85,7 @@ const findings: Finding[] = [
     location: "app/page.tsx:617-651",
     recommendation:
       "Link footer items to their real routes (/blog, /status, /changelog, /docs/api-reference). Remove links for pages that don't exist. Add real social URLs or remove the icons.",
-    fixed: false,
+    fixed: true,
   },
   {
     id: "RT-006",
@@ -89,7 +97,7 @@ const findings: Finding[] = [
     location: "app/(dashboard)/dashboard/page.tsx:297-409",
     recommendation:
       "At minimum, implement client-side state changes (like the monitoring page does for acknowledging alerts). Wire Run buttons to redirect to the flow or trigger a mock run.",
-    fixed: false,
+    fixed: true,
   },
   {
     id: "RT-007",
@@ -101,7 +109,7 @@ const findings: Finding[] = [
     location: "app/(dashboard)/flows/[id]/page.tsx (multiple locations)",
     recommendation:
       "Implement clipboard copy for code snippets. Add toast notifications for Save/Run buttons. Make Add Step actually add steps to local state.",
-    fixed: false,
+    fixed: true,
   },
   {
     id: "RT-008",
@@ -113,7 +121,7 @@ const findings: Finding[] = [
     location: "app/(auth)/sign-in/page.tsx:58",
     recommendation:
       "Create a /forgot-password page or remove the link.",
-    fixed: false,
+    fixed: true,
   },
   {
     id: "RT-009",
@@ -137,7 +145,7 @@ const findings: Finding[] = [
     location: "app/blog/page.tsx:114",
     recommendation:
       "Create actual blog post pages, or make the cards non-clickable with a 'Coming soon' indicator.",
-    fixed: false,
+    fixed: true,
   },
   {
     id: "RT-011",
@@ -161,7 +169,7 @@ const findings: Finding[] = [
     location: "app/(dashboard)/settings/page.tsx:249,266,551",
     recommendation:
       "Add toast notifications on click (e.g., 'Settings saved') to provide feedback, even without a real backend.",
-    fixed: false,
+    fixed: true,
   },
   {
     id: "RT-013",
@@ -173,7 +181,7 @@ const findings: Finding[] = [
     location: "app/(dashboard)/settings/page.tsx:419-425",
     recommendation:
       "Link Upgrade to /pricing or a Stripe checkout. Link Contact Sales to a form or Calendly.",
-    fixed: false,
+    fixed: true,
   },
   {
     id: "RT-014",
@@ -185,7 +193,7 @@ const findings: Finding[] = [
     location: "app/(dashboard)/monitoring/page.tsx:265-268",
     recommendation:
       "Either remove it or scroll to the monitoring rules section below.",
-    fixed: false,
+    fixed: true,
   },
   {
     id: "RT-015",
@@ -281,7 +289,7 @@ const findings: Finding[] = [
     location: "app/page.tsx:585",
     recommendation:
       "Use hover:bg-white/90 or a dark-mode-aware hover state.",
-    fixed: false,
+    fixed: true,
   },
   {
     id: "RT-023",
@@ -293,7 +301,7 @@ const findings: Finding[] = [
     location: "app/page.tsx:48, app/blog/page.tsx:60",
     recommendation:
       "Add a mobile hamburger menu with Sheet or Drawer component.",
-    fixed: false,
+    fixed: true,
   },
   {
     id: "RT-024",
@@ -305,7 +313,7 @@ const findings: Finding[] = [
     location: "app/page.tsx:643-651",
     recommendation:
       "Add aria-label='Twitter', aria-label='GitHub', aria-label='LinkedIn' to each anchor.",
-    fixed: false,
+    fixed: true,
   },
   {
     id: "RT-025",
@@ -329,7 +337,7 @@ const findings: Finding[] = [
     location: "components/dashboard/app-sidebar.tsx:163",
     recommendation:
       "Wire to auth signout or redirect to /sign-in with session cleared.",
-    fixed: false,
+    fixed: true,
   },
   {
     id: "RT-027",
@@ -441,6 +449,544 @@ const findings: Finding[] = [
   },
 ]
 
+const round2Findings: Finding[] = [
+  {
+    id: "RT-036",
+    title: "Playground returns identical output regardless of URL entered",
+    severity: "HIGH",
+    category: "Dead Functionality",
+    description:
+      "The revamped playground page always shows the same preloadedFlow messages and the same mockOutputData (24 hardcoded products) no matter what URL the user types. Every follow-up message returns the same canned 'Got it. I can refine...' response. The 'AI' is still entirely fake. This was noted in RT-029 but the new page makes the deception even more convincing, which is worse.",
+    location: "app/(dashboard)/playground/page.tsx:61-127",
+    recommendation:
+      "At minimum, vary the mock response based on URL domain. Better: wire to a real extraction endpoint.",
+    fixed: false,
+  },
+  {
+    id: "RT-037",
+    title: "Playground output panel uses hardcoded bg-zinc-950, breaks in light mode",
+    severity: "MEDIUM",
+    category: "Dark Mode",
+    description:
+      "The JSON output <pre> tag uses bg-zinc-950 and text-zinc-300 without dark: variants. The schema tab does the same. In light mode the code blocks look jarring -- dark rectangles against a white page. While this is a deliberate 'code editor' aesthetic, it should still use theme-aware backgrounds.",
+    location: "app/(dashboard)/playground/page.tsx:290, 340",
+    recommendation:
+      "Use bg-muted or bg-card for code blocks, or wrap in a dark-mode-aware container.",
+    fixed: false,
+  },
+  {
+    id: "RT-038",
+    title: "Workflow builder: Save, Run, Share buttons have no onClick handlers",
+    severity: "HIGH",
+    category: "Dead Functionality",
+    description:
+      "The workflow builder toolbar has Save, Run, and Share buttons that are purely decorative -- no onClick, no toast, no state change. This is the same class of bug as the original RT-007 but in a brand-new page. The 'Test This Step' button inside the NodeConfigPanel also does nothing.",
+    location: "app/(dashboard)/workflow-builder/page.tsx:754-765, 560",
+    recommendation:
+      "Add onClick handlers with toast.success('Workflow saved') at minimum. Wire 'Run' to navigate to a mock run page.",
+    fixed: false,
+  },
+  {
+    id: "RT-039",
+    title: "Workflow builder: Undo/Redo buttons are non-functional",
+    severity: "MEDIUM",
+    category: "Dead Functionality",
+    description:
+      "The Undo and Redo buttons in the workflow builder toolbar have no onClick handlers. There is no undo/redo state management. They are purely visual.",
+    location: "app/(dashboard)/workflow-builder/page.tsx:718-732",
+    recommendation:
+      "Implement an undo stack or remove the buttons.",
+    fixed: false,
+  },
+  {
+    id: "RT-040",
+    title: "Workflow builder: Node palette drag-and-drop does nothing",
+    severity: "HIGH",
+    category: "Dead Functionality",
+    description:
+      "Each node in the left palette has draggable attribute and cursor-grab styling, but there is no onDragStart, no onDrop on the canvas, and no ondragover handler. Dragging a node from the palette does not add it to the canvas. The only way nodes exist is from the hardcoded initialNodes array. Users have no way to add new nodes to the workflow.",
+    location: "app/(dashboard)/workflow-builder/page.tsx:802-821",
+    recommendation:
+      "Implement drag-and-drop with onDragStart/onDrop, or add an onClick handler to palette items that adds a node at a default position.",
+    fixed: false,
+  },
+  {
+    id: "RT-041",
+    title: "Marketplace 'Use Flow' buttons have no onClick handler",
+    severity: "HIGH",
+    category: "Dead Functionality",
+    description:
+      "Every FlowCard has a 'Use Flow' button with bg-blue-600 styling that looks fully interactive but has no onClick handler. Users click it and nothing happens. The 'Install Flow' button in the preview dialog also has no onClick handler.",
+    location: "app/(dashboard)/marketplace/page.tsx:388-389, 623-626",
+    recommendation:
+      "Add onClick with toast or redirect to /flows/new with the template pre-selected.",
+    fixed: false,
+  },
+  {
+    id: "RT-042",
+    title: "Marketplace 'Publish Your Flow' button has no onClick handler",
+    severity: "MEDIUM",
+    category: "Dead Functionality",
+    description:
+      "The header 'Publish Your Flow' button (line 450-453) has no onClick handler, no Link wrapper, no dialog trigger. It is completely dead.",
+    location: "app/(dashboard)/marketplace/page.tsx:450-453",
+    recommendation:
+      "Either add a publishing wizard or show a 'Coming soon' toast.",
+    fixed: false,
+  },
+  {
+    id: "RT-043",
+    title: "Marketplace sort 'Most Runs' duplicates 'Most Popular' logic",
+    severity: "LOW",
+    category: "Technical Debt",
+    description:
+      "The sort dropdown has 'Most Popular' and 'Most Runs' as separate options, but both use the identical sort logic: b.installs - a.installs. They produce identical results. This either means runs data is missing or the sort was copy-pasted without updating.",
+    location: "app/(dashboard)/marketplace/page.tsx:417-418",
+    recommendation:
+      "Add a separate 'runs' field to marketplace flows or remove the duplicate sort option.",
+    fixed: false,
+  },
+  {
+    id: "RT-044",
+    title: "Marketplace fake reviews with fake usernames",
+    severity: "MEDIUM",
+    category: "Credibility",
+    description:
+      "All marketplace flows have fabricated reviews from fake users (@datawhiz, @recruitbot, @realtyai, etc.) with suspiciously high ratings. Combined with the existing RT-018 (fake testimonials) problem, this compounds the credibility issue. Every interaction point in the product now has fake social proof.",
+    location: "app/(dashboard)/marketplace/page.tsx:87-127",
+    recommendation:
+      "Remove reviews section until real user data exists, or clearly label as example data.",
+    fixed: false,
+  },
+  {
+    id: "RT-045",
+    title: "API Playground uses hardcoded mock responses, not real API calls",
+    severity: "MEDIUM",
+    category: "Dead Functionality",
+    description:
+      "The API Playground 'Send Request' button triggers setTimeout(800ms) and returns hardcoded getMockResponse() data. It does not make any actual HTTP request to the API. All response times, sizes, and headers are fabricated. Users might think they are testing a real API.",
+    location: "app/(dashboard)/api-playground/page.tsx:345-352",
+    recommendation:
+      "Make actual fetch() calls to the API endpoints, or clearly label the page as 'API Explorer (Mock Mode)'.",
+    fixed: false,
+  },
+  {
+    id: "RT-046",
+    title: "API Playground body textarea uses hardcoded dark colors",
+    severity: "LOW",
+    category: "Dark Mode",
+    description:
+      "The body textarea and response pre blocks use bg-zinc-950, text-zinc-100, border-zinc-800 without theme-aware variants. These dark code blocks clash with light mode.",
+    location: "app/(dashboard)/api-playground/page.tsx:479, 544",
+    recommendation:
+      "Use theme tokens or wrap in a forced-dark container.",
+    fixed: false,
+  },
+  {
+    id: "RT-047",
+    title: "API Playground uses dangerouslySetInnerHTML for syntax highlighting",
+    severity: "MEDIUM",
+    category: "Technical Debt",
+    description:
+      "The syntaxHighlight function returns raw HTML strings injected via dangerouslySetInnerHTML. While the input is JSON.stringify output (so not user-controlled in practice), this is a bad pattern. If the API ever returns user-controlled data in responses, this becomes an XSS vector.",
+    location: "app/(dashboard)/api-playground/page.tsx:284-299, 547-549",
+    recommendation:
+      "Use a proper syntax highlighting library (shiki, prism-react-renderer) or React-based tokenizer.",
+    fixed: false,
+  },
+  {
+    id: "RT-048",
+    title: "Analytics page chart components don't exist -- will crash in production",
+    severity: "CRITICAL",
+    category: "Dead Functionality",
+    description:
+      "The analytics page dynamically imports RunsChart, DataChart, and CostChart from '@/components/dashboard/analytics/runs-chart', 'data-chart', and 'cost-chart'. These files DO NOT EXIST in the codebase. The dynamic import has a loading placeholder, so dev mode shows spinners, but the charts will never render. The page is fundamentally broken.",
+    location: "app/(dashboard)/analytics/page.tsx:38-51",
+    recommendation:
+      "Create the chart components or remove the imports and show placeholder charts with static data.",
+    fixed: false,
+  },
+  {
+    id: "RT-049",
+    title: "Analytics numbers don't add up with dashboard/runs data",
+    severity: "MEDIUM",
+    category: "Credibility",
+    description:
+      "Analytics shows Total Runs: 4,287 and 7 top flows whose runs sum to 4,287 (248+412+1024+856+632+389+726). But the items extracted sum to 1,175,476 while the stat card says 1.2M -- close but sloppy. More importantly, these numbers don't match the dashboard page which shows different flow data. The Total Cost of $12.47 is absurdly low for 4,287 runs. The cost column sums to $19.89, not $12.47.",
+    location: "app/(dashboard)/analytics/page.tsx:53-99",
+    recommendation:
+      "Ensure all numbers are internally consistent. Total cost should match sum of individual flow costs.",
+    fixed: false,
+  },
+  {
+    id: "RT-050",
+    title: "Analytics date range selector does nothing",
+    severity: "LOW",
+    category: "Dead Functionality",
+    description:
+      "The date range Select (7d, 30d, 90d, Custom) updates state but has zero effect on the displayed data. All stats, charts, and tables show the same data regardless of selection. The 'Custom' option has no date picker UI.",
+    location: "app/(dashboard)/analytics/page.tsx:102, 115-125",
+    recommendation:
+      "Filter the displayed data based on selection, or disable the selector.",
+    fixed: false,
+  },
+  {
+    id: "RT-051",
+    title: "Webhook logs 'View' button has no onClick handler",
+    severity: "LOW",
+    category: "Dead Functionality",
+    description:
+      "In the webhook logs table, each row has a 'View' button that renders as a ghost Button with no onClick or href. Clicking it does nothing -- no detail panel, no modal, no navigation.",
+    location: "app/(dashboard)/webhooks/page.tsx:514",
+    recommendation:
+      "Add an onClick that shows the full payload in a dialog, or remove the button.",
+    fixed: false,
+  },
+  {
+    id: "RT-052",
+    title: "Integrations wizard 'How to find your webhook URL' link goes to '#'",
+    severity: "LOW",
+    category: "Dead Functionality",
+    description:
+      "The webhook wizard in the integrations page has an anchor tag with href='#' for 'How to find your webhook URL'. It calls e.preventDefault() so it does nothing. Dead help link in a setup wizard is poor UX.",
+    location: "app/(dashboard)/integrations/page.tsx:208-213",
+    recommendation:
+      "Link to actual documentation or show inline instructions.",
+    fixed: false,
+  },
+  {
+    id: "RT-053",
+    title: "Integrations wizard does not update card status after completion",
+    severity: "MEDIUM",
+    category: "Dead Functionality",
+    description:
+      "After completing the Slack, Discord, Google Sheets, or Email wizard and clicking 'Finish Setup', the toast says 'connected successfully' but the integration card still shows 'Not Connected'. The wizard calls onOpenChange(false) but never updates the integration status in state. The status is hardcoded in the const array and never mutated.",
+    location: "app/(dashboard)/integrations/page.tsx:60-127, 167-168",
+    recommendation:
+      "Move integrations to useState and update status on successful wizard completion.",
+    fixed: false,
+  },
+  {
+    id: "RT-054",
+    title: "Community thread links all lead to 404s",
+    severity: "HIGH",
+    category: "Dead Functionality",
+    description:
+      "Every PostCard links to /community/{post.id} (e.g., /community/welcome, /community/paginated-ecommerce). There is no app/community/[id]/page.tsx or app/community/[slug]/page.tsx. All thread links result in 404 pages. The community page looks like a real forum but clicking any post leads nowhere.",
+    location: "app/community/page.tsx:182",
+    recommendation:
+      "Create a dynamic route at app/community/[id]/page.tsx with thread content, or make posts non-clickable.",
+    fixed: false,
+  },
+  {
+    id: "RT-055",
+    title: "Community 'New Post' button leads to 404",
+    severity: "HIGH",
+    category: "Dead Functionality",
+    description:
+      "The 'New Post' button links to /community/new which does not exist. Users who want to create content hit a 404. This makes the forum look abandoned.",
+    location: "app/community/page.tsx:296-300",
+    recommendation:
+      "Create a /community/new page with a post creation form, or remove the button.",
+    fixed: false,
+  },
+  {
+    id: "RT-056",
+    title: "Community Quick Links sidebar uses /docs/api (inconsistent route)",
+    severity: "LOW",
+    category: "Dead Functionality",
+    description:
+      "The community sidebar 'API Reference' link points to /docs/api. The docs sidebar uses /docs/api-reference. The API Keys page uses /docs/api. These inconsistencies mean at least one route 404s. This is the same issue as RT-032 but now appearing in a third location.",
+    location: "app/community/page.tsx:416-417",
+    recommendation:
+      "Standardize the API docs route across all pages.",
+    fixed: false,
+  },
+  {
+    id: "RT-057",
+    title: "Community fake engagement metrics",
+    severity: "MEDIUM",
+    category: "Credibility",
+    description:
+      "The community page displays '2,847 members', '1,234 posts', '89 online now' -- all hardcoded fake numbers. Combined with fabricated post authors, reply counts, and view counts, this creates the illusion of an active community that doesn't exist.",
+    location: "app/community/page.tsx:329-340",
+    recommendation:
+      "Remove fake metrics or clearly label as demo data.",
+    fixed: false,
+  },
+  {
+    id: "RT-058",
+    title: "Extension page 'Add to Chrome' buttons go nowhere",
+    severity: "HIGH",
+    category: "Dead Functionality",
+    description:
+      "Both 'Add to Chrome' buttons (hero and final CTA) are plain <Button> elements with no onClick, no href, no Link wrapper. There is no actual Chrome extension in the Chrome Web Store. The page claims 'Available on the Chrome Web Store' which is false. The 'Watch Demo' button also has no handler.",
+    location: "app/extension/page.tsx:73-79, 310-314",
+    recommendation:
+      "Remove the extension page until an actual extension exists, or clearly label as 'Coming Soon'. At minimum, link to a waitlist signup.",
+    fixed: false,
+  },
+  {
+    id: "RT-059",
+    title: "Extension page: browser mockup 'Extract Data' button is dead",
+    severity: "LOW",
+    category: "Dead Functionality",
+    description:
+      "Inside the browser mockup screenshot, the 'Extract Data' button in the simulated extension popup has no onClick handler. This is a static visual, but it's styled as an interactive button.",
+    location: "app/extension/page.tsx:135-137",
+    recommendation:
+      "Either make it obviously a screenshot/illustration or remove the button styling.",
+    fixed: false,
+  },
+  {
+    id: "RT-060",
+    title: "Extension page footer uses hardcoded bg-gray-950 dark colors",
+    severity: "LOW",
+    category: "Dark Mode",
+    description:
+      "The extension page has its own footer that duplicates the hardcoded bg-gray-950 / text-gray-300 / border-gray-800 pattern from the landing page footer (RT-020). New pages are copying the same theming bug.",
+    location: "app/extension/page.tsx:319",
+    recommendation:
+      "Use theme tokens or share a common footer component.",
+    fixed: false,
+  },
+  {
+    id: "RT-061",
+    title: "Extension page has 'Screenshot placeholder' text visible to users",
+    severity: "MEDIUM",
+    category: "UX",
+    description:
+      "The 'See It in Action' section has three placeholder boxes that literally say 'Screenshot placeholder' with a Monitor icon. This is developer placeholder content that was never replaced with actual screenshots or illustrations.",
+    location: "app/extension/page.tsx:256-274",
+    recommendation:
+      "Add real screenshots or remove the section entirely.",
+    fixed: false,
+  },
+  {
+    id: "RT-062",
+    title: "Run detail page: Stop Run, Re-run, Export Results buttons are dead",
+    severity: "HIGH",
+    category: "Dead Functionality",
+    description:
+      "The run detail page has three action buttons (Stop Run, Re-run, Export Results) that are all purely decorative -- no onClick handlers on any of them. The live simulation looks impressive but users cannot actually interact with it.",
+    location: "app/(dashboard)/runs/[id]/page.tsx:405-417",
+    recommendation:
+      "Add onClick with toast feedback. Stop should end the simulation. Re-run should restart it. Export should download JSON.",
+    fixed: false,
+  },
+  {
+    id: "RT-063",
+    title: "Run detail page: browser mockup uses hardcoded dark colors",
+    severity: "LOW",
+    category: "Dark Mode",
+    description:
+      "The run detail page has a browser frame mockup using bg-gray-900, bg-gray-800, text-gray-400, bg-gray-950. This is the same pattern as the extension page and landing page -- hardcoded dark colors that ignore theming.",
+    location: "app/(dashboard)/runs/[id]/page.tsx:301-309",
+    recommendation:
+      "Use theme tokens.",
+    fixed: false,
+  },
+  {
+    id: "RT-064",
+    title: "Run detail live log container uses bg-zinc-950 (hardcoded dark)",
+    severity: "LOW",
+    category: "Dark Mode",
+    description:
+      "The live logs panel uses bg-zinc-950 with text-gray-500 / text-gray-200. In light mode this creates a jarring dark rectangle. Same pattern as RT-037 and RT-046.",
+    location: "app/(dashboard)/runs/[id]/page.tsx:264",
+    recommendation:
+      "Use theme-aware background.",
+    fixed: false,
+  },
+  {
+    id: "RT-065",
+    title: "Chatbot gives identical canned response to all free-text messages",
+    severity: "MEDIUM",
+    category: "Dead Functionality",
+    description:
+      "The chat widget's handleSend function always returns defaultResponse: 'Thanks for your message! A team member will follow up shortly.' regardless of what the user types. There is no NLP, no keyword matching, no routing. Quick replies work but free-text is completely ignored.",
+    location: "components/chatbot/chat-widget.tsx:82-88",
+    recommendation:
+      "Add basic keyword matching (e.g., 'price' triggers pricing response) or integrate a simple LLM chat endpoint.",
+    fixed: false,
+  },
+  {
+    id: "RT-066",
+    title: "Chatbot references non-existent pages (scraper.bot/contact)",
+    severity: "LOW",
+    category: "Dead Functionality",
+    description:
+      "Quick reply responses reference 'scraper.bot/contact' and 'scraper.bot/community' as valid URLs. The /contact page does not exist (same issue as RT-004). Community exists at /community but the chatbot formats it without a link.",
+    location: "components/chatbot/chat-widget.tsx:24-28",
+    recommendation:
+      "Fix URLs to match actual routes. Make them clickable links.",
+    fixed: false,
+  },
+  {
+    id: "RT-067",
+    title: "Sidebar links to /templates which does not exist (404)",
+    severity: "MEDIUM",
+    category: "Dead Functionality",
+    description:
+      "The sidebar nav includes a 'Templates' item linking to /templates. There is no app/(dashboard)/templates/page.tsx. Clicking Templates in the sidebar gives a 404. This is a new nav item that was added without a corresponding page.",
+    location: "components/dashboard/app-sidebar.tsx:55",
+    recommendation:
+      "Create a templates page or remove the nav item.",
+    fixed: false,
+  },
+  {
+    id: "RT-068",
+    title: "Sidebar 'Billing' link goes to /settings instead of billing tab",
+    severity: "LOW",
+    category: "UX",
+    description:
+      "The sidebar user dropdown has a 'Billing' menu item that links to /settings (generic settings page). It should link to /settings?tab=billing or /settings#billing to land on the billing tab directly. Currently it dumps users on the profile tab.",
+    location: "components/dashboard/app-sidebar.tsx:169-172",
+    recommendation:
+      "Link to /settings with a query param or hash that activates the billing tab.",
+    fixed: false,
+  },
+  {
+    id: "RT-069",
+    title: "Blog post pages have no mobile navigation menu",
+    severity: "MEDIUM",
+    category: "UX",
+    description:
+      "The blog post detail pages use 'hidden md:flex' for the nav links (Features, Pricing, Docs, Blog, Sign In, Get Started). On mobile, only the logo is visible. Same bug as RT-023 but on the new blog post pages.",
+    location: "app/blog/[slug]/page.tsx:259-294",
+    recommendation:
+      "Add mobile hamburger menu matching the landing page fix.",
+    fixed: false,
+  },
+  {
+    id: "RT-070",
+    title: "Extension page has no mobile navigation menu",
+    severity: "MEDIUM",
+    category: "UX",
+    description:
+      "The extension page nav uses 'hidden md:flex' with no hamburger menu fallback. Same bug as RT-023 and RT-069. Every new standalone page is missing the mobile menu that was fixed on the landing page.",
+    location: "app/extension/page.tsx:33-57",
+    recommendation:
+      "Share the landing page nav component (with mobile menu) across all public pages.",
+    fixed: false,
+  },
+]
+
+const fixVerifications: FixVerification[] = [
+  {
+    id: "RT-001",
+    title: "Auth forms only console.log credentials",
+    blueTeamClaim: "Removed console.log. Forms now call router.push('/dashboard').",
+    verified: true,
+    notes: "Confirmed: no console.log found in auth files. Fix is valid.",
+  },
+  {
+    id: "RT-002",
+    title: "Google and GitHub OAuth buttons do nothing",
+    blueTeamClaim: "Added onClick handlers showing toast: 'OAuth coming soon'.",
+    verified: true,
+    notes: "Fix is a band-aid (toast instead of real OAuth) but acceptable for now.",
+  },
+  {
+    id: "RT-003",
+    title: "Landing page 'Extract' button does nothing",
+    blueTeamClaim: "Extract button now toggles mock JSON response visibility.",
+    verified: true,
+    notes: "Functional as described.",
+  },
+  {
+    id: "RT-004",
+    title: "Enterprise 'Contact Sales' button is a dead end",
+    blueTeamClaim: "Changed to mailto:sales@scraper.bot.",
+    verified: true,
+    notes: "Valid fix. mailto is functional.",
+  },
+  {
+    id: "RT-005",
+    title: "13 footer links go to href='#'",
+    blueTeamClaim: "Updated links to real routes. Privacy/Terms kept as #.",
+    verified: true,
+    notes: "Most links fixed. Privacy/Terms still dead but acknowledged.",
+  },
+  {
+    id: "RT-006",
+    title: "Dashboard action buttons are non-functional",
+    blueTeamClaim: "Added onClick handlers with toasts and state changes.",
+    verified: true,
+    notes: "Confirmed functional.",
+  },
+  {
+    id: "RT-007",
+    title: "Flow builder buttons are non-functional",
+    blueTeamClaim: "Wired Save, Run, Schedule, Add Step buttons.",
+    verified: true,
+    notes: "Confirmed in flows/[id] page. Note: the NEW workflow-builder page (RT-038) has the same bugs.",
+  },
+  {
+    id: "RT-008",
+    title: "'Forgot password?' links to itself",
+    blueTeamClaim: "Replaced with Dialog containing email input and toast.",
+    verified: true,
+    notes: "Functional.",
+  },
+  {
+    id: "RT-010",
+    title: "Blog article links go to non-existent pages",
+    blueTeamClaim: "Blue Team said ACKNOWLEDGED, not fixed.",
+    verified: true,
+    notes: "Actually FIXED: app/blog/[slug]/page.tsx now exists with 3 full blog posts. Blue Team undersold this fix.",
+  },
+  {
+    id: "RT-012",
+    title: "Settings page buttons do nothing",
+    blueTeamClaim: "Added onClick with toast to Save Preferences, Upload Avatar, Remove member, Download invoice.",
+    verified: true,
+    notes: "Confirmed functional.",
+  },
+  {
+    id: "RT-013",
+    title: "Settings billing buttons are dead",
+    blueTeamClaim: "Upgrade shows toast. Contact Sales opens mailto.",
+    verified: true,
+    notes: "Confirmed functional.",
+  },
+  {
+    id: "RT-014",
+    title: "Monitoring 'Configure Alerts' button is dead",
+    blueTeamClaim: "Button now calls openAddRule().",
+    verified: true,
+    notes: "Confirmed functional.",
+  },
+  {
+    id: "RT-022",
+    title: "CTA hover:bg-blue-50 breaks dark mode",
+    blueTeamClaim: "Changed to hover:bg-white/90.",
+    verified: true,
+    notes: "Confirmed.",
+  },
+  {
+    id: "RT-023",
+    title: "No mobile navigation menu",
+    blueTeamClaim: "Added hamburger menu with Sheet component.",
+    verified: true,
+    notes: "Fixed on landing page only. Blog post pages (RT-069) and extension page (RT-070) still lack mobile nav.",
+  },
+  {
+    id: "RT-024",
+    title: "Social icon buttons lack accessible labels",
+    blueTeamClaim: "Added aria-label to footer social icons.",
+    verified: true,
+    notes: "Confirmed.",
+  },
+  {
+    id: "RT-026",
+    title: "Sign out button does nothing",
+    blueTeamClaim: "Added onClick: router.push('/').",
+    verified: true,
+    notes: "Confirmed in app-sidebar.tsx line 177.",
+  },
+]
+
 const severityConfig: Record<Severity, { icon: typeof AlertOctagon; color: string; bg: string }> = {
   CRITICAL: { icon: AlertOctagon, color: "text-red-600 dark:text-red-400", bg: "bg-red-600 text-white border-red-600" },
   HIGH: { icon: AlertTriangle, color: "text-orange-500 dark:text-orange-400", bg: "bg-orange-500 text-white border-orange-500" },
@@ -458,12 +1004,18 @@ const categoryColors: Record<string, string> = {
   "Competitive Gap": "bg-emerald-500/15 text-emerald-600 border-emerald-500/25 dark:text-emerald-400",
 }
 
+const allFindings = [...findings, ...round2Findings]
+
 function countBySeverity(severity: Severity) {
-  return findings.filter((f) => f.severity === severity).length
+  return allFindings.filter((f) => f.severity === severity).length
 }
 
 function countFixed() {
-  return findings.filter((f) => f.fixed).length
+  return allFindings.filter((f) => f.fixed).length
+}
+
+function countUnfixed() {
+  return allFindings.filter((f) => !f.fixed).length
 }
 
 export default function RedTeamPage() {
@@ -472,21 +1024,34 @@ export default function RedTeamPage() {
   const mediumCount = countBySeverity("MEDIUM")
   const lowCount = countBySeverity("LOW")
   const fixedCount = countFixed()
+  const unfixedCount = countUnfixed()
+  const r1Fixed = findings.filter((f) => f.fixed).length
+  const r1Total = findings.length
+  const r2Total = round2Findings.length
+  const r2Critical = round2Findings.filter((f) => f.severity === "CRITICAL").length
+  const r2High = round2Findings.filter((f) => f.severity === "HIGH").length
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="font-serif text-3xl font-bold tracking-tight text-foreground">
-          Red Team Report
+          Red Team Report -- Round 2
         </h1>
         <p className="text-muted-foreground mt-1">
-          Brutal, honest assessment of every broken, fake, or missing piece in Scraper.bot.
-          Audit date: March 18, 2026.
+          Second audit after Blue Team fixes. Original 35 findings + 35 new findings across all new features.
+          Audit date: March 19, 2026.
         </p>
       </div>
 
       {/* Summary Stats */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
+        <Card className="py-4 border-l-4 border-l-red-600">
+          <CardContent>
+            <p className="text-sm text-muted-foreground">Total Findings</p>
+            <p className="text-3xl font-bold text-foreground">{allFindings.length}</p>
+            <p className="text-xs text-muted-foreground mt-1">R1: {r1Total} + R2: {r2Total}</p>
+          </CardContent>
+        </Card>
         <Card className="py-4 border-l-4 border-l-red-600">
           <CardContent>
             <p className="text-sm text-muted-foreground">Critical</p>
@@ -515,16 +1080,116 @@ export default function RedTeamPage() {
           <CardContent>
             <p className="text-sm text-muted-foreground">Fixed</p>
             <p className="text-3xl font-bold text-emerald-500">
-              {fixedCount}/{findings.length}
+              {fixedCount}/{allFindings.length}
             </p>
+            <p className="text-xs text-muted-foreground mt-1">{Math.round((fixedCount / allFindings.length) * 100)}% resolved</p>
           </CardContent>
         </Card>
       </div>
 
-      {/* All Findings */}
+      {/* Blue Team Fix Verification */}
+      <div>
+        <h2 className="font-serif text-2xl font-bold mb-2 text-foreground">
+          Blue Team Fix Verification
+        </h2>
+        <p className="text-muted-foreground text-sm mb-4">
+          Blue Team claimed {r1Fixed} of {r1Total} fixes. All {fixVerifications.filter(v => v.verified).length} verified fixes confirmed working.
+          RT-010 (blog pages) was ACKNOWLEDGED by Blue Team but actually fixed -- credit given.
+        </p>
+        <div className="space-y-2">
+          {fixVerifications.map((v) => (
+            <Card key={v.id} className={cn("border-l-4", v.verified ? "border-l-emerald-500" : "border-l-red-500")}>
+              <CardContent className="py-3 px-4">
+                <div className="flex items-start gap-3">
+                  {v.verified ? (
+                    <CheckCircle className="size-5 text-emerald-500 shrink-0 mt-0.5" />
+                  ) : (
+                    <XCircle className="size-5 text-red-500 shrink-0 mt-0.5" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium">{v.id}: {v.title}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{v.notes}</p>
+                  </div>
+                  <Badge className={v.verified ? "bg-emerald-500/15 text-emerald-600 border-emerald-500/25 dark:text-emerald-400" : "bg-red-500/15 text-red-600 border-red-500/25 dark:text-red-400"}>
+                    {v.verified ? "VERIFIED" : "NOT FIXED"}
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Round 2 Findings */}
+      <div>
+        <h2 className="font-serif text-2xl font-bold mb-2 text-foreground">
+          Round 2 Findings ({round2Findings.length})
+        </h2>
+        <p className="text-muted-foreground text-sm mb-4">
+          New issues discovered in new features: {r2Critical} critical, {r2High} high.
+          The product has grown massively but almost every new page has dead buttons, fake data, or broken navigation.
+        </p>
+        <div className="space-y-4">
+          {round2Findings.map((finding) => {
+            const sev = severityConfig[finding.severity]
+            const SevIcon = sev.icon
+            return (
+              <Card
+                key={finding.id}
+                className={cn(
+                  "border-l-4",
+                  finding.severity === "CRITICAL" && "border-l-red-600",
+                  finding.severity === "HIGH" && "border-l-orange-500",
+                  finding.severity === "MEDIUM" && "border-l-yellow-500",
+                  finding.severity === "LOW" && "border-l-blue-500",
+                  finding.fixed && "opacity-50"
+                )}
+              >
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-3">
+                      <SevIcon className={cn("size-5 mt-0.5 shrink-0", sev.color)} />
+                      <div>
+                        <CardTitle className="text-base font-semibold leading-tight text-foreground">
+                          {finding.id}: {finding.title}
+                        </CardTitle>
+                        <div className="flex items-center gap-2 mt-2">
+                          <Badge className={sev.bg}>{finding.severity}</Badge>
+                          <Badge className={categoryColors[finding.category] || ""}>
+                            {finding.category}
+                          </Badge>
+                          {finding.fixed && (
+                            <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-500/25 dark:text-emerald-400">
+                              Fixed
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3 pt-0">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    {finding.description}
+                  </p>
+                  <div className="rounded-md bg-muted/50 p-3 text-xs font-mono text-muted-foreground">
+                    {finding.location}
+                  </div>
+                  <div className="rounded-md border border-blue-500/20 bg-blue-500/5 p-3 text-sm text-foreground">
+                    <span className="font-semibold">Recommendation:</span>{" "}
+                    {finding.recommendation}
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Original Findings */}
       <div>
         <h2 className="font-serif text-2xl font-bold mb-4 text-foreground">
-          All Findings ({findings.length})
+          Round 1 Findings ({findings.length})
         </h2>
         <div className="space-y-4">
           {findings.map((finding) => {
@@ -698,7 +1363,7 @@ export default function RedTeamPage() {
                   <span className="mt-1 size-1.5 shrink-0 rounded-full bg-amber-500" />
                   <span>
                     <span className="font-medium text-foreground">No real authentication</span> --
-                    Auth forms console.log credentials. No sessions, no JWT, no user state.
+                    Auth forms redirect to dashboard but there are no sessions, no JWT, no user state.
                   </span>
                 </li>
                 <li className="flex gap-2">
@@ -712,14 +1377,14 @@ export default function RedTeamPage() {
                   <span className="mt-1 size-1.5 shrink-0 rounded-full bg-amber-500" />
                   <span>
                     <span className="font-medium text-foreground">No real AI</span> --
-                    The "AI generation" is a hardcoded timeout that always routes to the same flow. The playground chat is a script.
+                    The "AI generation" is a hardcoded timeout. The playground chat is a script. The workflow builder is a static canvas.
                   </span>
                 </li>
                 <li className="flex gap-2">
                   <span className="mt-1 size-1.5 shrink-0 rounded-full bg-amber-500" />
                   <span>
-                    <span className="font-medium text-foreground">All mock data</span> --
-                    Flows, runs, alerts, API keys, team members, usage charts -- every single data point is hardcoded fiction.
+                    <span className="font-medium text-foreground">Feature sprawl without depth</span> --
+                    13+ new pages added (marketplace, analytics, workflow builder, community, extension, etc.) but none of them actually work. Breadth without depth is worse than a small product that works.
                   </span>
                 </li>
               </ul>
@@ -732,61 +1397,35 @@ export default function RedTeamPage() {
       <Card className="border-red-500/30 bg-red-500/5">
         <CardHeader>
           <CardTitle className="font-serif text-xl font-bold text-foreground">
-            Risk Assessment: What Would Make a User Leave After 5 Minutes?
+            Round 2 Risk Assessment: The Potemkin Village Got Bigger
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4 text-sm text-muted-foreground">
-            <div className="flex gap-3">
-              <span className="font-mono text-red-500 font-bold shrink-0">00:00</span>
-              <span>
-                User lands on homepage. Looks polished. Clicks "Get Started Free". Arrives at sign-up page. Fills out form. Clicks "Create Account".{" "}
-                <span className="font-semibold text-red-500">Nothing happens.</span>{" "}
-                Opens console, sees their password logged in plaintext. Trust destroyed.
-              </span>
-            </div>
-            <div className="flex gap-3">
-              <span className="font-mono text-red-500 font-bold shrink-0">00:30</span>
-              <span>
-                User tries Google OAuth button.{" "}
-                <span className="font-semibold text-red-500">Nothing happens.</span>{" "}
-                Tries GitHub button.{" "}
-                <span className="font-semibold text-red-500">Nothing happens.</span>{" "}
-                User is now suspicious.
-              </span>
-            </div>
-            <div className="flex gap-3">
-              <span className="font-mono text-red-500 font-bold shrink-0">01:00</span>
-              <span>
-                User navigates directly to /dashboard (no auth required -- middleware doesn't protect dashboard routes). Sees beautiful dashboard with
-                pre-populated data. Clicks "Run" on a flow.{" "}
-                <span className="font-semibold text-red-500">Nothing happens.</span>
-              </span>
-            </div>
-            <div className="flex gap-3">
-              <span className="font-mono text-red-500 font-bold shrink-0">02:00</span>
-              <span>
-                User goes to Playground. Enters their own URL. Gets back the same canned "example-store.com" response regardless of what they entered. Realizes the AI is fake.
-              </span>
-            </div>
-            <div className="flex gap-3">
-              <span className="font-mono text-red-500 font-bold shrink-0">03:00</span>
-              <span>
-                User creates a flow. The "AI generation" spinner runs for 2.5 seconds, then dumps them on a pre-built flow they didn't ask for. Every input they provided was ignored.
-              </span>
-            </div>
-            <div className="flex gap-3">
-              <span className="font-mono text-red-500 font-bold shrink-0">04:00</span>
-              <span>
-                User Googles "Sarah Johnson VP Engineering DataStack" from the testimonials. No results. Googles "DataStack" and "MarketPulse". Fake companies.
-              </span>
-            </div>
-            <div className="flex gap-3">
-              <span className="font-mono text-red-500 font-bold shrink-0">05:00</span>
-              <span>
-                <span className="font-semibold text-red-500">User leaves.</span>{" "}
-                Goes to Parse.bot or Notte and gets a working product. Never comes back.
-              </span>
+            <p>
+              The Blue Team fixed 16 of 35 Round 1 findings (46% -- slightly better than their claimed 40%). All verified fixes are real.
+              However, the product has expanded from ~15 pages to ~28 pages, and almost every new page introduces
+              the same category of bugs that were found in Round 1.
+            </p>
+            <p>
+              <span className="font-semibold text-foreground">The pattern:</span> A new feature gets built with polished UI, hardcoded mock data,
+              and buttons that look interactive but have no onClick handlers. The workflow builder looks like a professional node editor
+              but you cannot add nodes from the palette. The marketplace looks like a real app store but "Use Flow" does nothing.
+              The analytics page imports chart components that do not exist in the codebase.
+            </p>
+            <p>
+              <span className="font-semibold text-foreground">The core problem remains unchanged:</span> This is a demo site, not a product.
+              Every new feature makes it look more real, which makes the disappointment worse when a user tries to actually use it.
+              The community page fabricates 2,847 members. The marketplace fabricates reviews. The extension page advertises
+              a Chrome extension that does not exist. The attack surface for credibility damage has tripled since Round 1.
+            </p>
+            <div className="mt-4 rounded-md border border-red-500/20 bg-red-500/5 p-4">
+              <p className="font-semibold text-red-600 dark:text-red-400 mb-2">Bottom line:</p>
+              <p>
+                {unfixedCount} of {allFindings.length} total findings remain unfixed ({Math.round((unfixedCount / allFindings.length) * 100)}%).
+                {" "}{r2Critical} new critical and {r2High} new high-severity issues were introduced by the new features.
+                The product is growing faster than it is being fixed.
+              </p>
             </div>
           </div>
         </CardContent>

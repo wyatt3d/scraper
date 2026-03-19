@@ -22,7 +22,6 @@ import { TrustedBy } from "@/components/landing/trusted-by"
 import {
   ArrowRight,
   CheckCircle,
-  Star,
   Shield,
   Zap,
   Globe,
@@ -483,56 +482,22 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* What Our Users Say */}
       <section className="py-24 bg-muted/20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
+          <div className="text-center max-w-2xl mx-auto">
             <h2 className="font-serif font-black text-3xl md:text-5xl text-balance mb-6">
-              Trusted by Data Teams Everywhere
+              What Our Users Say
             </h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {[
-              {
-                quote: "We replaced three internal scraping tools with a single Scraper flow. Our API was live in under ten minutes and hasn't broken in six months.",
-                name: "Sarah Johnson",
-                role: "VP Engineering, DataStack",
-                initials: "SJ",
-              },
-              {
-                quote: "The natural language flow builder is a game changer. Our non-technical analysts can now create and maintain their own extraction pipelines.",
-                name: "Mike Chen",
-                role: "CTO, MarketPulse",
-                initials: "MC",
-              },
-              {
-                quote: "We monitor 2,000+ auction listings with Scraper's change detection. Instant webhook alerts mean we never miss a deal.",
-                name: "Amanda Lee",
-                role: "Director, Asset Recovery LLC",
-                initials: "AL",
-              },
-            ].map((t) => (
-              <Card key={t.name} className="border-border">
-                <CardContent className="pt-6">
-                  <div className="flex items-center space-x-1 mb-4">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
-                  <p className="text-muted-foreground mb-6">&quot;{t.quote}&quot;</p>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-950 rounded-full flex items-center justify-center">
-                      <span className="font-medium text-blue-600 text-sm">{t.initials}</span>
-                    </div>
-                    <div>
-                      <p className="font-medium">{t.name}</p>
-                      <p className="text-sm text-muted-foreground">{t.role}</p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            <p className="text-xl text-muted-foreground mb-6">
+              Join teams using Scraper.bot to replace fragile scrapers with reliable, AI-generated APIs.
+            </p>
+            <p className="text-muted-foreground">
+              We are collecting testimonials from early users. Want to share your story?{" "}
+              <a href="mailto:hello@scraper.bot" className="text-blue-600 hover:underline">
+                Get in touch
+              </a>.
+            </p>
           </div>
         </div>
       </section>
@@ -631,7 +596,7 @@ export default function LandingPage() {
             Ready to Automate the Web?
           </h2>
           <p className="text-xl text-blue-100 text-balance max-w-2xl mx-auto mb-10">
-            Join thousands of teams who&apos;ve replaced fragile scrapers with reliable, AI-generated APIs.
+            Replace fragile scrapers with reliable, AI-generated APIs. Get started in minutes.
           </p>
           <Link href="/sign-up">
             <Button size="lg" className="bg-white text-blue-600 hover:bg-white/90 text-lg px-8 py-6 font-semibold">

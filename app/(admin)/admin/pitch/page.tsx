@@ -199,9 +199,9 @@ export default function PitchDeckPage() {
             Confidential
           </div>
           <div className="flex items-center justify-center gap-3 mb-6">
-            <Bot className="size-12 text-blue-500" />
+            <span className="flex size-16 items-center justify-center rounded-xl bg-blue-600 text-white font-serif font-bold text-3xl">S</span>
             <h1 className="font-serif text-6xl md:text-7xl font-bold text-white tracking-tight">
-              Scraper.bot
+              Scraper<span className="text-blue-400">.bot</span>
             </h1>
           </div>
           <p className="text-xl md:text-2xl text-blue-400 font-medium mb-4">
