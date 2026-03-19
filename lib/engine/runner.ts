@@ -78,16 +78,37 @@ async function executeInteractiveFlow(
 
     const result = await response.json()
 
-    if (result.data && Array.isArray(result.data)) {
-      items.push(...result.data)
-      log("info", `Extracted ${result.data.length} items via browser`)
-    } else if (result.html) {
+    // Process extraction results from each step (captured inline during execution)
+    if (result.results && Array.isArray(result.results)) {
+      for (const stepResult of result.results) {
+        if (stepResult.html && stepResult.rules) {
+          const $ = cheerio.load(stepResult.html)
+          log("info", `Analyzing page: ${stepResult.pageUrl}`, stepResult.stepId)
+          for (const rule of stepResult.rules) {
+            $(rule.selector).each((_: number, el: cheerio.AnyNode) => {
+              const value = rule.attribute
+                ? $(el).attr(rule.attribute)
+                : $(el).text().trim()
+              if (value) {
+                const item: Record<string, unknown> = {}
+                item[rule.field] = value
+                items.push(item)
+              }
+            })
+          }
+          log("info", `Extracted ${items.length} items so far from ${stepResult.pageUrl}`, stepResult.stepId)
+        }
+      }
+    }
+
+    // Also try the final page HTML if no inline results
+    if (items.length === 0 && result.html) {
       const $ = cheerio.load(result.html)
       const extractSteps = flow.steps.filter((s) => s.type === "extract")
       for (const step of extractSteps) {
         if (step.extractionRules) {
           for (const rule of step.extractionRules) {
-            $(rule.selector).each((_, el) => {
+            $(rule.selector).each((_: number, el: cheerio.AnyNode) => {
               const value = rule.attribute
                 ? $(el).attr(rule.attribute)
                 : $(el).text().trim()
@@ -100,7 +121,7 @@ async function executeInteractiveFlow(
           }
         }
       }
-      log("info", `Extracted ${items.length} items from rendered page`)
+      log("info", `Extracted ${items.length} items from final page`)
     }
 
     log("info", `Flow completed. ${items.length} items extracted.`)
@@ -170,10 +191,18 @@ function buildPlaywrightScript(flow: Flow): string {
           await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
           await page.waitForTimeout(2000);
         `
-        case "extract":
+        case "extract": {
+          const rules = step.extractionRules || []
+          const rulesJson = JSON.stringify(rules)
           return `
-          // Step ${i + 1}: ${step.label} (extraction handled after all steps)
+          // Step ${i + 1}: ${step.label}
+          {
+            const pageHtml_${i} = await page.content();
+            const extractionRules_${i} = ${rulesJson};
+            results.push({ stepId: '${step.id}', html: pageHtml_${i}, rules: extractionRules_${i}, pageUrl: page.url() });
+          }
         `
+        }
         default:
           return `// Step ${i + 1}: ${step.label} (${step.type})`
       }
@@ -182,14 +211,16 @@ function buildPlaywrightScript(flow: Flow): string {
 
   return `
     module.exports = async ({ page, context }) => {
+      const results = [];
       try {
         ${stepCode}
 
+        // Also capture final page state
         const html = await page.content();
         const url = page.url();
-        return { html, url, success: true };
+        return { html, url, results, success: true };
       } catch (error) {
-        return { error: error.message, success: false };
+        return { error: error.message, results, success: false };
       }
     };
   `
