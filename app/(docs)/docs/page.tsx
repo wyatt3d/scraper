@@ -1,5 +1,10 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import { Rocket, Layers, Code, BookOpen, LayoutTemplate, Activity } from "lucide-react"
+
+export const metadata: Metadata = {
+  title: "Documentation",
+}
 
 const sections = [
   { title: "Quickstart", description: "Get up and running in under 5 minutes", href: "/docs/quickstart", icon: Rocket },

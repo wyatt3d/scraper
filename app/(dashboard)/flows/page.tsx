@@ -22,6 +22,10 @@ import {
   BarChart3,
   Timer,
   MoreVertical,
+  Download,
+  ChevronDown,
+  FileDown,
+  FileJson,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -59,6 +63,7 @@ import {
 } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import { mockFlows } from "@/lib/mock-data"
+import { downloadCSV, downloadJSON } from "@/lib/export"
 import type { Flow, FlowMode, FlowStatus } from "@/lib/types"
 
 function timeAgo(dateStr: string): string {
@@ -144,12 +149,67 @@ export default function FlowsPage() {
               Manage your scraping flows and automations
             </p>
           </div>
-          <Button asChild className="bg-blue-600 hover:bg-blue-700">
-            <Link href="/flows/new">
-              <Plus className="mr-2 h-4 w-4" />
-              Create Flow
-            </Link>
-          </Button>
+          <div className="flex items-center gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1.5">
+                  <Download className="size-3.5" />
+                  Export
+                  <ChevronDown className="size-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={() => {
+                    const data = filtered.map((flow) => ({
+                      id: flow.id,
+                      name: flow.name,
+                      description: flow.description,
+                      url: flow.url,
+                      mode: flow.mode,
+                      status: flow.status,
+                      schedule: flow.schedule,
+                      totalRuns: flow.totalRuns,
+                      successRate: `${flow.successRate}%`,
+                      avgDuration: formatDuration(flow.avgDuration),
+                      lastRunAt: flow.lastRunAt || "",
+                    }))
+                    downloadCSV(data, "flows-export")
+                  }}
+                >
+                  <FileDown className="size-4" />
+                  Export as CSV
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => {
+                    const data = filtered.map((flow) => ({
+                      id: flow.id,
+                      name: flow.name,
+                      description: flow.description,
+                      url: flow.url,
+                      mode: flow.mode,
+                      status: flow.status,
+                      schedule: flow.schedule,
+                      totalRuns: flow.totalRuns,
+                      successRate: flow.successRate,
+                      avgDuration: flow.avgDuration,
+                      lastRunAt: flow.lastRunAt,
+                    }))
+                    downloadJSON(data, "flows-export")
+                  }}
+                >
+                  <FileJson className="size-4" />
+                  Export as JSON
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button asChild className="bg-blue-600 hover:bg-blue-700">
+              <Link href="/flows/new">
+                <Plus className="mr-2 h-4 w-4" />
+                Create Flow
+              </Link>
+            </Button>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">

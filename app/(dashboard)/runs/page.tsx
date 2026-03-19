@@ -10,6 +10,8 @@ import {
   Clock,
   Download,
   Eye,
+  FileDown,
+  FileJson,
   Play,
   RotateCcw,
   XCircle,
@@ -38,7 +40,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { mockRuns, mockFlows } from "@/lib/mock-data"
+import { downloadCSV, downloadJSON } from "@/lib/export"
 import type { Run, RunLog } from "@/lib/types"
 
 const additionalRuns: Run[] = [
@@ -260,10 +269,51 @@ export default function RunsPage() {
             <Calendar className="size-3.5" />
             Last 7 Days
           </Button>
-          <Button variant="outline" size="sm" className="gap-1.5">
-            <Download className="size-3.5" />
-            Export
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-1.5">
+                <Download className="size-3.5" />
+                Export
+                <ChevronDown className="size-3" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => {
+                  const data = filtered.map((run) => ({
+                    id: run.id,
+                    flowName: run.flowName,
+                    status: run.status,
+                    startedAt: run.startedAt,
+                    duration: formatDuration(run.duration ?? 0),
+                    itemsExtracted: run.itemsExtracted,
+                    cost: `$${run.cost.toFixed(3)}`,
+                  }))
+                  downloadCSV(data, "runs-export")
+                }}
+              >
+                <FileDown className="size-4" />
+                Export as CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  const data = filtered.map((run) => ({
+                    id: run.id,
+                    flowName: run.flowName,
+                    status: run.status,
+                    startedAt: run.startedAt,
+                    duration: run.duration,
+                    itemsExtracted: run.itemsExtracted,
+                    cost: run.cost,
+                  }))
+                  downloadJSON(data, "runs-export")
+                }}
+              >
+                <FileJson className="size-4" />
+                Export as JSON
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 

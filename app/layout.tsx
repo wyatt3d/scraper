@@ -21,10 +21,32 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "Scraper - AI-Powered Web Scraping Extensions",
-  description:
-    "Generate Chrome and Mozilla extensions for scraping listings from Craigslist, Bid4Assets and more. Share data seamlessly with your team on Slack, Discord, or Google Sheets.",
-  generator: "Scraper AI Tool",
+  title: {
+    default: "Scraper.bot - Turn Any Website Into a Structured API",
+    template: "%s | Scraper.bot"
+  },
+  description: "Transform any website into a deterministic API endpoint in minutes. AI-powered web scraping, browser automation, and structured data extraction. No code, no maintenance.",
+  keywords: ["web scraping", "API generation", "browser automation", "data extraction", "web scraping API", "no-code scraping", "structured data", "AI scraping"],
+  authors: [{ name: "Scraper.bot" }],
+  creator: "Scraper.bot",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://scraper.bot",
+    siteName: "Scraper.bot",
+    title: "Scraper.bot - Turn Any Website Into a Structured API",
+    description: "Transform any website into a deterministic API endpoint in minutes. AI-powered web scraping and browser automation.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Scraper.bot - Turn Any Website Into a Structured API",
+    description: "Transform any website into a deterministic API endpoint in minutes.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  metadataBase: new URL("https://scraper.bot"),
 }
 
 export default function RootLayout({

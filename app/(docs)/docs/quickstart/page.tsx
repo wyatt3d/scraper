@@ -1,3 +1,9 @@
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Quickstart Guide",
+}
+
 export default function QuickstartPage() {
   return (
     <div>

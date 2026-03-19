@@ -4,6 +4,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import {
   ArrowRight,
   CheckCircle,
   Star,
@@ -471,6 +477,93 @@ export default function LandingPage() {
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="py-24 bg-background">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="font-serif font-black text-3xl md:text-5xl text-balance mb-6">
+              Frequently Asked Questions
+            </h2>
+          </div>
+
+          <div className="max-w-3xl mx-auto">
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="how-it-works">
+                <AccordionTrigger className="text-base font-semibold">
+                  How does Scraper.bot work?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground text-base leading-relaxed">
+                  Scraper.bot follows a simple three-step flow: Describe, Generate, and Integrate. First, you describe the data you need in plain English along with the target URL. Our AI then generates a deterministic extraction flow and creates a live REST API endpoint. Finally, you integrate the endpoint into your app using our REST API, SDKs, or webhooks. No selectors, no XPath, no code required.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="no-code">
+                <AccordionTrigger className="text-base font-semibold">
+                  Do I need to write code?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground text-base leading-relaxed">
+                  No. You can build and manage scraping flows entirely through our dashboard using natural language. Just describe what data you need and from which website. That said, we also provide a full REST API and SDKs for developers who prefer programmatic control over their workflows.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="difference">
+                <AccordionTrigger className="text-base font-semibold">
+                  How is this different from traditional web scrapers?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground text-base leading-relaxed">
+                  Traditional scrapers require you to manage browser infrastructure, write brittle CSS/XPath selectors, and deal with constant breakages. Scraper.bot generates deterministic API endpoints that return structured data without any browser overhead on your side. Our self-healing selectors automatically adapt when a website changes its layout, so you spend zero time on maintenance.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="websites">
+                <AccordionTrigger className="text-base font-semibold">
+                  What websites can I scrape?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground text-base leading-relaxed">
+                  You can scrape any publicly accessible website. This includes e-commerce stores, news sites, job boards, real estate listings, social media profiles, government databases, and more. If you can view it in a browser, Scraper.bot can extract structured data from it.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="anti-bot">
+                <AccordionTrigger className="text-base font-semibold">
+                  How do you handle anti-bot protection?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground text-base leading-relaxed">
+                  Scraper.bot includes built-in IP rotation across a global proxy network, automatic session management, CSRF token handling, and intelligent request throttling. We handle CAPTCHAs, rate limiting, and fingerprint detection so your flows run reliably without getting blocked.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="multi-step">
+                <AccordionTrigger className="text-base font-semibold">
+                  Can I automate multi-step workflows?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground text-base leading-relaxed">
+                  Yes. Scraper.bot supports full browser automation including form fills, button clicks, page navigation, login flows, pagination, and conditional logic. You can chain multiple steps together into a single flow that handles complex interactions like searching, filtering, and navigating through authenticated pages.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="security">
+                <AccordionTrigger className="text-base font-semibold">
+                  Is my data secure?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground text-base leading-relaxed">
+                  Absolutely. All data is encrypted in transit and at rest. We are SOC 2 compliant and follow industry best practices for data security. By default, we do not store your extracted data beyond the configured retention period. Enterprise customers can opt for on-premise deployment for full data sovereignty.
+                </AccordionContent>
+              </AccordionItem>
+
+              <AccordionItem value="website-changes">
+                <AccordionTrigger className="text-base font-semibold">
+                  What happens when a website changes?
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground text-base leading-relaxed">
+                  Scraper.bot uses self-healing selectors that automatically detect and adapt to layout changes. When a target website updates its structure, our system re-maps the extraction logic to match the new DOM without any manual intervention. You get notified of changes, and your API continues returning structured data without downtime.
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </div>
         </div>
       </section>
