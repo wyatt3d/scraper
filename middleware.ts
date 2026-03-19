@@ -63,6 +63,12 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith("/api/") && !isPublicApi) {
     const apiKey = request.headers.get("x-api-key") || request.headers.get("authorization")?.replace("Bearer ", "")
     if (!apiKey) {
+      // Allow authenticated users (browser requests from dashboard) through
+      const { supabase, response } = createMiddlewareClient(request)
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        return response
+      }
       return NextResponse.json(
         { error: "API key required. Set X-API-Key header." },
         { status: 401 }
