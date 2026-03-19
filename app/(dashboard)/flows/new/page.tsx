@@ -307,19 +307,19 @@ export default function NewFlowPage() {
               Back
             </Button>
             <div className="flex gap-3">
-              <Button variant="outline" onClick={() => setStep(3)}>
+              <Button variant="outline" onClick={() => setStep(3)} disabled={generating}>
                 Browse Templates
                 <LayoutTemplate className="ml-2 h-4 w-4" />
               </Button>
               <Button
-                className="bg-blue-600 hover:bg-blue-700"
-                disabled={!url || !prompt || generating}
+                className="bg-blue-600 hover:bg-blue-700 text-white min-w-[180px]"
+                disabled={generating}
                 onClick={handleGenerate}
               >
                 {generating ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Generating Flow...
+                    Creating Flow...
                   </>
                 ) : (
                   <>
@@ -329,6 +329,13 @@ export default function NewFlowPage() {
                 )}
               </Button>
             </div>
+            {generating && (
+              <div className="mt-4 p-4 rounded-lg border bg-muted/50 text-center">
+                <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2 text-blue-600" />
+                <p className="text-sm font-medium">Creating your flow...</p>
+                <p className="text-xs text-muted-foreground mt-1">This usually takes a few seconds</p>
+              </div>
+            )}
           </div>
 
           {generating && (
