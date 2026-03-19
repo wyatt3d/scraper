@@ -526,7 +526,7 @@ export default function SessionsPage() {
                                 <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => openSession(session.id)}>
                                   Open
                                 </Button>
-                                <Button variant="ghost" size="sm" className="h-7 text-xs" onClick={() => pauseSession(session.id)}>
+                                <Button variant="ghost" size="sm" className="h-7 text-xs" aria-label="Pause session" onClick={() => pauseSession(session.id)}>
                                   <Pause className="size-3" />
                                 </Button>
                               </>
@@ -544,7 +544,7 @@ export default function SessionsPage() {
                             )}
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon" className="size-7 text-red-500 hover:text-red-600">
+                                <Button variant="ghost" size="icon" className="size-7 text-red-500 hover:text-red-600" aria-label={`Delete session ${session.name}`}>
                                   <Trash2 className="size-3.5" />
                                 </Button>
                               </AlertDialogTrigger>

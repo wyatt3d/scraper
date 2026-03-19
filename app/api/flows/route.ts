@@ -1,55 +1,59 @@
 import { NextRequest, NextResponse } from "next/server"
-import { listFlows, createFlow } from "@/lib/db"
-import { mockFlows } from "@/lib/mock-data"
-import type { FlowStatus, FlowMode } from "@/lib/types"
+import { supabase } from "@/lib/supabase"
 
-export async function GET(request: NextRequest) {
-  const { searchParams } = request.nextUrl
-  const status = searchParams.get("status") as FlowStatus | null
-  const mode = searchParams.get("mode") as FlowMode | null
-
-  try {
-    const flows = await listFlows({ status: status || undefined, mode: mode || undefined })
-    return NextResponse.json({ data: flows, total: flows.length })
-  } catch {
-    let flows = [...mockFlows]
-    if (status) flows = flows.filter((f) => f.status === status)
-    if (mode) flows = flows.filter((f) => f.mode === mode)
-    return NextResponse.json({ data: flows, total: flows.length })
+function toFlow(row: Record<string, unknown>) {
+  return {
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    url: row.url,
+    mode: row.mode,
+    status: row.status,
+    steps: row.steps,
+    outputSchema: row.output_schema,
+    schedule: row.schedule,
+    successRate: row.success_rate,
+    totalRuns: row.total_runs,
+    avgDuration: row.avg_duration,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    lastRunAt: row.last_run_at,
   }
 }
 
-export async function POST(request: NextRequest) {
-  const body = await request.json()
+export async function GET() {
+  const { data, error } = await supabase
+    .from("flows")
+    .select("*")
+    .order("created_at", { ascending: false })
 
-  try {
-    const flow = await createFlow({
-      name: body.name ?? "Untitled Flow",
-      description: body.description ?? "",
-      url: body.url ?? "",
-      mode: body.mode ?? "extract",
-      steps: body.steps ?? [],
-      output_schema: body.outputSchema ?? {},
-    })
-    return NextResponse.json({ data: flow }, { status: 201 })
-  } catch {
-    const now = new Date().toISOString()
-    const newFlow = {
-      id: `flow-${Date.now()}`,
-      name: body.name ?? "Untitled Flow",
-      description: body.description ?? "",
-      url: body.url ?? "",
-      mode: body.mode ?? "extract",
-      status: "draft" as const,
-      steps: body.steps ?? [],
-      outputSchema: body.outputSchema ?? {},
-      schedule: body.schedule,
-      createdAt: now,
-      updatedAt: now,
-      successRate: 0,
-      totalRuns: 0,
-      avgDuration: 0,
-    }
-    return NextResponse.json({ data: newFlow }, { status: 201 })
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
+
+  return NextResponse.json({ data: (data || []).map(toFlow) })
+}
+
+export async function POST(req: NextRequest) {
+  const body = await req.json()
+
+  const { data, error } = await supabase
+    .from("flows")
+    .insert({
+      name: body.name || "Untitled Flow",
+      description: body.description || "",
+      url: body.url || "",
+      mode: body.mode || "extract",
+      status: body.status || "draft",
+      steps: body.steps || [],
+      output_schema: body.outputSchema || {},
+    })
+    .select()
+    .single()
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ data: toFlow(data) }, { status: 201 })
 }

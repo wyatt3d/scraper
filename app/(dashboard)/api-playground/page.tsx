@@ -26,6 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 import { mockFlows, mockRuns } from "@/lib/mock-data"
 
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE"
@@ -346,8 +347,12 @@ export default function ApiPlaygroundPage() {
     setLoading(true)
     setResponse(null)
     setTimeout(() => {
-      setResponse(getMockResponse(method, selectedPath))
+      const res = getMockResponse(method, selectedPath)
+      setResponse(res)
       setLoading(false)
+      toast.success("Request sent", {
+        description: `${method} ${selectedPath} — ${res.status} ${res.statusText}`,
+      })
     }, 800)
   }
 

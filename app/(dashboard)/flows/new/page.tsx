@@ -74,20 +74,59 @@ export default function NewFlowPage() {
     (t) => !selectedMode || t.mode === selectedMode
   )
 
-  function handleGenerate() {
+  async function handleGenerate() {
     setGenerating(true)
-    const newId = `flow-${crypto.randomUUID().slice(0, 8)}`
-    setTimeout(() => {
-      router.push(`/flows/${newId}`)
-    }, 2500)
+    try {
+      const response = await fetch("/api/flows", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: prompt ? prompt.slice(0, 60) : "New Flow",
+          url: url,
+          mode: selectedMode,
+          description: prompt,
+          status: "draft",
+        }),
+      })
+      const result = await response.json()
+      const newId = result.data?.id || result.id
+      if (newId) {
+        router.push(`/flows/${newId}`)
+      } else {
+        setGenerating(false)
+      }
+    } catch {
+      setGenerating(false)
+    }
   }
 
-  function handleTemplateSelect(templateId: string) {
+  async function handleTemplateSelect(templateId: string) {
     setGenerating(true)
-    const newId = `flow-${crypto.randomUUID().slice(0, 8)}`
-    setTimeout(() => {
-      router.push(`/flows/${newId}`)
-    }, 1500)
+    const template = filteredTemplates.find((t) => t.id === templateId)
+    try {
+      const response = await fetch("/api/flows", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: template?.name || "New Flow",
+          url: template?.url || url || "",
+          mode: template?.mode || selectedMode || "extract",
+          description: template?.description || "",
+          status: "draft",
+          steps: template?.steps || [],
+          outputSchema: template?.outputSchema || {},
+        }),
+      })
+      const result = await response.json()
+      const newId = result.data?.id || result.id
+      if (newId) {
+        router.push(`/flows/${newId}`)
+      } else {
+        setGenerating(false)
+      }
+    } catch {
+      setGenerating(false)
+    }
   }
 
   return (

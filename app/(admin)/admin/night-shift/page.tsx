@@ -667,7 +667,6 @@ const todoItems = [
 
 const knownIssues = [
   "Admin overview and system pages still over 200kB — Recharts dynamic import needed on remaining pages",
-  "Webpack cache intermittently corrupts on Windows — clean .next/ dir if build fails with JSON parse error",
   "26 security findings from Red Team still pending remediation (0 critical, 11 high, 15 medium)",
 ]
 

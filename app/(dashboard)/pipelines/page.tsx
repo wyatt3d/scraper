@@ -362,6 +362,7 @@ function CreatePipelineDialog({ onCreated }: { onCreated: (name: string) => void
                         variant="ghost"
                         size="icon"
                         className="size-6 text-muted-foreground hover:text-red-500"
+                        aria-label="Remove destination"
                         onClick={() => removeDestination(dest.id)}
                       >
                         <X className="size-3" />
@@ -536,6 +537,7 @@ export default function PipelinesPage() {
                     variant="ghost"
                     size="icon"
                     className="size-8"
+                    aria-label={pipeline.status === "active" ? "Pause pipeline" : "Resume pipeline"}
                     onClick={() => toggleStatus(pipeline.id)}
                   >
                     {pipeline.status === "active" ? (
@@ -548,6 +550,7 @@ export default function PipelinesPage() {
                     variant="ghost"
                     size="icon"
                     className="size-8 text-red-500 hover:text-red-600"
+                    aria-label={`Delete pipeline ${pipeline.name}`}
                     onClick={() => deletePipeline(pipeline.id)}
                   >
                     <Trash2 className="size-3.5" />

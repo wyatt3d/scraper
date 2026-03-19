@@ -511,7 +511,14 @@ export default function WebhooksPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
-                          <Button variant="ghost" size="sm" className="h-7 text-xs">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 text-xs"
+                            onClick={() =>
+                              toast.info("Viewing delivery details")
+                            }
+                          >
                             View
                           </Button>
                           {!log.success && (

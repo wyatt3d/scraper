@@ -82,7 +82,7 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { Slider } from "@/components/ui/slider"
 import { toast } from "sonner"
-import { mockUser } from "@/lib/mock-data"
+import { useAuth } from "@/components/auth/auth-provider"
 
 const BillingChart = dynamic(
   () => import("@/components/dashboard/billing-chart").then((mod) => ({ default: mod.BillingChart })),
@@ -521,8 +521,9 @@ function TeamSection() {
 }
 
 export default function SettingsPage() {
-  const [name, setName] = useState(mockUser.name)
-  const [email, setEmail] = useState(mockUser.email)
+  const { user } = useAuth()
+  const [name, setName] = useState(user?.user_metadata?.name || user?.email?.split("@")[0] || "")
+  const [email, setEmail] = useState(user?.email || "")
   const [notifications, setNotifications] = useState({
     emailAlerts: true,
     emailDigest: true,
@@ -551,8 +552,9 @@ export default function SettingsPage() {
     })
   }
 
-  const runsPercent = (mockUser.usage.runsUsed / mockUser.usage.runsLimit) * 100
-  const apiPercent = (mockUser.usage.apiCallsUsed / mockUser.usage.apiCallsLimit) * 100
+  const usageData = { plan: "free" as const, runsUsed: 0, runsLimit: 500, apiCallsUsed: 0, apiCallsLimit: 5000 }
+  const runsPercent = (usageData.runsUsed / usageData.runsLimit) * 100
+  const apiPercent = (usageData.apiCallsUsed / usageData.apiCallsLimit) * 100
 
   return (
     <div className="space-y-6">
@@ -659,7 +661,7 @@ export default function SettingsPage() {
               <CardDescription>
                 You are on the{" "}
                 <span className="font-semibold text-foreground capitalize">
-                  {mockUser.plan}
+                  {usageData.plan}
                 </span>{" "}
                 plan.
               </CardDescription>
@@ -670,8 +672,8 @@ export default function SettingsPage() {
                   <div className="flex items-center justify-between text-sm">
                     <span>Runs</span>
                     <span className="text-muted-foreground">
-                      {mockUser.usage.runsUsed.toLocaleString()} /{" "}
-                      {mockUser.usage.runsLimit.toLocaleString()}
+                      {usageData.runsUsed.toLocaleString()} /{" "}
+                      {usageData.runsLimit.toLocaleString()}
                     </span>
                   </div>
                   <Progress value={runsPercent} />
@@ -680,8 +682,8 @@ export default function SettingsPage() {
                   <div className="flex items-center justify-between text-sm">
                     <span>API Calls</span>
                     <span className="text-muted-foreground">
-                      {mockUser.usage.apiCallsUsed.toLocaleString()} /{" "}
-                      {mockUser.usage.apiCallsLimit.toLocaleString()}
+                      {usageData.apiCallsUsed.toLocaleString()} /{" "}
+                      {usageData.apiCallsLimit.toLocaleString()}
                     </span>
                   </div>
                   <Progress value={apiPercent} />

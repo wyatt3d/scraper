@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 interface RunOption {
   id: string
@@ -95,10 +96,17 @@ export default function CompareRunsPage() {
   const [activeTab, setActiveTab] = useState("summary")
 
   function handleCompare() {
-    if (runA && runB && runA !== runB) {
-      setCompared(true)
-      setActiveTab("summary")
+    if (!runA || !runB) {
+      toast.error("Select two runs to compare")
+      return
     }
+    if (runA === runB) {
+      toast.error("Select two different runs to compare")
+      return
+    }
+    setCompared(true)
+    setActiveTab("summary")
+    toast.success("Comparison ready")
   }
 
   const addedCount = mockAdded.length

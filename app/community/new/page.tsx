@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { toast } from "sonner"
 
 export default function NewPostPage() {
   const [title, setTitle] = useState("")
@@ -141,7 +142,14 @@ export default function NewPostPage() {
             </div>
 
             <div className="flex items-center gap-3 pt-2">
-              <Button disabled={!title.trim() || !category || !body.trim()}>
+              <Button
+                disabled={!title.trim() || !category || !body.trim()}
+                onClick={() => {
+                  toast.success("Post created", {
+                    description: "Your post has been published to the community.",
+                  })
+                }}
+              >
                 Post
               </Button>
               <Link href="/community">

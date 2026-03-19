@@ -43,7 +43,7 @@ export function DashboardHeader() {
 
   return (
     <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-30 flex h-14 items-center gap-3 border-b px-4 backdrop-blur">
-      <SidebarTrigger className="-ml-1" />
+      <SidebarTrigger className="-ml-1" aria-label="Toggle sidebar" />
       <Separator orientation="vertical" className="mr-2 h-4" />
 
       <Breadcrumb className="hidden md:flex">
@@ -76,7 +76,7 @@ export function DashboardHeader() {
 
         <NotificationCenter />
 
-        <Button asChild size="sm" className="bg-accent hover:bg-accent/90 text-accent-foreground" data-tour="new-flow">
+        <Button asChild size="sm" className="bg-accent hover:bg-accent/90 text-accent-foreground" data-tour="new-flow" aria-label="Create new flow">
           <Link href="/flows/new">
             <Plus className="size-4" />
             New Flow

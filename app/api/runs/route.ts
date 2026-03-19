@@ -1,57 +1,60 @@
 import { NextRequest, NextResponse } from "next/server"
-import { listRuns, createRun } from "@/lib/db"
-import { getFlow } from "@/lib/db"
-import { mockRuns, mockFlows } from "@/lib/mock-data"
-import type { RunStatus } from "@/lib/types"
+import { supabase } from "@/lib/supabase"
 
-export async function GET(request: NextRequest) {
-  const { searchParams } = request.nextUrl
-  const flowId = searchParams.get("flowId")
-  const status = searchParams.get("status") as RunStatus | null
-
-  try {
-    const runs = await listRuns({ flowId: flowId || undefined, status: status || undefined })
-    return NextResponse.json({ data: runs, total: runs.length })
-  } catch {
-    let runs = [...mockRuns]
-    if (flowId) runs = runs.filter((r) => r.flowId === flowId)
-    if (status) runs = runs.filter((r) => r.status === status)
-    return NextResponse.json({ data: runs, total: runs.length })
+function toRun(row: Record<string, unknown>) {
+  return {
+    id: row.id,
+    flowId: row.flow_id,
+    flowName: row.flow_name,
+    status: row.status,
+    startedAt: row.started_at,
+    completedAt: row.completed_at,
+    duration: row.duration,
+    itemsExtracted: row.items_extracted,
+    error: row.error,
+    outputPreview: row.output_preview,
+    logs: row.logs,
+    cost: row.cost,
   }
 }
 
-export async function POST(request: NextRequest) {
-  const body = await request.json()
-  const { flowId } = body
+export async function GET(req: NextRequest) {
+  const flowId = req.nextUrl.searchParams.get("flowId")
 
-  if (!flowId) {
-    return NextResponse.json({ error: "flowId is required" }, { status: 400 })
+  let query = supabase
+    .from("runs")
+    .select("*")
+    .order("started_at", { ascending: false })
+
+  if (flowId) {
+    query = query.eq("flow_id", flowId)
   }
 
-  try {
-    const flow = await getFlow(flowId)
-    const run = await createRun({ flow_id: flowId, flow_name: flow.name })
-    return NextResponse.json({ data: run }, { status: 201 })
-  } catch {
-    const flow = mockFlows.find((f) => f.id === flowId)
-    if (!flow) {
-      return NextResponse.json({ error: "Flow not found" }, { status: 404 })
-    }
+  const { data, error } = await query
 
-    const now = new Date().toISOString()
-    const newRun = {
-      id: `run-${Date.now()}`,
-      flowId,
-      flowName: flow.name,
-      status: "queued" as const,
-      startedAt: now,
-      duration: 0,
-      itemsExtracted: 0,
-      logs: [
-        { timestamp: now, level: "info" as const, message: "Run queued" },
-      ],
-      cost: 0,
-    }
-    return NextResponse.json({ data: newRun }, { status: 201 })
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
   }
+
+  return NextResponse.json({ data: (data || []).map(toRun) })
+}
+
+export async function POST(req: NextRequest) {
+  const body = await req.json()
+
+  const { data, error } = await supabase
+    .from("runs")
+    .insert({
+      flow_id: body.flowId,
+      flow_name: body.flowName || "Untitled",
+      status: body.status || "queued",
+    })
+    .select()
+    .single()
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+
+  return NextResponse.json({ data: toRun(data) }, { status: 201 })
 }

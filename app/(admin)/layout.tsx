@@ -68,7 +68,8 @@ function ThemeToggle() {
   return (
     <button
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="rounded-md p-2 text-gray-400 hover:text-white transition-colors"
+      className="rounded-md p-2 text-muted-foreground hover:text-foreground transition-colors"
+      aria-label="Toggle theme"
     >
       <Sun className="size-4 hidden dark:block" />
       <Moon className="size-4 block dark:hidden" />
@@ -83,7 +84,7 @@ function SidebarNav() {
     <nav className="flex flex-col gap-6 px-3 py-4">
       {navGroups.map((group) => (
         <div key={group.label}>
-          <div className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
+          <div className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             {group.label}
           </div>
           <div className="flex flex-col gap-0.5">
@@ -97,7 +98,7 @@ function SidebarNav() {
                     "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                     isActive
                       ? "bg-blue-600 text-white"
-                      : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
                   )}
                 >
                   <item.icon className="size-4 shrink-0" />
@@ -114,15 +115,15 @@ function SidebarNav() {
 
 function TopBar() {
   return (
-    <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-gray-800 bg-gray-950 px-4 lg:px-6">
+    <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-border bg-card px-4 lg:px-6">
       <div className="flex items-center gap-3">
         <Sheet>
-          <SheetTrigger className="lg:hidden rounded-md p-2 text-gray-400 hover:text-white">
+          <SheetTrigger className="lg:hidden rounded-md p-2 text-muted-foreground hover:text-foreground" aria-label="Open navigation menu">
             <Menu className="size-5" />
           </SheetTrigger>
-          <SheetContent side="left" className="w-60 bg-gray-900 border-gray-800 p-0">
-            <SheetHeader className="border-b border-gray-800 px-4 py-3">
-              <SheetTitle className="flex items-center gap-2 text-white">
+          <SheetContent side="left" className="w-60 bg-card border-border p-0">
+            <SheetHeader className="border-b border-border px-4 py-3">
+              <SheetTitle className="flex items-center gap-2 text-foreground">
                 <Bot className="size-5 text-blue-500" />
                 <span className="font-serif text-lg font-semibold">Admin</span>
               </SheetTitle>
@@ -132,15 +133,15 @@ function TopBar() {
         </Sheet>
         <Link href="/admin" className="flex items-center gap-2">
           <Bot className="size-5 text-blue-500" />
-          <span className="font-serif text-lg font-semibold text-white">
-            Scraper.bot <span className="text-xs font-sans font-normal text-gray-500">Admin</span>
+          <span className="font-serif text-lg font-semibold text-foreground">
+            Scraper.bot <span className="text-xs font-sans font-normal text-muted-foreground">Admin</span>
           </span>
         </Link>
       </div>
       <div className="flex items-center gap-2">
         <Link
           href="/dashboard"
-          className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-gray-400 hover:text-white transition-colors"
+          className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="size-3.5" />
           <span className="hidden sm:inline">Back to Dashboard</span>
@@ -153,10 +154,10 @@ function TopBar() {
 
 function Sidebar() {
   return (
-    <aside className="hidden lg:flex lg:w-60 lg:flex-col lg:fixed lg:inset-y-14 lg:left-0 lg:border-r lg:border-gray-800 lg:bg-gray-900">
-      <div className="flex items-center gap-2 border-b border-gray-800 px-6 py-4">
+    <aside className="hidden lg:flex lg:w-60 lg:flex-col lg:fixed lg:inset-y-14 lg:left-0 lg:border-r lg:border-border lg:bg-card">
+      <div className="flex items-center gap-2 border-b border-border px-6 py-4">
         <Bot className="size-5 text-blue-500" />
-        <span className="font-serif text-base font-semibold text-white">Admin</span>
+        <span className="font-serif text-base font-semibold text-foreground">Admin</span>
       </div>
       <div className="flex-1 overflow-y-auto">
         <SidebarNav />

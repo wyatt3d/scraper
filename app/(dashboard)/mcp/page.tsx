@@ -120,6 +120,7 @@ export default function McpPage() {
                 variant="ghost"
                 size="icon"
                 className="size-8 shrink-0"
+                aria-label="Copy endpoint URL"
                 onClick={() => copyText(MCP_ENDPOINT, "endpoint", "Endpoint URL")}
               >
                 {copiedId === "endpoint" ? (
@@ -140,6 +141,7 @@ export default function McpPage() {
                 variant="ghost"
                 size="icon"
                 className="size-8 shrink-0"
+                aria-label={keyRevealed ? "Hide API key" : "Reveal API key"}
                 onClick={() => setKeyRevealed(!keyRevealed)}
               >
                 {keyRevealed ? <EyeOff className="size-3.5" /> : <Eye className="size-3.5" />}
@@ -148,6 +150,7 @@ export default function McpPage() {
                 variant="ghost"
                 size="icon"
                 className="size-8 shrink-0"
+                aria-label="Copy API key"
                 onClick={() => copyText(FULL_KEY, "api-key", "API key")}
               >
                 {copiedId === "api-key" ? (
@@ -189,6 +192,7 @@ export default function McpPage() {
                   variant="ghost"
                   size="icon"
                   className="absolute top-2 right-2 size-8"
+                  aria-label="Copy Claude Code config"
                   onClick={() => copyText(claudeConfig, "claude-config", "Claude Code config")}
                 >
                   {copiedId === "claude-config" ? (
@@ -211,6 +215,7 @@ export default function McpPage() {
                   variant="ghost"
                   size="icon"
                   className="absolute top-2 right-2 size-8"
+                  aria-label="Copy Cursor config"
                   onClick={() => copyText(cursorConfig, "cursor-config", "Cursor config")}
                 >
                   {copiedId === "cursor-config" ? (
@@ -233,6 +238,7 @@ export default function McpPage() {
                   variant="ghost"
                   size="icon"
                   className="absolute top-2 right-2 size-8"
+                  aria-label="Copy custom config"
                   onClick={() => copyText(customConfig, "custom-config", "Custom config")}
                 >
                   {copiedId === "custom-config" ? (

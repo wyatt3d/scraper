@@ -101,7 +101,7 @@ export function AppSidebar() {
   const isCollapsed = state === "collapsed"
 
   return (
-    <Sidebar collapsible="icon" data-tour="sidebar">
+    <Sidebar collapsible="icon" data-tour="sidebar" aria-label="Main navigation">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -137,8 +137,8 @@ export function AppSidebar() {
                       isActive={isActive}
                       tooltip={item.title}
                     >
-                      <Link href={item.href}>
-                        <item.icon />
+                      <Link href={item.href} aria-current={isActive ? "page" : undefined}>
+                        <item.icon aria-hidden="true" />
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>

@@ -474,12 +474,12 @@ export default function AuditLogPage() {
                           <TableCell>
                             <div className="flex items-center gap-2">
                               {entry.actorType === "user" ? (
-                                <div className="flex size-6 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900/30">
+                                <div className="flex size-6 items-center justify-center rounded-full bg-blue-500/10">
                                   <User className="size-3 text-blue-600" />
                                 </div>
                               ) : (
-                                <div className="flex size-6 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-                                  <ScrollText className="size-3 text-gray-500" />
+                                <div className="flex size-6 items-center justify-center rounded-full bg-muted">
+                                  <ScrollText className="size-3 text-muted-foreground" />
                                 </div>
                               )}
                               <span className="text-sm">{entry.actor}</span>

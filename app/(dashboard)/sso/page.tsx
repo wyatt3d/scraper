@@ -254,6 +254,7 @@ export default function SsoPage() {
                   <Button
                     variant="outline"
                     size="icon"
+                    aria-label="Copy ACS URL"
                     onClick={() => copyToClipboard("https://scraper.bot/auth/saml/callback", "ACS URL")}
                   >
                     <Copy className="size-4" />
@@ -273,6 +274,7 @@ export default function SsoPage() {
                   <Button
                     variant="outline"
                     size="icon"
+                    aria-label="Copy Entity ID"
                     onClick={() => copyToClipboard("https://scraper.bot/saml/metadata", "Entity ID")}
                   >
                     <Copy className="size-4" />
@@ -339,6 +341,7 @@ export default function SsoPage() {
                 <Button
                   variant="outline"
                   size="icon"
+                  aria-label="Copy Redirect URI"
                   onClick={() => copyToClipboard("https://scraper.bot/auth/oidc/callback", "Redirect URI")}
                 >
                   <Copy className="size-4" />
@@ -369,6 +372,7 @@ export default function SsoPage() {
                   <Button
                     variant="outline"
                     size="icon"
+                    aria-label={showClientSecret ? "Hide client secret" : "Show client secret"}
                     onClick={() => setShowClientSecret(!showClientSecret)}
                   >
                     {showClientSecret ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -501,6 +505,7 @@ export default function SsoPage() {
                           variant="ghost"
                           size="icon"
                           className="size-6"
+                          aria-label="Copy TXT record"
                           onClick={() => copyToClipboard(d.txtRecord, "TXT record")}
                         >
                           <Copy className="size-3" />
@@ -512,6 +517,7 @@ export default function SsoPage() {
                         variant="ghost"
                         size="icon"
                         className="size-6 text-muted-foreground hover:text-destructive"
+                        aria-label={`Remove domain ${d.domain}`}
                         onClick={() => handleRemoveDomain(d.domain)}
                       >
                         <X className="size-3" />
@@ -555,6 +561,7 @@ export default function SsoPage() {
                 <Button
                   variant="outline"
                   size="icon"
+                  aria-label="Copy SCIM endpoint URL"
                   onClick={() => copyToClipboard("https://scraper.bot/scim/v2", "SCIM endpoint")}
                 >
                   <Copy className="size-4" />
@@ -575,6 +582,7 @@ export default function SsoPage() {
                 <Button
                   variant="outline"
                   size="icon"
+                  aria-label={showScimToken ? "Hide SCIM token" : "Show SCIM token"}
                   onClick={() => setShowScimToken(!showScimToken)}
                 >
                   {showScimToken ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
@@ -582,6 +590,7 @@ export default function SsoPage() {
                 <Button
                   variant="outline"
                   size="icon"
+                  aria-label="Copy SCIM token"
                   onClick={() => copyToClipboard(scimToken, "SCIM token")}
                 >
                   <Copy className="size-4" />

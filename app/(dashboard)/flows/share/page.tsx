@@ -459,7 +459,13 @@ export default function FlowSharePage() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="sm">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() =>
+                          toast.info(`Opening "${item.flowName}"`)
+                        }
+                      >
                         <ExternalLink className="mr-1 size-3.5" />
                         Open
                       </Button>
@@ -559,7 +565,13 @@ export default function FlowSharePage() {
                           Copy Link
                         </Button>
                       ) : (
-                        <Button variant="ghost" size="sm">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            toast.info(`Managing sharing for "${item.flowName}"`)
+                          }
+                        >
                           <Users className="mr-1 size-3.5" />
                           Manage
                         </Button>

@@ -372,7 +372,7 @@ export default function ApiLogsPage() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card>
           <CardContent className="flex items-center gap-3 py-4">
-            <div className="flex size-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
+            <div className="flex size-10 items-center justify-center rounded-lg bg-blue-500/10">
               <Activity className="size-5 text-blue-600" />
             </div>
             <div>
@@ -383,7 +383,7 @@ export default function ApiLogsPage() {
         </Card>
         <Card>
           <CardContent className="flex items-center gap-3 py-4">
-            <div className="flex size-10 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
+            <div className="flex size-10 items-center justify-center rounded-lg bg-emerald-500/10">
               <Gauge className="size-5 text-green-600" />
             </div>
             <div>
@@ -394,7 +394,7 @@ export default function ApiLogsPage() {
         </Card>
         <Card>
           <CardContent className="flex items-center gap-3 py-4">
-            <div className="flex size-10 items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900/30">
+            <div className="flex size-10 items-center justify-center rounded-lg bg-amber-500/10">
               <AlertTriangle className="size-5 text-amber-600" />
             </div>
             <div>
@@ -405,7 +405,7 @@ export default function ApiLogsPage() {
         </Card>
         <Card>
           <CardContent className="flex items-center gap-3 py-4">
-            <div className="flex size-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30">
+            <div className="flex size-10 items-center justify-center rounded-lg bg-purple-500/10">
               <Zap className="size-5 text-purple-600" />
             </div>
             <div>

@@ -42,6 +42,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 type Step = "describe" | "generating" | "review"
 
@@ -261,6 +262,9 @@ export default function GenerateFlowPage() {
   }
 
   function handleDeploy() {
+    toast.success("Flow deployed", {
+      description: `"${flowName}" is now active.`,
+    })
     router.push("/dashboard")
   }
 

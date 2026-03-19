@@ -305,14 +305,14 @@ export default function ExtensionPage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-950 text-gray-300 py-16">
+      <footer className="bg-muted text-muted-foreground py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-500 text-sm mb-4 md:mb-0">&copy; 2026 Scraper. All rights reserved.</p>
+          <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center">
+            <p className="text-muted-foreground text-sm mb-4 md:mb-0">&copy; 2026 Scraper. All rights reserved.</p>
             <div className="flex items-center space-x-6 text-sm">
-              <Link href="/" className="hover:text-white transition-colors">Home</Link>
-              <Link href="/docs" className="hover:text-white transition-colors">Docs</Link>
-              <Link href="/#pricing" className="hover:text-white transition-colors">Pricing</Link>
+              <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
+              <Link href="/docs" className="hover:text-foreground transition-colors">Docs</Link>
+              <Link href="/#pricing" className="hover:text-foreground transition-colors">Pricing</Link>
             </div>
           </div>
         </div>

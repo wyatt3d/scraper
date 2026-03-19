@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { Logo } from "@/components/brand/logo"
+import { SubscribeForm } from "./subscribe-form"
 
 export const metadata: Metadata = {
   title: "Status",
@@ -241,14 +242,7 @@ export default function StatusPage() {
               </div>
             </CardHeader>
             <CardContent>
-              <form className="flex gap-3">
-                <Input
-                  type="email"
-                  placeholder="you@example.com"
-                  className="max-w-sm"
-                />
-                <Button type="button">Subscribe</Button>
-              </form>
+              <SubscribeForm />
               <p className="mt-2 text-xs text-muted-foreground">
                 Receive email notifications when we create or resolve incidents.
               </p>

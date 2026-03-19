@@ -257,6 +257,7 @@ export default function SecretsPage() {
                     variant="ghost"
                     size="icon"
                     className="absolute top-2 right-2 size-7"
+                    aria-label={valueRevealed ? "Hide secret value" : "Reveal secret value"}
                     onClick={() => setValueRevealed(!valueRevealed)}
                     type="button"
                   >
@@ -336,6 +337,7 @@ export default function SecretsPage() {
                           variant="ghost"
                           size="icon"
                           className="size-8"
+                          aria-label={`Refresh ${secret.name}`}
                           onClick={() => refreshSecret(secret.name)}
                         >
                           <RefreshCw className="size-3.5" />
@@ -345,6 +347,7 @@ export default function SecretsPage() {
                           variant="ghost"
                           size="icon"
                           className="size-8"
+                          aria-label={`Edit ${secret.name}`}
                           onClick={() => toast.info(`Editing "${secret.name}"`)}
                         >
                           <Pencil className="size-3.5" />
@@ -356,6 +359,7 @@ export default function SecretsPage() {
                             variant="ghost"
                             size="icon"
                             className="size-8 text-red-500 hover:text-red-600"
+                            aria-label={`Delete ${secret.name}`}
                           >
                             <Trash2 className="size-3.5" />
                           </Button>

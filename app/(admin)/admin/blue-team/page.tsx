@@ -89,7 +89,8 @@ const items: DefenseItem[] = [
     id: "RT-011",
     title: "Status page subscribe form does nothing",
     severity: "MEDIUM",
-    status: "ACKNOWLEDGED",
+    status: "FIXED",
+    resolution: "Extracted subscribe form into a client component (SubscribeForm) with email state and toast feedback on submit.",
   },
   {
     id: "RT-012",
@@ -153,7 +154,8 @@ const items: DefenseItem[] = [
     id: "RT-021",
     title: "Admin layout uses hardcoded dark colors, ignores theme in light mode",
     severity: "MEDIUM",
-    status: "ACKNOWLEDGED",
+    status: "FIXED",
+    resolution: "Replaced all hardcoded gray-800/gray-900/gray-950/gray-400/gray-500/text-white classes in admin layout with theme tokens: bg-card, bg-muted, border-border, text-foreground, text-muted-foreground. Admin nav now respects light/dark mode.",
   },
   {
     id: "RT-022",
@@ -318,6 +320,27 @@ const items: DefenseItem[] = [
     severity: "HIGH",
     status: "FIXED",
     resolution: "Stop Run sets status to cancelled via useState and shows toast. Re-run shows success toast. Export Results calls downloadJSON from lib/export.ts.",
+  },
+  {
+    id: "RT-060",
+    title: "Extension page footer uses hardcoded bg-gray-950 dark colors",
+    severity: "LOW",
+    status: "FIXED",
+    resolution: "Replaced bg-gray-950, text-gray-300, border-gray-800, text-gray-500, hover:text-white with theme tokens: bg-muted, text-muted-foreground, border-border, hover:text-foreground.",
+  },
+  {
+    id: "A11Y-001",
+    title: "Icon-only buttons across dashboard pages lack aria-labels",
+    severity: "MEDIUM",
+    status: "FIXED",
+    resolution: "Added aria-label attributes to all icon-only buttons across MCP, Secrets, Sessions, SSO, Pipelines, and Admin layout pages. Covers Copy, Eye/EyeOff toggle, Edit, Delete, Refresh, Pause, Play, and Remove buttons.",
+  },
+  {
+    id: "DM-001",
+    title: "API Logs and Audit Log pages use hardcoded light-mode colors for stat card backgrounds",
+    severity: "LOW",
+    status: "FIXED",
+    resolution: "Replaced bg-blue-100 dark:bg-blue-900/30 pattern in API Logs stat cards with bg-blue-500/10 (alpha-based, works in both modes). Fixed bg-gray-100 dark:bg-gray-800 in Audit Log with bg-muted.",
   },
 ]
 

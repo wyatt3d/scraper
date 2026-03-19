@@ -16,6 +16,7 @@ import {
   Loader2,
   Info,
   AlertTriangle,
+  AlertCircle,
   Bug,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -24,9 +25,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { downloadJSON } from "@/lib/export"
-import { mockRuns, mockFlows } from "@/lib/mock-data"
 import { DataViewer } from "@/components/dashboard/data-viewer"
-import type { RunLog } from "@/lib/types"
+import type { Run, RunLog } from "@/lib/types"
 
 const SIMULATED_MESSAGES = [
   "Navigating to page 3...",
@@ -137,18 +137,66 @@ export default function RunDetailPage() {
   const params = useParams()
   const runId = params.id as string
 
-  const baseRun = mockRuns.find((r) => r.id === runId) || mockRuns.find((r) => r.status === "running") || mockRuns[4]
-  const flow = mockFlows.find((f) => f.id === baseRun.flowId)
-  const [runStatus, setRunStatus] = useState(baseRun.status)
-  const isRunning = runStatus === "running"
+  const [baseRun, setBaseRun] = useState<Run | null>(null)
+  const [flowSteps, setFlowSteps] = useState<{ id: string; type: string; label: string }[]>([])
+  const [flowUrl, setFlowUrl] = useState("")
+  const [flowSuccessRate, setFlowSuccessRate] = useState(0)
+  const [pageLoading, setPageLoading] = useState(true)
 
-  const [logs, setLogs] = useState<RunLog[]>([...baseRun.logs])
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const res = await fetch(`/api/runs/${runId}`)
+        if (res.ok) {
+          const data = await res.json()
+          const run: Run = data.data || data
+          setBaseRun(run)
+
+          if (run.flowId) {
+            try {
+              const flowRes = await fetch(`/api/flows/${run.flowId}`)
+              if (flowRes.ok) {
+                const flowData = await flowRes.json()
+                const f = flowData.data || flowData
+                setFlowSteps(f.steps || [])
+                setFlowUrl(f.url || "")
+                setFlowSuccessRate(f.successRate ?? 0)
+              }
+            } catch {
+              // flow fetch optional
+            }
+          }
+        }
+      } catch {
+        // fallback
+      } finally {
+        setPageLoading(false)
+      }
+    }
+    loadData()
+  }, [runId])
+
+  const [runStatus, setRunStatus] = useState<string>("queued")
+  const [logs, setLogs] = useState<RunLog[]>([])
   const [autoScroll, setAutoScroll] = useState(true)
-  const [elapsedMs, setElapsedMs] = useState(baseRun.duration || 0)
-  const [itemsExtracted, setItemsExtracted] = useState(baseRun.itemsExtracted)
-  const [cost, setCost] = useState(baseRun.cost)
-  const [currentStepIndex, setCurrentStepIndex] = useState(isRunning ? 2 : (flow?.steps.length ?? 0))
+  const [elapsedMs, setElapsedMs] = useState(0)
+  const [itemsExtracted, setItemsExtracted] = useState(0)
+  const [cost, setCost] = useState(0)
+  const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [simIndex, setSimIndex] = useState(0)
+
+  useEffect(() => {
+    if (baseRun) {
+      setRunStatus(baseRun.status)
+      setLogs([...(baseRun.logs || [])])
+      setElapsedMs(baseRun.duration || 0)
+      setItemsExtracted(baseRun.itemsExtracted || 0)
+      setCost(baseRun.cost || 0)
+      setCurrentStepIndex(baseRun.status === "running" ? 2 : (flowSteps.length ?? 0))
+    }
+  }, [baseRun, flowSteps.length])
+
+  const isRunning = runStatus === "running"
 
   const logContainerRef = useRef<HTMLDivElement>(null)
 
@@ -193,16 +241,40 @@ export default function RunDetailPage() {
       if (message.startsWith("Navigating to page")) {
         setCost((prev) => +(prev + 0.001).toFixed(4))
         setCurrentStepIndex((prev) => {
-          const max = (flow?.steps.length ?? 4) - 1
+          const max = (flowSteps.length ?? 4) - 1
           return prev >= max ? 0 : prev + 1
         })
       }
     }, 2000)
     return () => clearInterval(interval)
-  }, [isRunning, simIndex, flow?.steps.length])
+  }, [isRunning, simIndex, flowSteps.length])
 
-  const steps = flow?.steps || []
-  const successRate = flow?.successRate ?? 0
+  const steps = flowSteps
+  const successRate = flowSuccessRate
+
+  if (pageLoading) {
+    return (
+      <div className="flex h-[50vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
+  if (!baseRun) {
+    return (
+      <div className="flex h-[50vh] flex-col items-center justify-center gap-4">
+        <AlertCircle className="h-12 w-12 text-muted-foreground" />
+        <h2 className="font-serif text-xl font-semibold">Run not found</h2>
+        <p className="text-muted-foreground text-sm">The run you are looking for does not exist.</p>
+        <Button variant="outline" asChild>
+          <Link href="/runs">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Runs
+          </Link>
+        </Button>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -307,7 +379,7 @@ export default function RunDetailPage() {
                 <div className="w-2 h-2 rounded-full bg-green-500" />
                 <div className="flex-1 mx-3">
                   <div className="bg-gray-800 rounded px-2 py-0.5 text-gray-400 text-[10px] font-mono text-center truncate">
-                    {flow?.url || "https://example.com"}
+                    {flowUrl || "https://example.com"}
                   </div>
                 </div>
               </div>

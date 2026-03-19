@@ -45,7 +45,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+      <nav aria-label="Main navigation" className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Logo size="lg" href="/" />
@@ -118,10 +118,11 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="animate-fade-in py-24 lg:py-32 bg-gradient-to-b from-background to-muted/20">
+      <main>
+      <section aria-labelledby="hero-heading" className="animate-fade-in py-24 lg:py-32 bg-gradient-to-b from-background to-muted/20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
-            <h1 className="font-serif font-black text-4xl md:text-6xl lg:text-7xl text-balance mb-6 text-foreground">
+            <h1 id="hero-heading" className="font-serif font-black text-4xl md:text-6xl lg:text-7xl text-balance mb-6 text-foreground">
               Turn Any Website Into a{" "}
               <span className="text-blue-600">Structured API</span>
             </h1>
@@ -143,7 +144,7 @@ export default function LandingPage() {
             </div>
 
             {/* Terminal mockup */}
-            <div className="max-w-2xl mx-auto rounded-xl overflow-hidden shadow-2xl border border-border">
+            <div className="max-w-2xl mx-auto rounded-xl overflow-hidden shadow-2xl border border-border" role="img" aria-label="Example API request and response in a terminal">
               <div className="bg-gray-900 px-4 py-3 flex items-center space-x-2">
                 <div className="w-3 h-3 rounded-full bg-red-500" />
                 <div className="w-3 h-3 rounded-full bg-yellow-500" />
@@ -327,6 +328,7 @@ export default function LandingPage() {
                   className="flex-1 h-12 text-base"
                   readOnly
                   defaultValue="https://news.ycombinator.com"
+                  aria-label="URL to scrape"
                 />
                 <Button
                   className="bg-blue-600 hover:bg-blue-700 text-white h-12 px-6"
@@ -606,6 +608,8 @@ export default function LandingPage() {
           </Link>
         </div>
       </section>
+
+      </main>
 
       {/* Footer */}
       <footer className="bg-gray-950 text-gray-300 py-16">

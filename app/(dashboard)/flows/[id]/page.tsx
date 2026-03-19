@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useRef } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import {
@@ -117,8 +117,7 @@ import { cn } from "@/lib/utils"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { downloadJSON } from "@/lib/export"
 import { toast } from "sonner"
-import { mockFlows, mockRuns } from "@/lib/mock-data"
-import type { FlowStep, StepType, Run } from "@/lib/types"
+import type { Flow, FlowStep, StepType, Run } from "@/lib/types"
 
 const stepTypeConfig: Record<StepType, { label: string; icon: typeof Globe; color: string }> = {
   navigate: { label: "Navigate", icon: Globe, color: "text-blue-600" },
@@ -165,14 +164,48 @@ const runStatusConfig: Record<string, { color: string; icon: typeof CheckCircle2
 export default function FlowDetailPage() {
   const params = useParams()
   const flowId = params.id as string
-  const flow = mockFlows.find((f) => f.id === flowId) ?? mockFlows[0]
-  const flowRuns = mockRuns.filter((r) => r.flowId === flow.id)
+
+  const [flow, setFlow] = useState<Flow | null>(null)
+  const [flowRuns, setFlowRuns] = useState<Run[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [flowRes, runsRes] = await Promise.all([
+          fetch(`/api/flows/${flowId}`),
+          fetch(`/api/runs?flowId=${flowId}`),
+        ])
+        if (flowRes.ok) {
+          const flowData = await flowRes.json()
+          setFlow(flowData.data || flowData)
+        }
+        if (runsRes.ok) {
+          const runsData = await runsRes.json()
+          const arr = Array.isArray(runsData) ? runsData : runsData.data || []
+          setFlowRuns(arr)
+        }
+      } catch {
+        // fallback silently
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
+  }, [flowId])
 
   const isMobile = useIsMobile()
   const [activeTab, setActiveTab] = useState("builder")
   const [mobileBuilderTab, setMobileBuilderTab] = useState<"steps" | "preview" | "config">("steps")
-  const [steps, setSteps] = useState<FlowStep[]>(flow.steps)
-  const [selectedStepId, setSelectedStepId] = useState<string | null>(flow.steps[0]?.id ?? null)
+  const [steps, setSteps] = useState<FlowStep[]>([])
+  const [selectedStepId, setSelectedStepId] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (flow) {
+      setSteps(flow.steps || [])
+      setSelectedStepId(flow.steps?.[0]?.id ?? null)
+    }
+  }, [flow])
 
   const selectedStep = useMemo(() => {
     function findStep(s: FlowStep[]): FlowStep | undefined {
@@ -198,6 +231,30 @@ export default function FlowDetailPage() {
     setSteps((prev) => [...prev, newStep])
     setSelectedStepId(newStep.id)
     toast.success(`${cfg.label} step added`)
+  }
+
+  if (loading) {
+    return (
+      <div className="flex h-full items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
+  if (!flow) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-4">
+        <AlertCircle className="h-12 w-12 text-muted-foreground" />
+        <h2 className="font-[family-name:var(--font-crimson-text)] text-xl font-semibold">Flow not found</h2>
+        <p className="text-muted-foreground text-sm">The flow you are looking for does not exist.</p>
+        <Button variant="outline" asChild>
+          <Link href="/flows">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Flows
+          </Link>
+        </Button>
+      </div>
+    )
   }
 
   return (
@@ -927,7 +984,7 @@ const mockVersionHistory = [
   },
 ]
 
-function SettingsTab({ flow }: { flow: typeof mockFlows[0] }) {
+function SettingsTab({ flow }: { flow: Flow }) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [importPreview, setImportPreview] = useState<Record<string, unknown> | null>(null)
   const [importDialogOpen, setImportDialogOpen] = useState(false)

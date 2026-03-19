@@ -47,6 +47,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { toast } from "sonner"
 import { downloadCSV, downloadJSON } from "@/lib/export"
 import { DataViewer } from "@/components/dashboard/data-viewer"
 import { TableSkeleton } from "@/components/dashboard/skeletons"
@@ -416,10 +417,24 @@ export default function RunsPage() {
                         className="flex items-center gap-1"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        <Button variant="ghost" size="icon" className="size-8">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-8"
+                          onClick={() =>
+                            toast.info(`Viewing run ${run.id}`)
+                          }
+                        >
                           <Eye className="size-3.5" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="size-8">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-8"
+                          onClick={() =>
+                            toast.success(`Re-running "${run.flowName}"`)
+                          }
+                        >
                           <RotateCcw className="size-3.5" />
                         </Button>
                       </div>
