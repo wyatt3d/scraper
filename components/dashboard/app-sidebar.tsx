@@ -20,6 +20,8 @@ import {
   Monitor,
   Play,
   Plug,
+  Receipt,
+  ScrollText,
   Settings,
   Shield,
   Sparkles,
@@ -59,6 +61,7 @@ import {
 const navItems = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { title: "Analytics", href: "/analytics", icon: BarChart3 },
+  { title: "Usage", href: "/usage", icon: Receipt },
   { title: "Playground", href: "/playground", icon: Sparkles, tourId: "playground" },
   { title: "Generate Flow", href: "/flows/generate", icon: Wand2 },
   { title: "Flows", href: "/flows", icon: Workflow },
@@ -77,6 +80,7 @@ const navItems = [
   { title: "Secrets", href: "/secrets", icon: Lock },
   { title: "Sessions", href: "/sessions", icon: Monitor },
   { title: "API Versions", href: "/api-versions", icon: Layers },
+  { title: "Audit Log", href: "/audit-log", icon: ScrollText },
   { title: "Settings", href: "/settings", icon: Settings },
 ]
 

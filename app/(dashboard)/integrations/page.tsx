@@ -209,9 +209,8 @@ function WebhookWizard({
                 onChange={(e) => setWebhookUrl(e.target.value)}
               />
               <a
-                href="#"
+                href="/docs/guides"
                 className="text-xs text-blue-600 hover:underline"
-                onClick={(e) => e.preventDefault()}
               >
                 How to find your webhook URL
               </a>

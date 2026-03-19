@@ -651,13 +651,13 @@ export default function LandingPage() {
           <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-500 text-sm mb-4 md:mb-0">&copy; 2026 Scraper. All rights reserved.</p>
             <div className="flex items-center space-x-4">
-              <a href="#" className="text-gray-500 hover:text-white transition-colors" aria-label="Twitter">
+              <a href="https://x.com/scraperbot" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors" aria-label="Twitter">
                 <Twitter className="w-5 h-5" />
               </a>
-              <a href="#" className="text-gray-500 hover:text-white transition-colors" aria-label="GitHub">
+              <a href="https://github.com/wyatt3d/scraper" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors" aria-label="GitHub">
                 <Github className="w-5 h-5" />
               </a>
-              <a href="#" className="text-gray-500 hover:text-white transition-colors" aria-label="LinkedIn">
+              <a href="https://linkedin.com/company/scraperbot" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors" aria-label="LinkedIn">
                 <Linkedin className="w-5 h-5" />
               </a>
             </div>
