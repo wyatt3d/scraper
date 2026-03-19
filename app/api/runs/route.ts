@@ -1,30 +1,19 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
-
-function toRun(row: Record<string, unknown>) {
-  return {
-    id: row.id,
-    flowId: row.flow_id,
-    flowName: row.flow_name,
-    status: row.status,
-    startedAt: row.started_at,
-    completedAt: row.completed_at,
-    duration: row.duration,
-    itemsExtracted: row.items_extracted,
-    error: row.error,
-    outputPreview: row.output_preview,
-    logs: row.logs,
-    cost: row.cost,
-  }
-}
+import { toRun } from "@/lib/mappers"
 
 export async function GET(req: NextRequest) {
-  const flowId = req.nextUrl.searchParams.get("flowId")
+  const searchParams = req.nextUrl.searchParams
+  const flowId = searchParams.get("flowId")
+  const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100)
+  const offset = parseInt(searchParams.get("offset") || "0")
 
   let query = supabase
     .from("runs")
-    .select("*")
+    .select("id, flow_id, flow_name, status, started_at, completed_at, duration, items_extracted, error, cost")
     .order("started_at", { ascending: false })
+    .limit(limit)
+    .range(offset, offset + limit - 1)
 
   if (flowId) {
     query = query.eq("flow_id", flowId)
@@ -36,7 +25,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json({ data: (data || []).map(toRun) })
+  const response = NextResponse.json({ data: (data || []).map(toRun) })
+  response.headers.set("Cache-Control", "s-maxage=30, stale-while-revalidate=60")
+  return response
 }
 
 export async function POST(req: NextRequest) {

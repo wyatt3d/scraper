@@ -26,6 +26,7 @@ import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { downloadJSON } from "@/lib/export"
 import { DataViewer } from "@/components/dashboard/data-viewer"
+import { formatDuration } from "@/lib/format"
 import type { Run, RunLog } from "@/lib/types"
 
 const SIMULATED_MESSAGES = [
@@ -45,14 +46,6 @@ const SIMULATED_MESSAGES = [
   "Found 15 new items",
   "Processing item 11/15...",
 ]
-
-function formatDuration(ms: number) {
-  const seconds = Math.floor(ms / 1000)
-  if (seconds < 60) return `${seconds}s`
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = seconds % 60
-  return `${minutes}m ${remainingSeconds}s`
-}
 
 function formatTimestamp(ts: string) {
   return new Date(ts).toLocaleTimeString("en-US", {

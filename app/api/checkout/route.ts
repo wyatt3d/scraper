@@ -24,8 +24,8 @@ export async function POST(request: Request) {
           quantity: 1,
         },
       ],
-      success_url: `${request.headers.get("origin")}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${request.headers.get("origin")}/pricing`,
+      success_url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://scraper.bot"}/dashboard?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://scraper.bot"}/pricing`,
     })
 
     return NextResponse.json({ url: session.url })

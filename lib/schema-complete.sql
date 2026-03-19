@@ -104,7 +104,7 @@ CREATE TABLE IF NOT EXISTS sessions (
 CREATE TABLE IF NOT EXISTS audit_log (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   actor TEXT NOT NULL,
-  action TEXT NOT NULL CHECK (action IN ('created', 'updated', 'deleted', 'executed', 'viewed')),
+  action TEXT NOT NULL CHECK (action IN ('created', 'updated', 'deleted', 'executed', 'viewed', 'error')),
   resource_type TEXT NOT NULL,
   resource_name TEXT,
   details JSONB DEFAULT '{}'::jsonb,

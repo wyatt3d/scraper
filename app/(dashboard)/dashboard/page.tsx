@@ -44,6 +44,7 @@ import { HelpTooltip } from "@/components/dashboard/help-tooltip"
 import { ProductTour } from "@/components/dashboard/product-tour"
 import { DashboardSkeleton } from "@/components/dashboard/skeletons"
 import { EmptyFlows, EmptyRuns, EmptyAlerts } from "@/components/dashboard/empty-states"
+import { formatDuration, timeAgo } from "@/lib/format"
 import type { Flow, Run, MonitorAlert } from "@/lib/types"
 
 const UsageChart = dynamic(
@@ -147,28 +148,6 @@ function severityIcon(severity: string) {
     default:
       return <Bell className="size-4 text-muted-foreground" />
   }
-}
-
-function formatDuration(ms: number) {
-  if (ms === 0) return "--"
-  const seconds = Math.floor(ms / 1000)
-  if (seconds < 60) return `${seconds}s`
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = seconds % 60
-  return `${minutes}m ${remainingSeconds}s`
-}
-
-function formatRelativeTime(dateString: string) {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffMins = Math.floor(diffMs / 60000)
-  if (diffMins < 1) return "just now"
-  if (diffMins < 60) return `${diffMins}m ago`
-  const diffHours = Math.floor(diffMins / 60)
-  if (diffHours < 24) return `${diffHours}h ago`
-  const diffDays = Math.floor(diffHours / 24)
-  return `${diffDays}d ago`
 }
 
 export default function DashboardPage() {
@@ -413,7 +392,7 @@ export default function DashboardPage() {
                     </p>
                     <div className="flex items-center justify-between pt-1">
                       <span className="text-muted-foreground text-xs">
-                        {formatRelativeTime(alert.createdAt)}
+                        {timeAgo(alert.createdAt)}
                       </span>
                       {!alert.acknowledged && (
                         <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={() => handleAcknowledge(alert.id)}>
@@ -470,7 +449,7 @@ export default function DashboardPage() {
                       ${run.cost.toFixed(3)}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
-                      {formatRelativeTime(run.startedAt)}
+                      {timeAgo(run.startedAt)}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -514,7 +493,7 @@ export default function DashboardPage() {
                       {flow.lastRunAt && (
                         <span className="flex items-center gap-1">
                           <Clock className="size-3" />
-                          Last run {formatRelativeTime(flow.lastRunAt)}
+                          Last run {timeAgo(flow.lastRunAt)}
                         </span>
                       )}
                       <span className="flex items-center gap-1">

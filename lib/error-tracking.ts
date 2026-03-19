@@ -29,16 +29,13 @@ class ErrorTracker {
 
   private async persistError(entry: Record<string, unknown>): Promise<void> {
     try {
-      await fetch("/api/audit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          actor: "system",
-          action: "error",
-          resourceType: "system",
-          resourceName: entry.component || "unknown",
-          details: entry,
-        }),
+      const { supabase } = await import("./supabase")
+      await supabase.from("audit_log").insert({
+        actor: "system",
+        action: "error",
+        resource_type: "system",
+        resource_name: String(entry.component || "unknown"),
+        details: entry,
       })
     } catch {}
   }

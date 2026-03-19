@@ -27,14 +27,6 @@ export async function POST(request: NextRequest) {
     })
     return NextResponse.json({ data: { ...key, key: rawKey } }, { status: 201 })
   } catch {
-    const newKey = {
-      id: `key-${Date.now()}`,
-      name: body.name ?? "New API Key",
-      key: `scr_live_${crypto.randomUUID().replace(/-/g, "")}`,
-      prefix: "scr_live_",
-      createdAt: new Date().toISOString(),
-      scopes: body.scopes ?? ["flows:read", "runs:read"],
-    }
-    return NextResponse.json({ data: newKey }, { status: 201 })
+    return NextResponse.json({ error: "Failed to create API key" }, { status: 500 })
   }
 }

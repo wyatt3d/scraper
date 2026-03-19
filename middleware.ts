@@ -9,58 +9,29 @@ export async function middleware(request: NextRequest) {
   // Never rewrite API routes, static assets, or system paths for subdomains
   const isSystemPath = pathname.startsWith("/api/") || pathname.startsWith("/_next/") || pathname.startsWith("/icon") || pathname === "/favicon.ico"
 
-  // Subdomain routing: admin.scraper.bot -> /admin
-  if (hostname.startsWith("admin.") && !isSystemPath) {
-    if (!pathname.startsWith("/admin")) {
-      const url = request.nextUrl.clone()
-      url.pathname = `/admin${pathname === "/" ? "" : pathname}`
-      return NextResponse.rewrite(url)
+  // Subdomain routing
+  const subdomains = [
+    { prefix: "admin.", path: "/admin" },
+    { prefix: "docs.", path: "/docs" },
+    { prefix: "status.", path: "/status" },
+    { prefix: "blog.", path: "/blog" },
+    { prefix: "community.", path: "/community" },
+  ]
+
+  for (const { prefix, path } of subdomains) {
+    if (hostname.startsWith(prefix) && !isSystemPath) {
+      if (!pathname.startsWith(path)) {
+        const url = request.nextUrl.clone()
+        url.pathname = `${path}${pathname === "/" ? "" : pathname}`
+        return NextResponse.rewrite(url)
+      }
     }
   }
 
-  // Subdomain routing: docs.scraper.bot -> /docs
-  if (hostname.startsWith("docs.") && !isSystemPath) {
-    if (!pathname.startsWith("/docs")) {
-      const url = request.nextUrl.clone()
-      url.pathname = `/docs${pathname === "/" ? "" : pathname}`
-      return NextResponse.rewrite(url)
-    }
-  }
-
-  // Subdomain routing: status.scraper.bot -> /status
-  if (hostname.startsWith("status.") && !isSystemPath) {
-    if (!pathname.startsWith("/status")) {
-      const url = request.nextUrl.clone()
-      url.pathname = `/status${pathname}`
-      return NextResponse.rewrite(url)
-    }
-  }
-
-  // Subdomain routing: blog.scraper.bot -> /blog
-  if (hostname.startsWith("blog.") && !isSystemPath) {
-    if (!pathname.startsWith("/blog")) {
-      const url = request.nextUrl.clone()
-      url.pathname = `/blog${pathname === "/" ? "" : pathname}`
-      return NextResponse.rewrite(url)
-    }
-  }
-
-  // Subdomain routing: community.scraper.bot -> /community
-  if (hostname.startsWith("community.") && !isSystemPath) {
-    if (!pathname.startsWith("/community")) {
-      const url = request.nextUrl.clone()
-      url.pathname = `/community${pathname === "/" ? "" : pathname}`
-      return NextResponse.rewrite(url)
-    }
-  }
-
-  // Subdomain routing: api.scraper.bot -> /api
-  if (hostname.startsWith("api.")) {
-    if (!pathname.startsWith("/api")) {
-      const url = request.nextUrl.clone()
-      url.pathname = `/api${pathname === "/" ? "" : pathname}`
-      return NextResponse.rewrite(url)
-    }
+  if (hostname.startsWith("api.") && !pathname.startsWith("/api")) {
+    const url = request.nextUrl.clone()
+    url.pathname = `/api${pathname === "/" ? "" : pathname}`
+    return NextResponse.rewrite(url)
   }
 
   // Dashboard routes require authentication
@@ -68,15 +39,15 @@ export async function middleware(request: NextRequest) {
     "/settings", "/playground", "/templates", "/workflow-builder", "/marketplace",
     "/analytics", "/usage", "/webhooks", "/integrations", "/mcp", "/proxies",
     "/secrets", "/sessions", "/api-versions", "/sso", "/api-logs", "/audit-log",
-    "/pipelines", "/reports", "/graphql", "/api-playground"]
+    "/pipelines", "/reports", "/graphql", "/api-playground", "/admin"]
 
   const isDashboardPath = dashboardPaths.some(p => pathname.startsWith(p))
 
   if (isDashboardPath) {
     const { supabase, response } = createMiddlewareClient(request)
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { session } } = await supabase.auth.getSession()
 
-    if (!user) {
+    if (!session) {
       const signInUrl = request.nextUrl.clone()
       signInUrl.pathname = "/sign-in"
       signInUrl.searchParams.set("redirect", pathname)
@@ -87,16 +58,11 @@ export async function middleware(request: NextRequest) {
   }
 
   // API routes require API key validation (except public endpoints)
-  const publicApiPaths = ["/api/auth", "/api/tickets", "/api/health", "/api/extract", "/api/generate", "/api/checkout", "/api/email"]
+  const publicApiPaths = ["/api/auth", "/api/tickets", "/api/health", "/api/checkout"]
   const isPublicApi = publicApiPaths.some(p => pathname.startsWith(p))
   if (pathname.startsWith("/api/") && !isPublicApi) {
     const apiKey = request.headers.get("x-api-key") || request.headers.get("authorization")?.replace("Bearer ", "")
     if (!apiKey) {
-      const referer = request.headers.get("referer")
-      const origin = request.headers.get("origin")
-      if (referer?.includes(hostname) || origin?.includes(hostname)) {
-        return NextResponse.next()
-      }
       return NextResponse.json(
         { error: "API key required. Set X-API-Key header." },
         { status: 401 }

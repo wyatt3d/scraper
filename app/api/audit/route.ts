@@ -3,7 +3,8 @@ import { supabase } from "@/lib/supabase"
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const limit = parseInt(searchParams.get("limit") || "50")
+  const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100)
+  const offset = parseInt(searchParams.get("offset") || "0")
   const actor = searchParams.get("actor")
   const action = searchParams.get("action")
   const resource = searchParams.get("resource")
@@ -14,6 +15,7 @@ export async function GET(request: Request) {
       .select("*")
       .order("created_at", { ascending: false })
       .limit(limit)
+      .range(offset, offset + limit - 1)
 
     if (actor) query = query.eq("actor", actor)
     if (action) query = query.eq("action", action)
@@ -21,7 +23,9 @@ export async function GET(request: Request) {
 
     const { data, error } = await query
     if (error) throw error
-    return NextResponse.json({ data: data || [] })
+    const response = NextResponse.json({ data: data || [] })
+    response.headers.set("Cache-Control", "s-maxage=30, stale-while-revalidate=60")
+    return response
   } catch {
     return NextResponse.json({ data: [] })
   }

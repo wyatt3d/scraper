@@ -3,6 +3,19 @@ import Anthropic from "@anthropic-ai/sdk"
 import { scrapeWithBrowser } from "@/lib/engine/scraper"
 import * as cheerio from "cheerio"
 
+function isUrlSafe(urlStr: string): boolean {
+  try {
+    const url = new URL(urlStr)
+    if (!["http:", "https:"].includes(url.protocol)) return false
+    const hostname = url.hostname
+    if (hostname === "localhost" || hostname === "127.0.0.1" || hostname === "0.0.0.0") return false
+    if (hostname.startsWith("10.") || hostname.startsWith("192.168.") || hostname.startsWith("169.254.")) return false
+    if (/^172\.(1[6-9]|2\d|3[01])\./.test(hostname)) return false
+    if (hostname.endsWith(".internal") || hostname.endsWith(".local")) return false
+    return true
+  } catch { return false }
+}
+
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 export async function POST(request: Request) {
@@ -12,6 +25,9 @@ export async function POST(request: Request) {
 
     let pageAnalysis = ""
     if (url) {
+      if (!isUrlSafe(url)) {
+        return NextResponse.json({ error: "URL is not allowed" }, { status: 400 })
+      }
       try {
         const result = await scrapeWithBrowser(url)
         if (result.success && result.html) {

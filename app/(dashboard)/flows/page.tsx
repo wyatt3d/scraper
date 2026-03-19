@@ -78,6 +78,7 @@ import { FlowGridSkeleton } from "@/components/dashboard/skeletons"
 import { EmptyFlows } from "@/components/dashboard/empty-states"
 import { SavedViews } from "@/components/dashboard/saved-views"
 import type { SavedView } from "@/components/dashboard/saved-views"
+import { formatDuration, timeAgo } from "@/lib/format"
 import type { Flow, FlowMode, FlowStatus } from "@/lib/types"
 
 const FLOW_DEFAULT_VIEWS: SavedView[] = [
@@ -86,28 +87,6 @@ const FLOW_DEFAULT_VIEWS: SavedView[] = [
   { id: "failing-flows", name: "Failing Flows", filters: { mode: "all", status: "error" }, isDefault: true },
   { id: "my-flows", name: "My Flows", filters: { mode: "all", status: "all" }, isDefault: true },
 ]
-
-function timeAgo(dateStr: string): string {
-  const now = new Date()
-  const date = new Date(dateStr)
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000)
-  if (seconds < 60) return "just now"
-  const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `${minutes}m ago`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
-  const days = Math.floor(hours / 24)
-  return `${days}d ago`
-}
-
-function formatDuration(ms: number): string {
-  if (ms < 1000) return `${ms}ms`
-  const seconds = ms / 1000
-  if (seconds < 60) return `${seconds.toFixed(1)}s`
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = Math.round(seconds % 60)
-  return `${minutes}m ${remainingSeconds}s`
-}
 
 const modeConfig: Record<FlowMode, { label: string; icon: typeof FileText; color: string }> = {
   extract: { label: "Extract", icon: FileText, color: "bg-muted text-foreground" },

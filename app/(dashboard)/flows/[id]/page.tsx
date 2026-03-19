@@ -118,6 +118,7 @@ import { cn } from "@/lib/utils"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { downloadJSON } from "@/lib/export"
 import { toast } from "sonner"
+import { formatDuration, timeAgo } from "@/lib/format"
 import type { Flow, FlowStep, StepType, Run } from "@/lib/types"
 
 const stepTypeConfig: Record<StepType, { label: string; icon: typeof Globe; color: string }> = {
@@ -130,28 +131,6 @@ const stepTypeConfig: Record<StepType, { label: string; icon: typeof Globe; colo
   screenshot: { label: "Screenshot", icon: Camera, color: "text-pink-600" },
   condition: { label: "Condition", icon: GitBranch, color: "text-orange-600" },
   loop: { label: "Loop", icon: Repeat, color: "text-indigo-600" },
-}
-
-function timeAgo(dateStr: string): string {
-  const now = new Date("2026-03-18T18:30:00Z")
-  const date = new Date(dateStr)
-  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000)
-  if (seconds < 60) return "just now"
-  const minutes = Math.floor(seconds / 60)
-  if (minutes < 60) return `${minutes}m ago`
-  const hours = Math.floor(minutes / 60)
-  if (hours < 24) return `${hours}h ago`
-  const days = Math.floor(hours / 24)
-  return `${days}d ago`
-}
-
-function formatDuration(ms: number): string {
-  if (ms < 1000) return `${ms}ms`
-  const seconds = ms / 1000
-  if (seconds < 60) return `${seconds.toFixed(1)}s`
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = Math.round(seconds % 60)
-  return `${minutes}m ${remainingSeconds}s`
 }
 
 const runStatusConfig: Record<string, { color: string; icon: typeof CheckCircle2 }> = {

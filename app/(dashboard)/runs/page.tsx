@@ -54,6 +54,7 @@ import { TableSkeleton } from "@/components/dashboard/skeletons"
 import { EmptyRuns } from "@/components/dashboard/empty-states"
 import { SavedViews } from "@/components/dashboard/saved-views"
 import type { SavedView } from "@/components/dashboard/saved-views"
+import { formatDuration, timeAgo } from "@/lib/format"
 import type { Flow, Run, RunLog } from "@/lib/types"
 
 const RUN_DEFAULT_VIEWS: SavedView[] = [
@@ -63,28 +64,6 @@ const RUN_DEFAULT_VIEWS: SavedView[] = [
 ]
 
 const ITEMS_PER_PAGE = 5
-
-function formatDuration(ms: number) {
-  if (ms === 0) return "--"
-  const seconds = Math.floor(ms / 1000)
-  if (seconds < 60) return `${seconds}s`
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = seconds % 60
-  return `${minutes}m ${remainingSeconds}s`
-}
-
-function formatRelativeTime(dateString: string) {
-  const date = new Date(dateString)
-  const now = new Date()
-  const diffMs = now.getTime() - date.getTime()
-  const diffMins = Math.floor(diffMs / 60000)
-  if (diffMins < 1) return "just now"
-  if (diffMins < 60) return `${diffMins}m ago`
-  const diffHours = Math.floor(diffMins / 60)
-  if (diffHours < 24) return `${diffHours}h ago`
-  const diffDays = Math.floor(diffHours / 24)
-  return `${diffDays}d ago`
-}
 
 function statusBadge(status: string) {
   switch (status) {
@@ -397,7 +376,7 @@ export default function RunsPage() {
                     </TableCell>
                     <TableCell>{statusBadge(run.status)}</TableCell>
                     <TableCell className="text-muted-foreground">
-                      {formatRelativeTime(run.startedAt)}
+                      {timeAgo(run.startedAt)}
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {formatDuration(run.duration ?? 0)}

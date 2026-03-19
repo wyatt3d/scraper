@@ -1,25 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
-
-function toFlow(row: Record<string, unknown>) {
-  return {
-    id: row.id,
-    name: row.name,
-    description: row.description,
-    url: row.url,
-    mode: row.mode,
-    status: row.status,
-    steps: row.steps,
-    outputSchema: row.output_schema,
-    schedule: row.schedule,
-    successRate: row.success_rate,
-    totalRuns: row.total_runs,
-    avgDuration: row.avg_duration,
-    createdAt: row.created_at,
-    updatedAt: row.updated_at,
-    lastRunAt: row.last_run_at,
-  }
-}
+import { toFlow } from "@/lib/mappers"
 
 export async function GET(
   _req: NextRequest,

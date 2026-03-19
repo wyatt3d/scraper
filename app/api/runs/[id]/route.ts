@@ -1,22 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
-
-function toRun(row: Record<string, unknown>) {
-  return {
-    id: row.id,
-    flowId: row.flow_id,
-    flowName: row.flow_name,
-    status: row.status,
-    startedAt: row.started_at,
-    completedAt: row.completed_at,
-    duration: row.duration,
-    itemsExtracted: row.items_extracted,
-    error: row.error,
-    outputPreview: row.output_preview,
-    logs: row.logs,
-    cost: row.cost,
-  }
-}
+import { toRun } from "@/lib/mappers"
 
 export async function GET(
   _req: NextRequest,

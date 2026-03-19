@@ -142,19 +142,19 @@ function buildPlaywrightScript(flow: Flow): string {
       switch (step.type) {
         case "navigate":
           return `
-          // Step ${i + 1}: ${step.label}
+          // Step ${i + 1}: Navigate
           await page.goto(context.url, { waitUntil: 'networkidle2', timeout: 30000 });
           { const shot = await page.screenshot({ type: 'png', encoding: 'base64' }).catch(() => null);
-            if (shot) screenshots.push({ step: 's${i + 1}', label: '${step.label.replace(/'/g, "\\'")}', url: page.url(), image: 'data:image/png;base64,' + shot }); }
+            if (shot) screenshots.push({ step: 's${i + 1}', label: ${JSON.stringify(step.label)}, url: page.url(), image: 'data:image/png;base64,' + shot }); }
         `
         case "wait":
           return `
-          // Step ${i + 1}: ${step.label}
+          // Step ${i + 1}: Wait
           await page.waitForTimeout(${Math.min(parseInt(step.value || "2000"), 5000)});
         `
         case "click":
           return `
-          // Step ${i + 1}: ${step.label}
+          // Step ${i + 1}: Click
           try {
             const selectors_${i} = ${JSON.stringify(step.selector?.split(", ") || [])};
             let clicked_${i} = false;
@@ -167,7 +167,7 @@ function buildPlaywrightScript(flow: Flow): string {
               } catch {}
             }
             if (!clicked_${i}) {
-              const textToFind = '${step.label.replace(/'/g, "\\'")}';
+              const textToFind = ${JSON.stringify(step.label)};
               try {
                 const elements = await page.$$('a, button, [role="button"]');
                 for (const el of elements) {
@@ -184,23 +184,21 @@ function buildPlaywrightScript(flow: Flow): string {
             if (!clicked_${i}) {
               console.log('All selectors failed for step ${i + 1}');
               const failShot = await page.screenshot({ type: 'png', encoding: 'base64' }).catch(() => null);
-              if (failShot) screenshots.push({ step: 's${i + 1}_fail', label: 'Failed: ${step.label.replace(/'/g, "\\'")}', url: page.url(), image: 'data:image/png;base64,' + failShot });
+              if (failShot) screenshots.push({ step: 's${i + 1}_fail', label: ${JSON.stringify("Failed: " + step.label)}, url: page.url(), image: 'data:image/png;base64,' + failShot });
             }
             await page.waitForTimeout(2000);
             { const shot = await page.screenshot({ type: 'png', encoding: 'base64' }).catch(() => null);
-              if (shot) screenshots.push({ step: 's${i + 1}', label: '${step.label.replace(/'/g, "\\'")}', url: page.url(), image: 'data:image/png;base64,' + shot }); }
+              if (shot) screenshots.push({ step: 's${i + 1}', label: ${JSON.stringify(step.label)}, url: page.url(), image: 'data:image/png;base64,' + shot }); }
           } catch (e) {
             console.log('Click failed for step ${i + 1}:', e.message);
           }
         `
         case "fill": {
-          const selector = (step.selector || "").replace(/'/g, "\\'")
-          const value = (step.value || "").replace(/'/g, "\\'")
           return `
-          // Step ${i + 1}: ${step.label}
+          // Step ${i + 1}: Fill
           try {
-            await page.waitForSelector('${selector}', { timeout: 5000 });
-            await page.type('${selector}', '${value}');
+            await page.waitForSelector(${JSON.stringify(step.selector || "")}, { timeout: 5000 });
+            await page.type(${JSON.stringify(step.selector || "")}, ${JSON.stringify(step.value || "")});
             await page.waitForTimeout(500);
           } catch (e) {
             console.log('Fill failed for step ${i + 1}:', e.message);
@@ -209,7 +207,7 @@ function buildPlaywrightScript(flow: Flow): string {
         }
         case "scroll":
           return `
-          // Step ${i + 1}: ${step.label}
+          // Step ${i + 1}: Scroll
           await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
           await page.waitForTimeout(2000);
         `
@@ -217,16 +215,16 @@ function buildPlaywrightScript(flow: Flow): string {
           const rules = step.extractionRules || []
           const rulesJson = JSON.stringify(rules)
           return `
-          // Step ${i + 1}: ${step.label}
+          // Step ${i + 1}: Extract
           {
             const pageHtml_${i} = await page.content();
             const extractionRules_${i} = ${rulesJson};
-            results.push({ stepId: '${step.id}', html: pageHtml_${i}, rules: extractionRules_${i}, pageUrl: page.url() });
+            results.push({ stepId: ${JSON.stringify(step.id)}, html: pageHtml_${i}, rules: extractionRules_${i}, pageUrl: page.url() });
           }
         `
         }
         default:
-          return `// Step ${i + 1}: ${step.label} (${step.type})`
+          return `// Step ${i + 1}: ${step.type} (skipped)`
       }
     })
     .join("\n")
