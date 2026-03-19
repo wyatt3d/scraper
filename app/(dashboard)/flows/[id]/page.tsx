@@ -108,6 +108,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 import { downloadJSON } from "@/lib/export"
+import { toast } from "sonner"
 import { mockFlows, mockRuns } from "@/lib/mock-data"
 import type { FlowStep, StepType, Run } from "@/lib/types"
 
@@ -160,20 +161,34 @@ export default function FlowDetailPage() {
   const flowRuns = mockRuns.filter((r) => r.flowId === flow.id)
 
   const [activeTab, setActiveTab] = useState("builder")
+  const [steps, setSteps] = useState<FlowStep[]>(flow.steps)
   const [selectedStepId, setSelectedStepId] = useState<string | null>(flow.steps[0]?.id ?? null)
 
   const selectedStep = useMemo(() => {
-    function findStep(steps: FlowStep[]): FlowStep | undefined {
-      for (const s of steps) {
-        if (s.id === selectedStepId) return s
-        if (s.children) {
-          const found = findStep(s.children)
+    function findStep(s: FlowStep[]): FlowStep | undefined {
+      for (const step of s) {
+        if (step.id === selectedStepId) return step
+        if (step.children) {
+          const found = findStep(step.children)
           if (found) return found
         }
       }
     }
-    return findStep(flow.steps)
-  }, [flow.steps, selectedStepId])
+    return findStep(steps)
+  }, [steps, selectedStepId])
+
+  function handleAddStep(type: StepType) {
+    const cfg = stepTypeConfig[type]
+    const newStep: FlowStep = {
+      id: `step-${Date.now()}`,
+      type,
+      label: `${cfg.label} Step`,
+      config: {},
+    }
+    setSteps((prev) => [...prev, newStep])
+    setSelectedStepId(newStep.id)
+    toast.success(`${cfg.label} step added`)
+  }
 
   return (
     <TooltipProvider>
@@ -234,9 +249,10 @@ export default function FlowDetailPage() {
             <ResizablePanelGroup direction="horizontal" className="h-full">
               <ResizablePanel defaultSize={22} minSize={18} maxSize={35}>
                 <StepsPanel
-                  steps={flow.steps}
+                  steps={steps}
                   selectedStepId={selectedStepId}
                   onSelectStep={setSelectedStepId}
+                  onAddStep={handleAddStep}
                 />
               </ResizablePanel>
               <ResizableHandle withHandle />
@@ -265,7 +281,7 @@ export default function FlowDetailPage() {
 
         <div className="flex items-center justify-between border-t bg-muted/30 px-4 py-2">
           <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span>{flow.steps.length} steps</span>
+            <span>{steps.length} steps</span>
             <Separator orientation="vertical" className="h-4" />
             <span>Avg {formatDuration(flow.avgDuration)}</span>
             <Separator orientation="vertical" className="h-4" />
@@ -275,15 +291,15 @@ export default function FlowDetailPage() {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => toast("Schedule configured")}>
               <Calendar className="mr-2 h-3.5 w-3.5" />
               Schedule
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" onClick={() => toast.success("Flow saved")}>
               <Save className="mr-2 h-3.5 w-3.5" />
               Save
             </Button>
-            <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+            <Button size="sm" className="bg-blue-600 hover:bg-blue-700" onClick={() => toast.success("Flow run triggered")}>
               <Play className="mr-2 h-3.5 w-3.5" />
               Run Flow
             </Button>
@@ -298,10 +314,12 @@ function StepsPanel({
   steps,
   selectedStepId,
   onSelectStep,
+  onAddStep,
 }: {
   steps: FlowStep[]
   selectedStepId: string | null
   onSelectStep: (id: string) => void
+  onAddStep: (type: StepType) => void
 }) {
   function renderStep(step: FlowStep, depth: number = 0) {
     const config = stepTypeConfig[step.type]
@@ -352,7 +370,7 @@ function StepsPanel({
             {Object.entries(stepTypeConfig).map(([type, cfg]) => {
               const Icon = cfg.icon
               return (
-                <DropdownMenuItem key={type}>
+                <DropdownMenuItem key={type} onClick={() => onAddStep(type as StepType)}>
                   <Icon className={cn("mr-2 h-4 w-4", cfg.color)} />
                   {cfg.label}
                 </DropdownMenuItem>

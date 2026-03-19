@@ -267,7 +267,7 @@ export default function MonitoringPage() {
             Alerts and monitoring rules for your scraping flows.
           </p>
         </div>
-        <Button variant="outline" size="sm" className="gap-1.5">
+        <Button variant="outline" size="sm" className="gap-1.5" onClick={openAddRule}>
           <Settings className="size-3.5" />
           Configure Alerts
         </Button>

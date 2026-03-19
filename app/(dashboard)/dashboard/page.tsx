@@ -1,6 +1,8 @@
 "use client"
 
+import { useState } from "react"
 import dynamic from "next/dynamic"
+import Link from "next/link"
 import {
   Activity,
   AlertTriangle,
@@ -35,6 +37,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { toast } from "sonner"
 import { mockFlows, mockRuns, mockAlerts } from "@/lib/mock-data"
 import { UsageWarning } from "@/components/dashboard/usage-warning"
 import { OnboardingWizard } from "@/components/dashboard/onboarding-wizard"
@@ -202,9 +205,6 @@ function formatRelativeTime(dateString: string) {
   return `${diffDays}d ago`
 }
 
-const activeFlows = mockFlows.filter(
-  (f) => f.status === "active" || f.status === "paused"
-)
 const recentRuns = [...mockRuns]
   .sort(
     (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
@@ -212,6 +212,33 @@ const recentRuns = [...mockRuns]
   .slice(0, 5)
 
 export default function DashboardPage() {
+  const [flows, setFlows] = useState(
+    mockFlows.filter((f) => f.status === "active" || f.status === "paused")
+  )
+  const [alerts, setAlerts] = useState(mockAlerts)
+
+  function handleRunFlow(flowName: string) {
+    toast.success("Flow triggered successfully", { description: flowName })
+  }
+
+  function handleTogglePause(flowId: string) {
+    setFlows((prev) =>
+      prev.map((f) => {
+        if (f.id !== flowId) return f
+        const newStatus = f.status === "paused" ? "active" : "paused"
+        toast(newStatus === "paused" ? "Flow paused" : "Flow resumed")
+        return { ...f, status: newStatus }
+      })
+    )
+  }
+
+  function handleAcknowledge(alertId: string) {
+    setAlerts((prev) =>
+      prev.map((a) => (a.id === alertId ? { ...a, acknowledged: true } : a))
+    )
+    toast.success("Alert acknowledged")
+  }
+
   return (
     <div className="space-y-6">
       <OnboardingWizard />
@@ -278,11 +305,11 @@ export default function DashboardPage() {
           <CardHeader>
             <CardTitle>Alerts</CardTitle>
             <CardDescription>
-              {mockAlerts.filter((a) => !a.acknowledged).length} unacknowledged
+              {alerts.filter((a) => !a.acknowledged).length} unacknowledged
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {mockAlerts.map((alert) => (
+            {alerts.map((alert) => (
               <div
                 key={alert.id}
                 className={`flex gap-3 rounded-lg border p-3 ${severityClasses(alert.severity)} ${alert.acknowledged ? "opacity-50" : ""}`}
@@ -302,7 +329,7 @@ export default function DashboardPage() {
                       {formatRelativeTime(alert.createdAt)}
                     </span>
                     {!alert.acknowledged && (
-                      <Button variant="ghost" size="sm" className="h-6 text-xs">
+                      <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={() => handleAcknowledge(alert.id)}>
                         Acknowledge
                       </Button>
                     )}
@@ -370,7 +397,7 @@ export default function DashboardPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {activeFlows.map((flow) => (
+            {flows.map((flow) => (
               <div
                 key={flow.id}
                 className="flex items-center justify-between rounded-lg border p-4"
@@ -402,19 +429,21 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 <div className="flex items-center gap-1 pl-4">
-                  <Button variant="outline" size="sm" className="h-8 gap-1">
+                  <Button variant="outline" size="sm" className="h-8 gap-1" onClick={() => handleRunFlow(flow.name)}>
                     <Play className="size-3" />
                     Run
                   </Button>
-                  <Button variant="ghost" size="icon" className="size-8">
+                  <Button variant="ghost" size="icon" className="size-8" onClick={() => handleTogglePause(flow.id)}>
                     {flow.status === "paused" ? (
                       <Play className="size-3.5" />
                     ) : (
                       <Pause className="size-3.5" />
                     )}
                   </Button>
-                  <Button variant="ghost" size="icon" className="size-8">
-                    <Edit className="size-3.5" />
+                  <Button variant="ghost" size="icon" className="size-8" asChild>
+                    <Link href={`/flows/${flow.id}`}>
+                      <Edit className="size-3.5" />
+                    </Link>
                   </Button>
                 </div>
               </div>

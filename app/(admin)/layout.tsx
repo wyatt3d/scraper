@@ -5,7 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { ThemeProvider } from "next-themes"
 import { cn } from "@/lib/utils"
-import { Bot, Moon, Shield, ShieldAlert, Sun } from "lucide-react"
+import { Bot, Crosshair, Moon, Presentation, Rocket, Shield, ShieldAlert, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 
 const navItems = [
@@ -16,6 +16,9 @@ const navItems = [
   { label: "System Health", href: "/admin/system" },
   { label: "Red Team", href: "/admin/red-team", icon: ShieldAlert },
   { label: "Blue Team", href: "/admin/blue-team", icon: Shield },
+  { label: "Pitch Deck", href: "/admin/pitch", icon: Presentation },
+  { label: "GTM Strategy", href: "/admin/gtm", icon: Rocket },
+  { label: "Competitive", href: "/admin/competitive", icon: Crosshair },
 ]
 
 function ThemeToggle() {

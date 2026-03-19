@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -9,6 +10,14 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { toast } from "sonner"
 
 const signInSchema = z.object({
@@ -20,6 +29,8 @@ type SignInValues = z.infer<typeof signInSchema>
 
 export default function SignInPage() {
   const router = useRouter()
+  const [forgotOpen, setForgotOpen] = useState(false)
+  const [resetEmail, setResetEmail] = useState("")
   const {
     register,
     handleSubmit,
@@ -61,12 +72,13 @@ export default function SignInPage() {
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="password">Password</Label>
-              <Link
-                href="/sign-in"
+              <button
+                type="button"
+                onClick={() => setForgotOpen(true)}
                 className="text-sm text-blue-600 hover:text-blue-700"
               >
                 Forgot password?
-              </Link>
+              </button>
             </div>
             <Input
               id="password"
@@ -136,6 +148,39 @@ export default function SignInPage() {
           </Link>
         </p>
       </CardFooter>
+
+      <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reset your password</DialogTitle>
+            <DialogDescription>
+              Enter your email address and we will send you a link to reset your password.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-2 py-2">
+            <Label htmlFor="reset-email">Email</Label>
+            <Input
+              id="reset-email"
+              type="email"
+              placeholder="you@example.com"
+              value={resetEmail}
+              onChange={(e) => setResetEmail(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                toast.success("Password reset email sent")
+                setForgotOpen(false)
+                setResetEmail("")
+              }}
+              disabled={!resetEmail}
+            >
+              Send Reset Link
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   )
 }

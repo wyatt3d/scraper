@@ -232,7 +232,7 @@ export default function SettingsPage() {
                   </AvatarFallback>
                 </Avatar>
                 <div className="space-y-2">
-                  <Button variant="outline" size="sm" className="gap-1.5">
+                  <Button variant="outline" size="sm" className="gap-1.5" onClick={() => toast("Avatar upload coming soon")}>
                     <Upload className="size-3.5" />
                     Upload Avatar
                   </Button>
@@ -316,6 +316,7 @@ export default function SettingsPage() {
                       variant="ghost"
                       size="icon"
                       className="size-8 text-red-500 hover:text-red-600"
+                      onClick={() => toast.success(`${member.name} removed from team`)}
                     >
                       <Trash2 className="size-3.5" />
                     </Button>
@@ -398,6 +399,14 @@ export default function SettingsPage() {
                       variant="outline"
                       size="sm"
                       className="mt-2 w-full"
+                      onClick={() => {
+                        if (plan.name === "Enterprise") {
+                          window.open("mailto:sales@scraper.bot", "_blank")
+                          toast("Opening email to sales team")
+                        } else {
+                          toast.success(`Upgrade to ${plan.name} initiated`)
+                        }
+                      }}
                     >
                       {plan.name === "Enterprise" ? "Contact Sales" : "Upgrade"}
                     </Button>
@@ -441,7 +450,7 @@ export default function SettingsPage() {
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs">
+                        <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs" onClick={() => toast.success("Invoice downloaded")}>
                           <Download className="size-3" />
                           Download
                         </Button>
@@ -572,7 +581,7 @@ export default function SettingsPage() {
               </div>
 
               <div className="flex justify-end border-t pt-4">
-                <Button size="sm">Save Preferences</Button>
+                <Button size="sm" onClick={() => toast.success("Notification preferences saved")}>Save Preferences</Button>
               </div>
             </CardContent>
           </Card>

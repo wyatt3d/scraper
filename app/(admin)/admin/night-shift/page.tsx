@@ -437,6 +437,49 @@ const reports: TeamReport[] = [
     businessImpact: "CTA banners in docs convert 'window shoppers' who are reading documentation into actual signups. Usage warnings create natural upgrade moments — when users hit 80% of their free tier, we show them exactly what they get by upgrading. Share buttons turn every user into a potential referral source.",
   },
 
+  // ─── PHASE 2 DELIVERIES ───
+  {
+    team: "CTO Office",
+    division: "Infrastructure",
+    title: "Webhook Management & Notifications",
+    status: "COMPLETE",
+    timestamp: "2:30 AM EST",
+    completed: [
+      "Webhook management page with event configuration and test delivery",
+      "Notification center dropdown replacing static bell icon in header",
+      "Activity feed API route (/api/activity) with 20 mock activities",
+      "Webhook delivery logs with status codes and retry capability",
+    ],
+    businessImpact: "Webhooks let customers pipe scraping results into their own systems automatically — Slack channels, databases, CRMs. This is a must-have for enterprise customers who need real-time data flow. The notification center keeps users engaged by surfacing important events.",
+  },
+  {
+    team: "COO Office",
+    division: "Integrations",
+    title: "Integration Setup Wizards & Help Tooltips",
+    status: "COMPLETE",
+    timestamp: "2:30 AM EST",
+    completed: [
+      "Integration setup page with 6 services (Slack, Discord, Google Sheets, Zapier, Email, Custom Webhook)",
+      "Step-by-step wizard dialogs for each integration with test connections",
+      "Help tooltip component deployed across dashboard, API keys, and flow creation",
+    ],
+    businessImpact: "Guided integration wizards reduce setup time from hours to minutes. Users connect Slack or Google Sheets in 3 clicks instead of reading API docs. Help tooltips answer common questions inline so users never need to leave the page to find documentation.",
+  },
+  {
+    team: "CFO Office",
+    division: "Analytics & Growth",
+    title: "Analytics Dashboard, Referrals & Data Visualization",
+    status: "COMPLETE",
+    timestamp: "2:30 AM EST",
+    completed: [
+      "Dedicated analytics page with runs chart, data points chart, top flows table, and cost breakdown",
+      "Referral program UI with code, share buttons, stats, and history table",
+      "Data viewer component with sortable table, chart view, and JSON export",
+      "SEO meta tags added to changelog, status, and blog pages",
+    ],
+    businessImpact: "The analytics dashboard gives customers visibility into their scraping ROI — they can see exactly how much data they are extracting and what it costs per run. The referral program turns happy customers into a sales force — each referral costs us $10 in credits but brings in a $29/mo customer.",
+  },
+
   // ─── SECURITY TEAMS ───
   {
     team: "Red Team",
@@ -539,6 +582,14 @@ const completedTodoItems = [
   "Red Team audit: 35 findings",
   "Blue Team remediation: 9 fixed, both criticals resolved",
   "Admin panel: overview, night shift, teams, roadmap, system, red team, blue team",
+  "Webhook management with event config and delivery logs",
+  "Notification center with real-time alerts dropdown",
+  "Activity feed API route",
+  "Integration setup wizards (Slack, Discord, Sheets, Zapier, Email)",
+  "Help tooltips across dashboard pages",
+  "Analytics dashboard with charts and cost breakdown",
+  "Referral program UI with sharing and history",
+  "Data viewer component (sortable table, charts, JSON)",
 ]
 
 const todoItems = [
@@ -554,7 +605,6 @@ const todoItems = [
   "Accessibility audit and ARIA labels",
   "E2E test suite (Playwright)",
   "Error tracking (Sentry)",
-  "Integration setup wizards (Slack, Discord, Google Sheets)",
   "Video tutorials",
 ]
 
@@ -600,21 +650,21 @@ export default function NightShiftReport() {
               <Route className="size-5 text-blue-500 shrink-0" />
               <div>
                 <div className="text-xs text-muted-foreground">Total Routes</div>
-                <div className="font-medium">47</div>
+                <div className="font-medium">50+</div>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <GitCommit className="size-5 text-blue-500 shrink-0" />
               <div>
                 <div className="text-xs text-muted-foreground">Commits</div>
-                <div className="font-medium">8</div>
+                <div className="font-medium">9</div>
               </div>
             </div>
             <div className="flex items-center gap-3">
               <Code className="size-5 text-blue-500 shrink-0" />
               <div>
                 <div className="text-xs text-muted-foreground">Lines of Code</div>
-                <div className="font-medium">25,000+</div>
+                <div className="font-medium">28,000+</div>
               </div>
             </div>
             <div className="flex items-center gap-3">
