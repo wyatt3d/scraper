@@ -368,6 +368,399 @@ const { data } = await res.json();`}
 const { data } = await res.json();
 // Save data.key - it won't be shown again`}
         />
+        <Endpoint
+          method="POST"
+          path="/runs/trigger"
+          description="Trigger a run for a flow by flow ID. Alias for POST /runs with additional trigger metadata."
+          body={`{
+  "flowId": "flow-1",
+  "trigger": "api"
+}`}
+          responseExample={`{
+  "data": {
+    "id": "run-1710000000000",
+    "flowId": "flow-1",
+    "status": "queued",
+    "trigger": "api",
+    "startedAt": "2026-03-19T12:00:00Z"
+  }
+}`}
+          curlExample={`curl -X POST https://scraper.bot/api/runs/trigger \\
+  -H "X-API-Key: scr_live_your_key_here" \\
+  -H "Content-Type: application/json" \\
+  -d '{"flowId":"flow-1","trigger":"api"}'`}
+          jsExample={`const res = await fetch("/api/runs/trigger", {
+  method: "POST",
+  headers: {
+    "X-API-Key": "scr_live_your_key_here",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ flowId: "flow-1", trigger: "api" }),
+});`}
+        />
+
+        <Endpoint
+          method="POST"
+          path="/generate"
+          description="Generate a complete scraping flow from a natural language description using Claude AI."
+          body={`{
+  "prompt": "Scrape all product names and prices from this e-commerce page",
+  "url": "https://example-store.com/products"
+}`}
+          responseExample={`{
+  "data": {
+    "name": "Product Price Scraper",
+    "description": "Extract product names and prices",
+    "url": "https://example-store.com/products",
+    "mode": "extract",
+    "steps": [
+      { "type": "navigate", "url": "https://example-store.com/products" },
+      { "type": "extract", "selector": ".product-card", "fields": ["name", "price"] }
+    ],
+    "outputSchema": { "name": "string", "price": "number" }
+  }
+}`}
+          curlExample={`curl -X POST https://scraper.bot/api/generate \\
+  -H "X-API-Key: scr_live_your_key_here" \\
+  -H "Content-Type: application/json" \\
+  -d '{"prompt":"Scrape all product names and prices","url":"https://example-store.com/products"}'`}
+          jsExample={`const res = await fetch("/api/generate", {
+  method: "POST",
+  headers: {
+    "X-API-Key": "scr_live_your_key_here",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    prompt: "Scrape all product names and prices",
+    url: "https://example-store.com/products",
+  }),
+});
+const { data } = await res.json();`}
+        />
+
+        <Endpoint
+          method="GET"
+          path="/alerts"
+          description="List all alerts. Supports filtering by severity and read status."
+          params={[
+            { name: "severity", type: "string", description: "Filter by severity: info, warning, critical", required: false },
+            { name: "read", type: "boolean", description: "Filter by read status", required: false },
+          ]}
+          responseExample={`{
+  "data": [
+    {
+      "id": "alert-1",
+      "type": "change_detected",
+      "severity": "warning",
+      "flowId": "flow-1",
+      "message": "Price changed from $29.99 to $24.99",
+      "read": false,
+      "createdAt": "2026-03-19T08:00:00Z"
+    }
+  ],
+  "total": 3
+}`}
+          curlExample={`curl https://scraper.bot/api/alerts?severity=warning \\
+  -H "X-API-Key: scr_live_your_key_here"`}
+          jsExample={`const res = await fetch("/api/alerts?severity=warning", {
+  headers: { "X-API-Key": "scr_live_your_key_here" },
+});
+const { data } = await res.json();`}
+        />
+
+        <Endpoint
+          method="GET"
+          path="/analytics"
+          description="Retrieve usage analytics including run counts, success rates, and cost breakdown over a time range."
+          params={[
+            { name: "period", type: "string", description: "Time period: 7d, 30d, 90d", required: false },
+          ]}
+          responseExample={`{
+  "data": {
+    "totalRuns": 1247,
+    "successRate": 96.8,
+    "totalCost": 12.47,
+    "dataPointsExtracted": 48230,
+    "dailyBreakdown": [
+      { "date": "2026-03-19", "runs": 42, "success": 41, "cost": 0.42 }
+    ]
+  }
+}`}
+          curlExample={`curl https://scraper.bot/api/analytics?period=30d \\
+  -H "X-API-Key: scr_live_your_key_here"`}
+          jsExample={`const res = await fetch("/api/analytics?period=30d", {
+  headers: { "X-API-Key": "scr_live_your_key_here" },
+});
+const { data } = await res.json();`}
+        />
+
+        <Endpoint
+          method="GET"
+          path="/audit"
+          description="Retrieve the audit log of all actions performed on the account."
+          params={[
+            { name: "limit", type: "number", description: "Number of entries to return (default 50)", required: false },
+          ]}
+          responseExample={`{
+  "data": [
+    {
+      "id": "audit-1",
+      "action": "flow.created",
+      "userId": "user-1",
+      "resource": "flow-1",
+      "timestamp": "2026-03-19T10:00:00Z",
+      "metadata": { "name": "Product Scraper" }
+    }
+  ],
+  "total": 128
+}`}
+          curlExample={`curl https://scraper.bot/api/audit?limit=20 \\
+  -H "X-API-Key: scr_live_your_key_here"`}
+          jsExample={`const res = await fetch("/api/audit?limit=20", {
+  headers: { "X-API-Key": "scr_live_your_key_here" },
+});
+const { data } = await res.json();`}
+        />
+
+        <Endpoint
+          method="POST"
+          path="/checkout"
+          description="Create a Stripe checkout session for plan upgrades. Redirects the user to Stripe for payment."
+          body={`{
+  "plan": "pro",
+  "interval": "monthly"
+}`}
+          responseExample={`{
+  "url": "https://checkout.stripe.com/c/pay/cs_live_...",
+  "sessionId": "cs_live_..."
+}`}
+          curlExample={`curl -X POST https://scraper.bot/api/checkout \\
+  -H "X-API-Key: scr_live_your_key_here" \\
+  -H "Content-Type: application/json" \\
+  -d '{"plan":"pro","interval":"monthly"}'`}
+          jsExample={`const res = await fetch("/api/checkout", {
+  method: "POST",
+  headers: {
+    "X-API-Key": "scr_live_your_key_here",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ plan: "pro", interval: "monthly" }),
+});
+const { url } = await res.json();
+window.location.href = url;`}
+        />
+
+        <Endpoint
+          method="POST"
+          path="/email"
+          description="Send a transactional email via Resend. Used internally for alerts, reports, and welcome emails."
+          body={`{
+  "to": "user@example.com",
+  "subject": "Your scraping report is ready",
+  "template": "report_ready",
+  "data": { "flowName": "Product Monitor", "itemCount": 147 }
+}`}
+          responseExample={`{
+  "id": "msg_1710000000000",
+  "status": "sent"
+}`}
+          curlExample={`curl -X POST https://scraper.bot/api/email \\
+  -H "X-API-Key: scr_live_your_key_here" \\
+  -H "Content-Type: application/json" \\
+  -d '{"to":"user@example.com","subject":"Report ready","template":"report_ready"}'`}
+          jsExample={`const res = await fetch("/api/email", {
+  method: "POST",
+  headers: {
+    "X-API-Key": "scr_live_your_key_here",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    to: "user@example.com",
+    subject: "Report ready",
+    template: "report_ready",
+  }),
+});`}
+        />
+
+        <Endpoint
+          method="GET"
+          path="/health"
+          description="Health check endpoint. Returns the current status of all platform services."
+          responseExample={`{
+  "status": "healthy",
+  "services": {
+    "api": "up",
+    "database": "up",
+    "scraping_engine": "up",
+    "ai": "up"
+  },
+  "version": "0.6.0",
+  "uptime": 864000
+}`}
+          curlExample={`curl https://scraper.bot/api/health`}
+          jsExample={`const res = await fetch("/api/health");
+const { status, services } = await res.json();`}
+        />
+
+        <Endpoint
+          method="POST"
+          path="/screenshot"
+          description="Capture a screenshot of any URL using the Browserless Chrome engine."
+          body={`{
+  "url": "https://example.com",
+  "fullPage": true,
+  "width": 1280
+}`}
+          responseExample={`{
+  "data": {
+    "url": "https://example.com",
+    "screenshotUrl": "https://storage.scraper.bot/screenshots/scr_1710000000.png",
+    "width": 1280,
+    "height": 2400,
+    "capturedAt": "2026-03-19T12:00:00Z"
+  }
+}`}
+          curlExample={`curl -X POST https://scraper.bot/api/screenshot \\
+  -H "X-API-Key: scr_live_your_key_here" \\
+  -H "Content-Type: application/json" \\
+  -d '{"url":"https://example.com","fullPage":true}'`}
+          jsExample={`const res = await fetch("/api/screenshot", {
+  method: "POST",
+  headers: {
+    "X-API-Key": "scr_live_your_key_here",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ url: "https://example.com", fullPage: true }),
+});
+const { data } = await res.json();`}
+        />
+
+        <Endpoint
+          method="POST"
+          path="/tickets"
+          description="Submit a trouble ticket or bug report. Supports visual bug reports with element selectors."
+          body={`{
+  "subject": "Flow fails on login page",
+  "description": "The flow times out when trying to click the login button",
+  "type": "bug",
+  "priority": "high",
+  "flowId": "flow-1",
+  "screenshot": "data:image/png;base64,..."
+}`}
+          responseExample={`{
+  "data": {
+    "id": "ticket-1710000000000",
+    "subject": "Flow fails on login page",
+    "status": "open",
+    "priority": "high",
+    "createdAt": "2026-03-19T12:00:00Z"
+  }
+}`}
+          curlExample={`curl -X POST https://scraper.bot/api/tickets \\
+  -H "X-API-Key: scr_live_your_key_here" \\
+  -H "Content-Type: application/json" \\
+  -d '{"subject":"Flow fails on login page","type":"bug","priority":"high"}'`}
+          jsExample={`const res = await fetch("/api/tickets", {
+  method: "POST",
+  headers: {
+    "X-API-Key": "scr_live_your_key_here",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    subject: "Flow fails on login page",
+    type: "bug",
+    priority: "high",
+  }),
+});
+const { data } = await res.json();`}
+        />
+
+        <Endpoint
+          method="GET"
+          path="/activity"
+          description="Retrieve the recent activity feed for the authenticated user."
+          params={[
+            { name: "limit", type: "number", description: "Number of entries (default 20)", required: false },
+          ]}
+          responseExample={`{
+  "data": [
+    {
+      "id": "act-1",
+      "type": "run.completed",
+      "message": "Product Monitor completed successfully",
+      "flowId": "flow-1",
+      "timestamp": "2026-03-19T11:30:00Z"
+    }
+  ],
+  "total": 45
+}`}
+          curlExample={`curl https://scraper.bot/api/activity?limit=10 \\
+  -H "X-API-Key: scr_live_your_key_here"`}
+          jsExample={`const res = await fetch("/api/activity?limit=10", {
+  headers: { "X-API-Key": "scr_live_your_key_here" },
+});
+const { data } = await res.json();`}
+        />
+
+        <Endpoint
+          method="GET"
+          path="/webhooks"
+          description="List all configured webhooks for the authenticated user."
+          responseExample={`{
+  "data": [
+    {
+      "id": "wh-1",
+      "url": "https://example.com/webhook",
+      "events": ["run.completed", "alert.created"],
+      "active": true,
+      "createdAt": "2026-03-10T10:00:00Z"
+    }
+  ],
+  "total": 2
+}`}
+          curlExample={`curl https://scraper.bot/api/webhooks \\
+  -H "X-API-Key: scr_live_your_key_here"`}
+          jsExample={`const res = await fetch("/api/webhooks", {
+  headers: { "X-API-Key": "scr_live_your_key_here" },
+});
+const { data } = await res.json();`}
+        />
+
+        <Endpoint
+          method="POST"
+          path="/webhooks"
+          description="Create a new webhook endpoint to receive event notifications."
+          body={`{
+  "url": "https://example.com/webhook",
+  "events": ["run.completed", "run.failed", "alert.created"],
+  "secret": "whsec_your_signing_secret"
+}`}
+          responseExample={`{
+  "data": {
+    "id": "wh-1710000000000",
+    "url": "https://example.com/webhook",
+    "events": ["run.completed", "run.failed", "alert.created"],
+    "active": true,
+    "createdAt": "2026-03-19T12:00:00Z"
+  }
+}`}
+          curlExample={`curl -X POST https://scraper.bot/api/webhooks \\
+  -H "X-API-Key: scr_live_your_key_here" \\
+  -H "Content-Type: application/json" \\
+  -d '{"url":"https://example.com/webhook","events":["run.completed"]}'`}
+          jsExample={`const res = await fetch("/api/webhooks", {
+  method: "POST",
+  headers: {
+    "X-API-Key": "scr_live_your_key_here",
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    url: "https://example.com/webhook",
+    events: ["run.completed", "run.failed"],
+  }),
+});
+const { data } = await res.json();`}
+        />
       </div>
 
       <CTABanner title="Ready to integrate?" buttonText="Get Your API Key" buttonHref="/api-keys" />

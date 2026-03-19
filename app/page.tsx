@@ -155,7 +155,7 @@ export default function LandingPage() {
               <span className="text-blue-600">Structured API</span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground text-balance mb-10 leading-relaxed max-w-3xl mx-auto">
-              Describe what you need in plain English. Get a live, deterministic API endpoint in minutes. No browser infrastructure, no maintenance, no code.
+              Describe what you need in plain English. Our AI generates scraping flows, executes them in a real browser engine, and returns structured data via API. No infrastructure, no maintenance, no code.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
               <Link href={isSignedIn ? "/dashboard" : "/sign-up"}>
@@ -240,7 +240,7 @@ export default function LandingPage() {
               {
                 step: "2",
                 title: "Generate",
-                description: "Our AI builds a deterministic extraction flow and creates a live REST API endpoint for you.",
+                description: "Claude AI generates a complete scraping flow with selectors, steps, and output schema. A live REST API endpoint is created automatically.",
                 icon: Zap,
               },
               {
@@ -287,8 +287,8 @@ export default function LandingPage() {
                 icon: Globe,
               },
               {
-                title: "Multi-Step Browser Automation",
-                description: "Navigate, click, fill forms, and handle pagination automatically.",
+                title: "Interactive Browser Automation",
+                description: "Real Playwright execution with click, fill, scroll, and multi-step flows via Browserless Chrome.",
                 icon: Workflow,
               },
               {
@@ -297,8 +297,8 @@ export default function LandingPage() {
                 icon: Bell,
               },
               {
-                title: "Natural Language Flow Builder",
-                description: "Describe your workflow in plain English. We build the automation.",
+                title: "AI Flow Generation",
+                description: "Describe your scraping task in plain English. Claude AI generates a complete flow with selectors, steps, and output schema.",
                 icon: MessageSquareText,
               },
               {
@@ -307,8 +307,8 @@ export default function LandingPage() {
                 icon: Code,
               },
               {
-                title: "Anti-Bot & Session Handling",
-                description: "Built-in proxy rotation, CAPTCHA solving, and session management.",
+                title: "Stealth Mode & Anti-Bot Bypass",
+                description: "Built-in stealth mode on Browserless Chrome with proxy rotation, fingerprint evasion, and session management.",
                 icon: Shield,
               },
               {
@@ -584,7 +584,7 @@ export default function LandingPage() {
                   How do you handle anti-bot protection?
                 </AccordionTrigger>
                 <AccordionContent className="text-muted-foreground text-base leading-relaxed">
-                  Scraper.bot includes built-in IP rotation across a global proxy network, automatic session management, CSRF token handling, and intelligent request throttling. We handle CAPTCHAs, rate limiting, and fingerprint detection so your flows run reliably without getting blocked.
+                  Scraper.bot runs a stealth-mode Browserless Chrome engine that evades fingerprint detection, bot checks, and JavaScript challenges. Combined with IP rotation, automatic session management, and intelligent request throttling, your flows run reliably without getting blocked.
                 </AccordionContent>
               </AccordionItem>
 

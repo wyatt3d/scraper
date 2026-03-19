@@ -17,15 +17,16 @@ export default function QuickstartPage() {
         <Step number={1} title="Create your account">
           <p className="text-muted-foreground mb-4">
             Sign up at <code className="bg-muted px-1.5 py-0.5 rounded text-sm">scraper.bot/sign-up</code> to
-            get access to the dashboard. Free tier includes 500 runs per month.
+            get access to the dashboard. Free tier includes 100 runs per month and 3 flows.
           </p>
         </Step>
 
         <Step number={2} title="Create your first Flow">
           <p className="text-muted-foreground mb-4">
             Navigate to <strong>Flows</strong> in the dashboard sidebar and click <strong>New Flow</strong>.
-            Choose a template or start from scratch. Define your target URL, extraction selectors,
-            and output schema.
+            Choose a template, start from scratch, or use <strong>AI Generation</strong> at{" "}
+            <code className="bg-muted px-1.5 py-0.5 rounded text-sm">/flows/generate</code> to
+            describe your scraping task in plain English and let Claude AI build the flow for you.
           </p>
           <div className="rounded-lg border border-dashed bg-muted/50 p-8 text-center text-sm text-muted-foreground">
             Screenshot: Flow builder interface

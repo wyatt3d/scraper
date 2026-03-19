@@ -688,6 +688,13 @@ const completedTodoItems = [
   "Real Resend email integration",
   "Real Claude AI flow generation",
   "Flow execution engine with Supabase persistence",
+  "Real interactive Playwright flow execution on Browserless",
+  "Stealth mode anti-bot bypass on Browserless Chrome",
+  "Visual bug reporter with element selectors",
+  "Auth-aware landing page navigation (sign in vs. go to dashboard)",
+  "Flow creation error handling and validation",
+  "Color cohesion revamp — killed the blue sidebar, neutral accent palette",
+  "Screenshot loop fix — stopped retry loop in screenshot API",
 ]
 
 const todoItems = [

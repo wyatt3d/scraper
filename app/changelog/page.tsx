@@ -13,9 +13,28 @@ export const metadata: Metadata = {
 
 const entries = [
   {
+    version: "v0.6.0",
+    date: "March 19, 2026",
+    badge: "Latest",
+    changes: [
+      "Real Cheerio + Browserless scraping engine for static and JS-rendered pages",
+      "AI flow generation with Claude -- describe your task in plain English",
+      "Real interactive Playwright flow execution (click, fill, scroll, extract)",
+      "Stripe checkout integration for plan upgrades",
+      "Resend email integration for transactional emails and alerts",
+      "Supabase database integration for flow and run persistence",
+      "Stealth mode anti-bot bypass on Browserless Chrome",
+      "Visual bug reporter with element selectors and trouble ticket system",
+      "Auth-aware landing page navigation",
+      "Flow creation error handling and validation improvements",
+      "Color cohesion revamp -- neutral sidebar, consistent accent colors",
+      "Screenshot API loop fix",
+    ],
+  },
+  {
     version: "v0.5.0",
     date: "March 18, 2026",
-    badge: "Latest",
+    badge: null,
     changes: [
       "Added interactive scraping playground with chat interface",
       "Added template gallery with 8 starter templates",

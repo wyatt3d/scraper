@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
-import { ArrowRight, Download, X } from "lucide-react"
+import { ArrowRight, X } from "lucide-react"
 import Link from "next/link"
 
 interface TourStep {
@@ -46,7 +46,7 @@ const steps: TourStep[] = [
     target: '[data-tour="ai-generate"]',
     title: "AI Flow Generation",
     description:
-      "Describe your scraping task in natural language and our AI will generate a complete flow for you -- including selectors, pagination, and output schema.",
+      "Describe your scraping task in natural language and Claude AI generates a complete flow -- including selectors, pagination, interactive steps, and output schema.",
     position: "bottom",
   },
   {
@@ -67,7 +67,7 @@ const steps: TourStep[] = [
     target: '[data-tour="workflow-builder"]',
     title: "Visual Workflow Builder",
     description:
-      "Drag and drop nodes to build complex multi-step automations -- no code required.",
+      "Build multi-step automations visually. Flows execute in a real Playwright browser engine on Browserless Chrome.",
     position: "right",
   },
   {
@@ -86,16 +86,16 @@ const steps: TourStep[] = [
   },
   {
     target: '[data-tour="help-button"]',
-    title: "Help & Bug Reporting",
+    title: "Help & Trouble Tickets",
     description:
-      "Click the help button anytime to report issues visually, access docs, view keyboard shortcuts, or replay this tutorial.",
+      "Click the help button to submit trouble tickets with visual bug reports, access docs, view keyboard shortcuts, or replay this tutorial.",
     position: "top",
   },
   {
     target: null,
     title: "You're Ready!",
     description:
-      "Start by creating a flow or exploring the playground. Need help? Press Cmd+K for quick navigation or ? for keyboard shortcuts. You can replay this tour anytime from the help menu.",
+      "Start by creating a flow, generating one with AI, or exploring the playground. Need help? Press Cmd+K for quick navigation, ? for keyboard shortcuts, or use the help button to submit a trouble ticket. You can replay this tour anytime from the help menu.",
     position: "center",
   },
 ]
@@ -327,9 +327,8 @@ export function ProductTour() {
                 Finish Tour
               </Button>
               <Button size="sm" variant="outline" asChild>
-                <Link href="/extension">
-                  <Download className="mr-1 size-3.5" />
-                  Install Desktop App
+                <Link href="/flows/generate">
+                  Generate a Flow with AI
                 </Link>
               </Button>
             </>
