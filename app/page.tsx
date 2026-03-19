@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import Image from "next/image"
 import { Button } from "@/components/ui/button"
+import { Logo } from "@/components/brand/logo"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import {
@@ -49,15 +49,7 @@ export default function LandingPage() {
       <nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center">
-              <Image
-                src="/images/scraper-logo.png"
-                alt="Scraper"
-                width={160}
-                height={160}
-                className="rounded-lg"
-              />
-            </Link>
+            <Logo size="lg" href="/" />
             <div className="hidden md:flex items-center space-x-8">
               <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">
                 Features
@@ -127,7 +119,7 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero */}
-      <section className="py-24 lg:py-32 bg-gradient-to-b from-background to-muted/20">
+      <section className="animate-fade-in py-24 lg:py-32 bg-gradient-to-b from-background to-muted/20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="font-serif font-black text-4xl md:text-6xl lg:text-7xl text-balance mb-6 text-foreground">
@@ -230,7 +222,7 @@ export default function LandingPage() {
                 icon: Code,
               },
             ].map((item) => (
-              <Card key={item.step} className="border-border text-center relative pt-12">
+              <Card key={item.step} className="animate-slide-up border-border text-center relative pt-12">
                 <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center font-serif font-black text-xl shadow-lg">
                   {item.step}
                 </div>
@@ -655,15 +647,9 @@ export default function LandingPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8 mb-12">
             <div>
-              <Link href="/" className="inline-block mb-4">
-                <Image
-                  src="/images/scraper-logo.png"
-                  alt="Scraper"
-                  width={80}
-                  height={80}
-                  className="rounded-lg"
-                />
-              </Link>
+              <div className="mb-4">
+                <Logo size="md" href="/" />
+              </div>
               <p className="text-gray-400 text-sm">
                 AI-powered web scraping and structured API generation for modern data teams.
               </p>

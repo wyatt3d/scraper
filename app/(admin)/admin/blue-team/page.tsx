@@ -56,19 +56,22 @@ const items: DefenseItem[] = [
     id: "RT-006",
     title: "Dashboard action buttons are non-functional",
     severity: "HIGH",
-    status: "ACKNOWLEDGED",
+    status: "FIXED",
+    resolution: "Added onClick handlers to Run (toast.success), Pause/Resume (toggles flow status via state), and Edit (Link to /flows/[id]) buttons in Active Flows. Acknowledge buttons on alerts now update state and show toast. Dashboard page converted to use useState for flows and alerts.",
   },
   {
     id: "RT-007",
     title: "Flow builder buttons are non-functional",
     severity: "HIGH",
-    status: "ACKNOWLEDGED",
+    status: "FIXED",
+    resolution: "Wired bottom bar buttons: Run Flow (toast.success), Save (toast.success), Schedule (toast). Add Step dropdown items now add new steps to local state via useState. Steps panel accepts onAddStep callback.",
   },
   {
     id: "RT-008",
     title: "'Forgot password?' links to itself",
     severity: "MEDIUM",
-    status: "ACKNOWLEDGED",
+    status: "FIXED",
+    resolution: "Replaced Link with a button that opens a Dialog containing an email input and 'Send Reset Link' button. Clicking Send Reset Link shows toast.success('Password reset email sent').",
   },
   {
     id: "RT-009",
@@ -92,19 +95,22 @@ const items: DefenseItem[] = [
     id: "RT-012",
     title: "Settings page 'Save Changes' and 'Save Preferences' buttons do nothing",
     severity: "MEDIUM",
-    status: "ACKNOWLEDGED",
+    status: "FIXED",
+    resolution: "Added onClick with toast.success to: Save Preferences (notifications tab), Upload Avatar (profile tab), Remove member (team tab), and Download invoice (billing tab). Profile Save Changes was already fixed previously.",
   },
   {
     id: "RT-013",
     title: "Settings billing 'Upgrade' and 'Contact Sales' buttons are dead",
     severity: "MEDIUM",
-    status: "ACKNOWLEDGED",
+    status: "FIXED",
+    resolution: "Upgrade buttons now show toast.success with plan name. Contact Sales opens mailto:sales@scraper.bot and shows toast.",
   },
   {
     id: "RT-014",
     title: "Monitoring 'Configure Alerts' button is dead",
     severity: "LOW",
-    status: "ACKNOWLEDGED",
+    status: "FIXED",
+    resolution: "Configure Alerts button now calls openAddRule() to open the Add Monitoring Rule dialog, reusing the existing dialog infrastructure.",
   },
   {
     id: "RT-015",
@@ -277,7 +283,7 @@ export default function BlueTeamPage() {
           Blue Team Defense Report
         </h1>
         <p className="text-muted-foreground mt-1">
-          Tracking fixes and mitigations for all Red Team findings. Last updated: March 18, 2026.
+          Tracking fixes and mitigations for all Red Team findings. Last updated: March 19, 2026.
         </p>
       </div>
 

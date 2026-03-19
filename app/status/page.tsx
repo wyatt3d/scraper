@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
+import { Logo } from "@/components/brand/logo"
 
 export const metadata: Metadata = {
   title: "Status",
@@ -80,10 +81,7 @@ export default function StatusPage() {
     <div className="min-h-screen bg-background">
       <nav className="border-b">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
-          <Link href="/" className="flex items-center gap-2 font-serif text-xl font-bold">
-            <img src="/images/scraper-logo.png" alt="Scraper" className="h-8 w-8 rounded" />
-            Scraper.bot
-          </Link>
+          <Logo href="/" />
           <Link
             href="/"
             className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"

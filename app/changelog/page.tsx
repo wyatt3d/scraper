@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
+import { Logo } from "@/components/brand/logo"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
@@ -75,10 +76,7 @@ export default function ChangelogPage() {
     <div className="min-h-screen bg-background">
       <nav className="border-b">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
-          <Link href="/" className="flex items-center gap-2 font-serif text-xl font-bold">
-            <img src="/images/scraper-logo.png" alt="Scraper" className="h-8 w-8 rounded" />
-            Scraper.bot
-          </Link>
+          <Logo href="/" />
           <Link
             href="/"
             className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"

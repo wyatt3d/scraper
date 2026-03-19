@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import Image from "next/image"
 import { Button } from "@/components/ui/button"
+import { Logo } from "@/components/brand/logo"
 import { Badge } from "@/components/ui/badge"
 import { ArrowRight, Clock } from "lucide-react"
 
@@ -49,15 +49,7 @@ export default function BlogPage() {
       <nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center">
-              <Image
-                src="/images/scraper-logo.png"
-                alt="Scraper"
-                width={160}
-                height={160}
-                className="rounded-lg"
-              />
-            </Link>
+            <Logo href="/" />
             <div className="hidden md:flex items-center space-x-8">
               <Link
                 href="/#features"

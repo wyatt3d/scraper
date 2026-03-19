@@ -240,7 +240,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="animate-fade-in space-y-6">
       <OnboardingWizard />
       <UsageWarning />
       <div>
@@ -252,9 +252,9 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => (
-          <Card key={stat.title} className="py-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat, i) => (
+          <Card key={stat.title} className="animate-slide-up py-4" style={{ animationDelay: `${(i + 1) * 0.1}s`, animationFillMode: "both" }}>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
                 <CardDescription className="text-sm font-medium flex items-center">
@@ -290,7 +290,7 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="animate-fade-in grid gap-6 lg:grid-cols-3" style={{ animationDelay: "0.3s", animationFillMode: "both" }}>
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Runs Over Time</CardTitle>

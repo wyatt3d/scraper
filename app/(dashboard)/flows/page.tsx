@@ -174,8 +174,8 @@ export default function FlowsPage() {
 
   return (
     <TooltipProvider>
-      <div className="flex flex-col gap-6 p-6">
-        <div className="flex items-center justify-between">
+      <div className="animate-fade-in flex flex-col gap-6 p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="font-[family-name:var(--font-crimson-text)] text-3xl font-bold tracking-tight">
               Flows
@@ -425,7 +425,7 @@ function FlowCard({
   const StatusIcon = status.icon
 
   return (
-    <Card className="group relative transition-shadow hover:shadow-md">
+    <Card className="animate-scale-in group relative transition-shadow hover:shadow-md">
       <CardContent className="flex flex-col gap-4 p-5">
         <div className="flex items-start justify-between">
           <div className="min-w-0 flex-1">

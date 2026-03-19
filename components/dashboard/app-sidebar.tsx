@@ -77,9 +77,13 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/dashboard">
-                <img src="/images/scraper-logo.png" alt="Scraper" className="size-8 rounded-md" />
+                <span className="flex size-8 items-center justify-center rounded-md bg-blue-600 text-white font-serif font-bold text-sm">S</span>
                 <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-serif text-base font-semibold">Scraper</span>
+                  <span className="inline-flex items-baseline">
+                    <span className="font-serif text-base font-semibold">Scraper</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 inline-block mx-px mb-0.5" />
+                    <span className="font-serif text-base font-semibold text-blue-600">bot</span>
+                  </span>
                   <span className="text-muted-foreground text-xs">Web Automation</span>
                 </div>
               </Link>

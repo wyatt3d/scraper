@@ -107,6 +107,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { downloadJSON } from "@/lib/export"
 import { toast } from "sonner"
 import { mockFlows, mockRuns } from "@/lib/mock-data"
@@ -160,7 +161,9 @@ export default function FlowDetailPage() {
   const flow = mockFlows.find((f) => f.id === flowId) ?? mockFlows[0]
   const flowRuns = mockRuns.filter((r) => r.flowId === flow.id)
 
+  const isMobile = useIsMobile()
   const [activeTab, setActiveTab] = useState("builder")
+  const [mobileBuilderTab, setMobileBuilderTab] = useState<"steps" | "preview" | "config">("steps")
   const [steps, setSteps] = useState<FlowStep[]>(flow.steps)
   const [selectedStepId, setSelectedStepId] = useState<string | null>(flow.steps[0]?.id ?? null)
 
@@ -246,24 +249,64 @@ export default function FlowDetailPage() {
           </div>
 
           <TabsContent value="builder" className="flex-1 overflow-hidden mt-0 p-0">
-            <ResizablePanelGroup direction="horizontal" className="h-full">
-              <ResizablePanel defaultSize={22} minSize={18} maxSize={35}>
-                <StepsPanel
-                  steps={steps}
-                  selectedStepId={selectedStepId}
-                  onSelectStep={setSelectedStepId}
-                  onAddStep={handleAddStep}
-                />
-              </ResizablePanel>
-              <ResizableHandle withHandle />
-              <ResizablePanel defaultSize={48} minSize={30}>
-                <PreviewPanel url={flow.url} selectedStep={selectedStep} />
-              </ResizablePanel>
-              <ResizableHandle withHandle />
-              <ResizablePanel defaultSize={30} minSize={22} maxSize={45}>
-                <ConfigPanel step={selectedStep} outputSchema={flow.outputSchema} />
-              </ResizablePanel>
-            </ResizablePanelGroup>
+            {isMobile ? (
+              <div className="flex h-full flex-col">
+                <div className="flex border-b">
+                  {(["steps", "preview", "config"] as const).map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setMobileBuilderTab(tab)}
+                      className={cn(
+                        "flex-1 px-3 py-2 text-xs font-medium capitalize transition-colors",
+                        mobileBuilderTab === tab
+                          ? "border-b-2 border-blue-600 text-blue-600"
+                          : "text-muted-foreground"
+                      )}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex-1 overflow-auto">
+                  {mobileBuilderTab === "steps" && (
+                    <StepsPanel
+                      steps={steps}
+                      selectedStepId={selectedStepId}
+                      onSelectStep={(id) => {
+                        setSelectedStepId(id)
+                        setMobileBuilderTab("config")
+                      }}
+                      onAddStep={handleAddStep}
+                    />
+                  )}
+                  {mobileBuilderTab === "preview" && (
+                    <PreviewPanel url={flow.url} selectedStep={selectedStep} />
+                  )}
+                  {mobileBuilderTab === "config" && (
+                    <ConfigPanel step={selectedStep} outputSchema={flow.outputSchema} />
+                  )}
+                </div>
+              </div>
+            ) : (
+              <ResizablePanelGroup direction="horizontal" className="h-full">
+                <ResizablePanel defaultSize={22} minSize={18} maxSize={35}>
+                  <StepsPanel
+                    steps={steps}
+                    selectedStepId={selectedStepId}
+                    onSelectStep={setSelectedStepId}
+                    onAddStep={handleAddStep}
+                  />
+                </ResizablePanel>
+                <ResizableHandle withHandle />
+                <ResizablePanel defaultSize={48} minSize={30}>
+                  <PreviewPanel url={flow.url} selectedStep={selectedStep} />
+                </ResizablePanel>
+                <ResizableHandle withHandle />
+                <ResizablePanel defaultSize={30} minSize={22} maxSize={45}>
+                  <ConfigPanel step={selectedStep} outputSchema={flow.outputSchema} />
+                </ResizablePanel>
+              </ResizablePanelGroup>
+            )}
           </TabsContent>
 
           <TabsContent value="runs" className="flex-1 overflow-auto mt-0 p-0">

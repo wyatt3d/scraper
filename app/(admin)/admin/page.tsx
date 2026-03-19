@@ -1,104 +1,118 @@
-"use client"
-
-import dynamic from "next/dynamic"
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import Link from "next/link"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
+  FileText,
+  FolderOpen,
+  GitCommit,
+  Code2,
+  CheckCircle2,
+  Rocket,
+  Moon,
   Users,
-  Workflow,
-  Play,
-  DollarSign,
+  Map,
   Activity,
-  Server,
-  Database,
-  Globe,
   Shield,
-  Cpu,
-  Layers,
+  ShieldCheck,
+  Presentation,
+  Target,
+  Swords,
 } from "lucide-react"
 
-const GrowthChart = dynamic(
-  () => import("@/components/admin/growth-chart").then((mod) => ({ default: mod.GrowthChart })),
-  {
-    loading: () => <div className="h-[350px] bg-muted animate-pulse rounded-lg" />,
-    ssr: false,
-  }
-)
-
 const platformStats = [
-  { label: "Total Users", value: "10,247", change: "+12.3%", icon: Users, color: "text-blue-500" },
-  { label: "Active Flows", value: "3,891", change: "+8.7%", icon: Workflow, color: "text-emerald-500" },
-  { label: "Runs Today", value: "45,672", change: "+23.1%", icon: Play, color: "text-violet-500" },
-  { label: "Revenue MRR", value: "$127,450", change: "+15.4%", icon: DollarSign, color: "text-amber-500" },
-  { label: "API Uptime", value: "99.97%", change: "0.00%", icon: Activity, color: "text-emerald-500" },
+  { label: "Total Routes", value: "51", icon: Map, color: "text-blue-500" },
+  { label: "Total Files", value: "190+", icon: FolderOpen, color: "text-violet-500" },
+  { label: "Total Commits", value: "10", icon: GitCommit, color: "text-emerald-500" },
+  { label: "Lines of Code", value: "30,000+", icon: Code2, color: "text-amber-500" },
+  { label: "Build Status", value: "Clean", icon: CheckCircle2, color: "text-emerald-500" },
+  { label: "Deploy", value: "Vercel + GitHub", icon: Rocket, color: "text-blue-500" },
 ]
 
-const services = [
-  { name: "API Gateway", status: "healthy" as const, latency: "12ms", icon: Globe },
-  { name: "Scraping Engine", status: "healthy" as const, latency: "45ms", icon: Cpu },
-  { name: "Queue Workers", status: "healthy" as const, latency: "8ms", icon: Layers },
-  { name: "Database", status: "healthy" as const, latency: "3ms", icon: Database },
-  { name: "CDN", status: "healthy" as const, latency: "18ms", icon: Server },
-  { name: "Auth Service", status: "healthy" as const, latency: "22ms", icon: Shield },
+const quickLinks = [
+  { label: "Night Shift Report", href: "/admin/night-shift", icon: Moon },
+  { label: "Teams", href: "/admin/teams", icon: Users },
+  { label: "Roadmap", href: "/admin/roadmap", icon: Map },
+  { label: "System Health", href: "/admin/system", icon: Activity },
+  { label: "Red Team", href: "/admin/red-team", icon: Shield },
+  { label: "Blue Team", href: "/admin/blue-team", icon: ShieldCheck },
+  { label: "Pitch Deck", href: "/admin/pitch", icon: Presentation },
+  { label: "GTM Strategy", href: "/admin/gtm", icon: Target },
+  { label: "Competitive Analysis", href: "/admin/competitive", icon: Swords },
 ]
 
-const statusColors = {
-  healthy: "bg-emerald-500",
-  degraded: "bg-amber-500",
-  down: "bg-red-500",
-}
+const recentCommits = [
+  "feat: blue team fixes, CEO reports, GTM strategy, competitive analysis",
+  "feat: Phase 2 features - webhooks, integrations, analytics, data viz",
+  "feat: major feature wave - forum, workflow builder, marketplace, blue team fixes",
+  "feat: add official Scraper logo across all pages",
+  "feat: add subdomain routing middleware",
+  "feat: massive feature drop - playground, templates, blog, infra, UX",
+  "docs: update night shift report and roadmap - CEO review 12:30 AM",
+  "feat: add executive admin panel with night shift reports",
+  "feat: initial Scraper.bot platform - full product build",
+]
 
 export default function AdminOverview() {
   return (
     <div className="space-y-8">
       <div>
         <h1 className="font-serif text-3xl font-bold">Platform Overview</h1>
-        <p className="text-muted-foreground mt-1">Executive dashboard for Scraper.bot operations</p>
+        <p className="text-muted-foreground mt-1">Executive summary for Scraper.bot</p>
       </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-        {platformStats.map((stat) => (
-          <Card key={stat.label}>
-            <CardContent className="pt-0">
-              <div className="flex items-center justify-between mb-2">
-                <stat.icon className={`size-5 ${stat.color}`} />
-                <span className="text-xs text-emerald-500 font-medium">{stat.change}</span>
-              </div>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <div className="text-xs text-muted-foreground">{stat.label}</div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>30-Day Growth</CardTitle>
-          <CardDescription>Users, active flows, and revenue (in $K) over the past 30 days</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <GrowthChart />
-        </CardContent>
-      </Card>
 
       <div>
-        <h2 className="font-serif text-xl font-semibold mb-4">System Status</h2>
+        <h2 className="font-serif text-xl font-semibold mb-4">Platform Stats</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {services.map((service) => (
-            <Card key={service.name}>
+          {platformStats.map((stat) => (
+            <Card key={stat.label}>
               <CardContent className="pt-0">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className={`size-2.5 rounded-full ${statusColors[service.status]}`} />
-                  <Badge variant="outline" className="text-xs capitalize">{service.status}</Badge>
-                </div>
-                <service.icon className="size-5 text-muted-foreground mb-2" />
-                <div className="text-sm font-medium">{service.name}</div>
-                <div className="text-xs text-muted-foreground mt-1">{service.latency}</div>
+                <stat.icon className={`size-5 ${stat.color} mb-2`} />
+                <div className="text-2xl font-bold">{stat.value}</div>
+                <div className="text-xs text-muted-foreground">{stat.label}</div>
               </CardContent>
             </Card>
           ))}
         </div>
       </div>
+
+      <div>
+        <h2 className="font-serif text-xl font-semibold mb-4">Quick Links</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4">
+          {quickLinks.map((link) => (
+            <Link key={link.href} href={link.href}>
+              <Card className="hover:bg-muted/50 transition-colors cursor-pointer">
+                <CardContent className="pt-0">
+                  <div className="flex items-center gap-3">
+                    <link.icon className="size-5 text-blue-500" />
+                    <span className="text-sm font-medium">{link.label}</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <GitCommit className="size-5" />
+            Recent Commits
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="space-y-3">
+            {recentCommits.map((msg, i) => (
+              <div key={i} className="flex items-start gap-3 text-sm">
+                <Badge variant="outline" className="shrink-0 font-mono text-xs">
+                  {i + 1}
+                </Badge>
+                <span className="text-muted-foreground">{msg}</span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

@@ -39,6 +39,7 @@ import {
   type LucideIcon,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -619,12 +620,14 @@ function getNodeSummary(node: WorkflowNode, nodeType: NodeType): string {
 }
 
 export default function WorkflowBuilderPage() {
+  const isMobile = useIsMobile()
   const [flowName, setFlowName] = useState("Product Scraper Workflow")
   const [nodes, setNodes] = useState<WorkflowNode[]>(initialNodes)
   const [connections, setConnections] = useState<Connection[]>(initialConnections)
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null)
   const [zoom, setZoom] = useState(1)
   const [panelOpen, setPanelOpen] = useState(true)
+  const [mobilePaletteOpen, setMobilePaletteOpen] = useState(false)
   const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
 
@@ -764,66 +767,68 @@ export default function WorkflowBuilderPage() {
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Left Panel - Node Palette */}
-        <div
-          className={cn(
-            "bg-background shrink-0 border-r transition-all duration-200 overflow-hidden",
-            panelOpen ? "w-[250px]" : "w-0"
-          )}
-        >
-          <div className="flex h-full w-[250px] flex-col">
-            <div className="flex items-center justify-between border-b px-3 py-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Nodes</span>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-6"
-                onClick={() => setPanelOpen(false)}
-              >
-                <PanelLeftClose className="size-3.5" />
-              </Button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-2">
-              {categoryLabels.map(({ key, label }) => (
-                <div key={key} className="mb-3">
-                  <span className="mb-1.5 block px-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-                    {label}
-                  </span>
-                  <div className="space-y-1">
-                    {nodeTypes
-                      .filter((nt) => nt.category === key)
-                      .map((nt) => {
-                        const colors = categoryColors[nt.category]
-                        return (
-                          <div
-                            key={nt.id}
-                            className={cn(
-                              "group flex cursor-grab items-center gap-2.5 rounded-lg border px-2.5 py-2 transition-all hover:shadow-sm active:cursor-grabbing",
-                              colors.border,
-                              "hover:bg-accent/50"
-                            )}
-                            draggable
-                          >
-                            <GripVertical className="size-3 text-muted-foreground/40 opacity-0 transition-opacity group-hover:opacity-100" />
-                            <div className={cn("flex size-6 shrink-0 items-center justify-center rounded", colors.bg)}>
-                              <nt.icon className={cn("size-3.5", colors.text)} />
+        {/* Left Panel - Node Palette (hidden on mobile) */}
+        {!isMobile && (
+          <div
+            className={cn(
+              "bg-background shrink-0 border-r transition-all duration-200 overflow-hidden",
+              panelOpen ? "w-[250px]" : "w-0"
+            )}
+          >
+            <div className="flex h-full w-[250px] flex-col">
+              <div className="flex items-center justify-between border-b px-3 py-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Nodes</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-6"
+                  onClick={() => setPanelOpen(false)}
+                >
+                  <PanelLeftClose className="size-3.5" />
+                </Button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-2">
+                {categoryLabels.map(({ key, label }) => (
+                  <div key={key} className="mb-3">
+                    <span className="mb-1.5 block px-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                      {label}
+                    </span>
+                    <div className="space-y-1">
+                      {nodeTypes
+                        .filter((nt) => nt.category === key)
+                        .map((nt) => {
+                          const colors = categoryColors[nt.category]
+                          return (
+                            <div
+                              key={nt.id}
+                              className={cn(
+                                "group flex cursor-grab items-center gap-2.5 rounded-lg border px-2.5 py-2 transition-all hover:shadow-sm active:cursor-grabbing",
+                                colors.border,
+                                "hover:bg-accent/50"
+                              )}
+                              draggable
+                            >
+                              <GripVertical className="size-3 text-muted-foreground/40 opacity-0 transition-opacity group-hover:opacity-100" />
+                              <div className={cn("flex size-6 shrink-0 items-center justify-center rounded", colors.bg)}>
+                                <nt.icon className={cn("size-3.5", colors.text)} />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="truncate text-xs font-medium">{nt.label}</div>
+                                <div className="truncate text-[10px] text-muted-foreground">{nt.description}</div>
+                              </div>
                             </div>
-                            <div className="min-w-0">
-                              <div className="truncate text-xs font-medium">{nt.label}</div>
-                              <div className="truncate text-[10px] text-muted-foreground">{nt.description}</div>
-                            </div>
-                          </div>
-                        )
-                      })}
+                          )
+                        })}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Toggle button when panel closed */}
-        {!panelOpen && (
+        {/* Toggle button when panel closed (desktop only) */}
+        {!isMobile && !panelOpen && (
           <div className="absolute left-0 top-1/2 z-30 -translate-y-1/2">
             <Button
               variant="outline"
@@ -833,6 +838,57 @@ export default function WorkflowBuilderPage() {
             >
               <PanelLeftOpen className="size-3.5" />
             </Button>
+          </div>
+        )}
+
+        {/* Mobile floating Add Node button */}
+        {isMobile && (
+          <Button
+            size="icon"
+            className="fixed bottom-20 right-4 z-40 size-12 rounded-full bg-blue-600 text-white shadow-lg hover:bg-blue-700"
+            onClick={() => setMobilePaletteOpen(!mobilePaletteOpen)}
+          >
+            <Plus className={cn("size-5 transition-transform", mobilePaletteOpen && "rotate-45")} />
+          </Button>
+        )}
+
+        {/* Mobile node palette overlay */}
+        {isMobile && mobilePaletteOpen && (
+          <div className="fixed inset-x-0 bottom-0 z-30 max-h-[60vh] overflow-y-auto rounded-t-xl border-t bg-background p-4 shadow-xl">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="text-sm font-semibold">Add Node</span>
+              <Button variant="ghost" size="icon" className="size-7" onClick={() => setMobilePaletteOpen(false)}>
+                <X className="size-4" />
+              </Button>
+            </div>
+            {categoryLabels.map(({ key, label }) => (
+              <div key={key} className="mb-3">
+                <span className="mb-1.5 block px-1 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  {label}
+                </span>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {nodeTypes
+                    .filter((nt) => nt.category === key)
+                    .map((nt) => {
+                      const colors = categoryColors[nt.category]
+                      return (
+                        <div
+                          key={nt.id}
+                          className={cn(
+                            "flex items-center gap-2 rounded-lg border px-2.5 py-2",
+                            colors.border
+                          )}
+                        >
+                          <div className={cn("flex size-6 shrink-0 items-center justify-center rounded", colors.bg)}>
+                            <nt.icon className={cn("size-3.5", colors.text)} />
+                          </div>
+                          <span className="truncate text-xs font-medium">{nt.label}</span>
+                        </div>
+                      )
+                    })}
+                </div>
+              </div>
+            ))}
           </div>
         )}
 
@@ -960,15 +1016,10 @@ export default function WorkflowBuilderPage() {
           </div>
         </div>
 
-        {/* Right Panel - Node Config */}
-        <div
-          className={cn(
-            "bg-background shrink-0 border-l transition-all duration-200 overflow-hidden",
-            selectedNode && selectedNodeType ? "w-[300px]" : "w-0"
-          )}
-        >
-          {selectedNode && selectedNodeType && (
-            <div className="h-full w-[300px]">
+        {/* Right Panel - Node Config (side panel on desktop, bottom sheet on mobile) */}
+        {isMobile ? (
+          selectedNode && selectedNodeType && (
+            <div className="fixed inset-x-0 bottom-0 z-30 max-h-[70vh] overflow-y-auto rounded-t-xl border-t bg-background shadow-xl">
               <NodeConfigPanel
                 node={selectedNode}
                 nodeType={selectedNodeType}
@@ -977,8 +1028,27 @@ export default function WorkflowBuilderPage() {
                 onDelete={handleDeleteNode}
               />
             </div>
-          )}
-        </div>
+          )
+        ) : (
+          <div
+            className={cn(
+              "bg-background shrink-0 border-l transition-all duration-200 overflow-hidden",
+              selectedNode && selectedNodeType ? "w-[300px]" : "w-0"
+            )}
+          >
+            {selectedNode && selectedNodeType && (
+              <div className="h-full w-[300px]">
+                <NodeConfigPanel
+                  node={selectedNode}
+                  nodeType={selectedNodeType}
+                  onClose={() => setSelectedNodeId(null)}
+                  onUpdate={handleUpdateConfig}
+                  onDelete={handleDeleteNode}
+                />
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Bottom Status Bar */}
