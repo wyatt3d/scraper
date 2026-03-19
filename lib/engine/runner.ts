@@ -1,5 +1,6 @@
 import { scrapeWithBrowser } from "./scraper"
-import type { Flow, RunLog } from "../types"
+import type { Flow, FlowStep, RunLog } from "../types"
+import * as cheerio from "cheerio"
 
 interface RunResult {
   status: "completed" | "failed"
@@ -13,7 +14,6 @@ export async function executeFlow(flow: Flow): Promise<RunResult> {
   const start = Date.now()
   const logs: RunLog[] = []
   const items: Record<string, unknown>[] = []
-  let currentUrl = flow.url
 
   const log = (level: RunLog["level"], message: string, step?: string) => {
     logs.push({ timestamp: new Date().toISOString(), level, message, step })
@@ -21,6 +21,191 @@ export async function executeFlow(flow: Flow): Promise<RunResult> {
 
   log("info", `Starting flow "${flow.name}"`)
   log("info", `Target URL: ${flow.url}`)
+
+  const browserlessUrl = process.env.BROWSERLESS_URL
+  const browserlessToken = process.env.BROWSERLESS_TOKEN
+
+  const hasInteractiveSteps = flow.steps.some((s) =>
+    ["click", "fill", "scroll", "screenshot"].includes(s.type)
+  )
+
+  if (hasInteractiveSteps && browserlessUrl && browserlessToken) {
+    return executeInteractiveFlow(flow, logs, items, start)
+  }
+
+  return executeSimpleFlow(flow, logs, items, start)
+}
+
+async function executeInteractiveFlow(
+  flow: Flow,
+  logs: RunLog[],
+  items: Record<string, unknown>[],
+  start: number
+): Promise<RunResult> {
+  const browserlessUrl = process.env.BROWSERLESS_URL!
+  const browserlessToken = process.env.BROWSERLESS_TOKEN!
+
+  const log = (level: RunLog["level"], message: string, step?: string) => {
+    logs.push({ timestamp: new Date().toISOString(), level, message, step })
+  }
+
+  try {
+    const script = buildPlaywrightScript(flow)
+    log("info", "Executing interactive flow via browser engine")
+
+    const response = await fetch(
+      `${browserlessUrl}/function?token=${browserlessToken}&stealth`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: script,
+          context: {
+            url: flow.url,
+            steps: flow.steps,
+          },
+        }),
+        signal: AbortSignal.timeout(60000),
+      }
+    )
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      log("error", `Browser execution failed: ${response.status} ${errorText}`)
+      log("info", "Falling back to simple extraction")
+      return executeSimpleFlow(flow, logs, items, start)
+    }
+
+    const result = await response.json()
+
+    if (result.data && Array.isArray(result.data)) {
+      items.push(...result.data)
+      log("info", `Extracted ${result.data.length} items via browser`)
+    } else if (result.html) {
+      const $ = cheerio.load(result.html)
+      const extractSteps = flow.steps.filter((s) => s.type === "extract")
+      for (const step of extractSteps) {
+        if (step.extractionRules) {
+          for (const rule of step.extractionRules) {
+            $(rule.selector).each((_, el) => {
+              const value = rule.attribute
+                ? $(el).attr(rule.attribute)
+                : $(el).text().trim()
+              if (value) {
+                const item: Record<string, unknown> = {}
+                item[rule.field] = value
+                items.push(item)
+              }
+            })
+          }
+        }
+      }
+      log("info", `Extracted ${items.length} items from rendered page`)
+    }
+
+    log("info", `Flow completed. ${items.length} items extracted.`)
+    return { status: "completed", items, logs, duration: Date.now() - start }
+  } catch (err) {
+    const error =
+      err instanceof Error ? err.message : "Interactive flow failed"
+    log("error", error)
+    log("info", "Falling back to simple extraction")
+    return executeSimpleFlow(flow, logs, items, start)
+  }
+}
+
+function buildPlaywrightScript(flow: Flow): string {
+  const stepCode = flow.steps
+    .map((step, i) => {
+      switch (step.type) {
+        case "navigate":
+          return `
+          // Step ${i + 1}: ${step.label}
+          await page.goto(context.url, { waitUntil: 'networkidle2', timeout: 30000 });
+        `
+        case "wait":
+          return `
+          // Step ${i + 1}: ${step.label}
+          await page.waitForTimeout(${Math.min(parseInt(step.value || "2000"), 5000)});
+        `
+        case "click":
+          return `
+          // Step ${i + 1}: ${step.label}
+          try {
+            const selectors_${i} = ${JSON.stringify(step.selector?.split(", ") || [])};
+            let clicked_${i} = false;
+            for (const sel of selectors_${i}) {
+              try {
+                await page.waitForSelector(sel, { timeout: 5000 });
+                await page.click(sel);
+                clicked_${i} = true;
+                break;
+              } catch {}
+            }
+            if (!clicked_${i}) {
+              console.log('Could not find clickable element for step ${i + 1}');
+            }
+            await page.waitForTimeout(2000);
+          } catch (e) {
+            console.log('Click failed for step ${i + 1}:', e.message);
+          }
+        `
+        case "fill": {
+          const selector = (step.selector || "").replace(/'/g, "\\'")
+          const value = (step.value || "").replace(/'/g, "\\'")
+          return `
+          // Step ${i + 1}: ${step.label}
+          try {
+            await page.waitForSelector('${selector}', { timeout: 5000 });
+            await page.type('${selector}', '${value}');
+            await page.waitForTimeout(500);
+          } catch (e) {
+            console.log('Fill failed for step ${i + 1}:', e.message);
+          }
+        `
+        }
+        case "scroll":
+          return `
+          // Step ${i + 1}: ${step.label}
+          await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+          await page.waitForTimeout(2000);
+        `
+        case "extract":
+          return `
+          // Step ${i + 1}: ${step.label} (extraction handled after all steps)
+        `
+        default:
+          return `// Step ${i + 1}: ${step.label} (${step.type})`
+      }
+    })
+    .join("\n")
+
+  return `
+    module.exports = async ({ page, context }) => {
+      try {
+        ${stepCode}
+
+        const html = await page.content();
+        const url = page.url();
+        return { html, url, success: true };
+      } catch (error) {
+        return { error: error.message, success: false };
+      }
+    };
+  `
+}
+
+async function executeSimpleFlow(
+  flow: Flow,
+  logs: RunLog[],
+  items: Record<string, unknown>[],
+  start: number
+): Promise<RunResult> {
+  const log = (level: RunLog["level"], message: string, step?: string) => {
+    logs.push({ timestamp: new Date().toISOString(), level, message, step })
+  }
+
+  let currentUrl = flow.url
 
   try {
     for (const step of flow.steps) {
@@ -39,14 +224,22 @@ export async function executeFlow(flow: Flow): Promise<RunResult> {
             field: r.field,
             selector: r.selector,
             attribute: r.attribute,
-            transform: r.transform as "text" | "html" | "number" | "url" | undefined,
+            transform: r.transform as
+              | "text"
+              | "html"
+              | "number"
+              | "url"
+              | undefined,
           }))
 
           const result = await scrapeWithBrowser(currentUrl, rules)
-
           if (result.success) {
             items.push(...result.items)
-            log("info", `Extracted ${result.items.length} items in ${result.duration}ms`, step.id)
+            log(
+              "info",
+              `Extracted ${result.items.length} items in ${result.duration}ms`,
+              step.id
+            )
           } else {
             log("warn", `Extraction issue: ${result.error}`, step.id)
           }
@@ -56,35 +249,18 @@ export async function executeFlow(flow: Flow): Promise<RunResult> {
         case "wait": {
           const waitMs = parseInt(step.value || "2000")
           log("info", `Waiting ${waitMs}ms`, step.id)
-          await new Promise((resolve) => setTimeout(resolve, Math.min(waitMs, 5000)))
-          break
-        }
-
-        case "click":
-        case "fill":
-        case "scroll":
-        case "screenshot": {
-          log("info", `Step type "${step.type}" executed (browser mode)`, step.id)
-          break
-        }
-
-        case "condition": {
-          log("info", `Evaluating condition: ${step.condition}`, step.id)
-          if (step.children) {
-            for (const child of step.children) {
-              log("info", `Executing child step: ${child.label}`, child.id)
-            }
-          }
-          break
-        }
-
-        case "loop": {
-          log("info", `Loop step (1 iteration for now)`, step.id)
+          await new Promise((resolve) =>
+            setTimeout(resolve, Math.min(waitMs, 5000))
+          )
           break
         }
 
         default:
-          log("warn", `Unknown step type: ${step.type}`, step.id)
+          log(
+            "info",
+            `Step "${step.type}" skipped (requires browser mode)`,
+            step.id
+          )
       }
     }
 
