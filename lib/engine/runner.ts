@@ -147,11 +147,13 @@ function buildPlaywrightScript(flow: Flow): string {
           { const shot = await page.screenshot({ type: 'png', encoding: 'base64' }).catch(() => null);
             if (shot) screenshots.push({ step: 's${i + 1}', label: ${JSON.stringify(step.label)}, url: page.url(), image: 'data:image/png;base64,' + shot }); }
         `
+          break
         case "wait":
           return `
           // Step ${i + 1}: Wait
           await page.waitForTimeout(${Math.min(parseInt(step.value || "2000"), 5000)});
         `
+          break
         case "click":
           return `
           // Step ${i + 1}: Click
@@ -193,6 +195,7 @@ function buildPlaywrightScript(flow: Flow): string {
             console.log('Click failed for step ${i + 1}:', e.message);
           }
         `
+          break
         case "fill": {
           return `
           // Step ${i + 1}: Fill
@@ -204,6 +207,7 @@ function buildPlaywrightScript(flow: Flow): string {
             console.log('Fill failed for step ${i + 1}:', e.message);
           }
         `
+          break
         }
         case "scroll":
           return `
@@ -211,6 +215,7 @@ function buildPlaywrightScript(flow: Flow): string {
           await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
           await page.waitForTimeout(2000);
         `
+          break
         case "extract": {
           const rules = step.extractionRules || []
           const rulesJson = JSON.stringify(rules)

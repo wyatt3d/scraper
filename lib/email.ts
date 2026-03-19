@@ -2,6 +2,15 @@ import { Resend } from "resend"
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;")
+}
+
 export async function sendEmail({
   to,
   subject,
@@ -31,7 +40,7 @@ export async function sendWelcomeEmail(email: string, name: string) {
     to: email,
     subject: "Welcome to Scraper.bot!",
     html: `
-      <h1>Welcome to Scraper.bot, ${name}!</h1>
+      <h1>Welcome to Scraper.bot, ${escapeHtml(name)}!</h1>
       <p>Your account is ready. Here's how to get started:</p>
       <ol>
         <li><a href="https://scraper.bot/docs/quickstart">Read the Quickstart Guide</a></li>
@@ -49,8 +58,8 @@ export async function sendAlertEmail(email: string, alertMessage: string, flowNa
     to: email,
     subject: `[Scraper.bot Alert] ${flowName}`,
     html: `
-      <h2>Alert: ${flowName}</h2>
-      <p>${alertMessage}</p>
+      <h2>Alert: ${escapeHtml(flowName)}</h2>
+      <p>${escapeHtml(alertMessage)}</p>
       <p><a href="https://scraper.bot/monitoring">View in Dashboard</a></p>
     `,
   })

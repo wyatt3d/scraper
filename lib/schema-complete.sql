@@ -162,7 +162,25 @@ CREATE INDEX IF NOT EXISTS idx_jobs_type ON jobs(type);
 CREATE INDEX IF NOT EXISTS idx_jobs_pending_scheduled ON jobs(scheduled_at) WHERE status = 'pending';
 
 -- ============================================
--- Row Level Security (open for now)
+-- Add user_id columns to user-owned tables
+-- ============================================
+
+ALTER TABLE flows ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id);
+ALTER TABLE runs ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id);
+ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id);
+ALTER TABLE webhooks ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id);
+ALTER TABLE sessions ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id);
+ALTER TABLE secrets ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES auth.users(id);
+
+CREATE INDEX IF NOT EXISTS idx_flows_user_id ON flows(user_id);
+CREATE INDEX IF NOT EXISTS idx_runs_user_id ON runs(user_id);
+CREATE INDEX IF NOT EXISTS idx_api_keys_user_id ON api_keys(user_id);
+CREATE INDEX IF NOT EXISTS idx_webhooks_user_id ON webhooks(user_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_secrets_user_id ON secrets(user_id);
+
+-- ============================================
+-- Row Level Security
 -- ============================================
 
 ALTER TABLE flows ENABLE ROW LEVEL SECURITY;
@@ -176,16 +194,58 @@ ALTER TABLE audit_log ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tickets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE jobs ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "public_flows" ON flows FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "public_runs" ON runs FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "public_api_keys" ON api_keys FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "public_alerts" ON alerts FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "public_webhooks" ON webhooks FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "public_secrets" ON secrets FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "public_sessions" ON sessions FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "public_audit_log" ON audit_log FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "public_tickets" ON tickets FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "public_jobs" ON jobs FOR ALL USING (true) WITH CHECK (true);
+-- User-owned tables: restrict to owner (NULL user_id allowed during migration)
+DROP POLICY IF EXISTS "public_flows" ON flows;
+CREATE POLICY "users_own_flows" ON flows FOR ALL
+  USING (auth.uid() = user_id OR user_id IS NULL)
+  WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
+
+DROP POLICY IF EXISTS "public_runs" ON runs;
+CREATE POLICY "users_own_runs" ON runs FOR ALL
+  USING (auth.uid() = user_id OR user_id IS NULL)
+  WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
+
+DROP POLICY IF EXISTS "public_api_keys" ON api_keys;
+CREATE POLICY "users_own_api_keys" ON api_keys FOR ALL
+  USING (auth.uid() = user_id OR user_id IS NULL)
+  WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
+
+DROP POLICY IF EXISTS "public_webhooks" ON webhooks;
+CREATE POLICY "users_own_webhooks" ON webhooks FOR ALL
+  USING (auth.uid() = user_id OR user_id IS NULL)
+  WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
+
+DROP POLICY IF EXISTS "public_sessions" ON sessions;
+CREATE POLICY "users_own_sessions" ON sessions FOR ALL
+  USING (auth.uid() = user_id OR user_id IS NULL)
+  WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
+
+DROP POLICY IF EXISTS "public_secrets" ON secrets;
+CREATE POLICY "users_own_secrets" ON secrets FOR ALL
+  USING (auth.uid() = user_id OR user_id IS NULL)
+  WITH CHECK (auth.uid() = user_id OR user_id IS NULL);
+
+-- Alerts: open for now (references flows, not users directly)
+DROP POLICY IF EXISTS "public_alerts" ON alerts;
+CREATE POLICY "users_own_alerts" ON alerts FOR ALL
+  USING (true)
+  WITH CHECK (true);
+
+-- System tables: service role only
+DROP POLICY IF EXISTS "public_audit_log" ON audit_log;
+CREATE POLICY "service_audit_log" ON audit_log FOR ALL
+  USING (auth.role() = 'service_role')
+  WITH CHECK (auth.role() = 'service_role');
+
+DROP POLICY IF EXISTS "public_jobs" ON jobs;
+CREATE POLICY "service_jobs" ON jobs FOR ALL
+  USING (auth.role() = 'service_role')
+  WITH CHECK (auth.role() = 'service_role');
+
+-- Tickets: anyone can create, anyone can read
+DROP POLICY IF EXISTS "public_tickets" ON tickets;
+CREATE POLICY "anyone_create_tickets" ON tickets FOR INSERT WITH CHECK (true);
+CREATE POLICY "own_tickets" ON tickets FOR SELECT USING (true);
 
 -- ============================================
 -- Atomic queue functions (prevent race conditions)
