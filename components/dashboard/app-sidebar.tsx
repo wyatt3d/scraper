@@ -25,6 +25,7 @@ import {
   Sparkles,
   Store,
   Terminal,
+  Wand2,
   Workflow,
 } from "lucide-react"
 
@@ -59,6 +60,7 @@ const navItems = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { title: "Analytics", href: "/analytics", icon: BarChart3 },
   { title: "Playground", href: "/playground", icon: Sparkles, tourId: "playground" },
+  { title: "Generate Flow", href: "/flows/generate", icon: Wand2 },
   { title: "Flows", href: "/flows", icon: Workflow },
   { title: "Templates", href: "/templates", icon: LayoutTemplate, tourId: "templates" },
   { title: "Workflow Builder", href: "/workflow-builder", icon: GitBranch, tourId: "workflow-builder" },

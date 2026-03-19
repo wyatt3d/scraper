@@ -12,6 +12,7 @@ import {
   Eye,
   FileDown,
   FileJson,
+  GitCompare,
   Play,
   RotateCcw,
   XCircle,
@@ -235,6 +236,12 @@ export default function RunsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="gap-1.5" asChild>
+            <Link href="/runs/compare">
+              <GitCompare className="size-3.5" />
+              Compare Runs
+            </Link>
+          </Button>
           <Select value={dateRange} onValueChange={(v) => { setDateRange(v); setPage(1) }}>
             <SelectTrigger className="w-[160px] h-8 text-sm">
               <Calendar className="size-3.5 mr-1.5" />
