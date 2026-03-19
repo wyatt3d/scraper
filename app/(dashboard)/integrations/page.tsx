@@ -193,7 +193,7 @@ function WebhookWizard({
               key={s}
               className={cn(
                 "h-1.5 flex-1 rounded-full transition-colors",
-                s <= step ? "bg-blue-600" : "bg-muted"
+                s <= step ? "bg-blue-600 dark:bg-blue-500" : "bg-muted"
               )}
             />
           ))}
@@ -210,7 +210,7 @@ function WebhookWizard({
               />
               <a
                 href="/docs/guides"
-                className="text-xs text-blue-600 hover:underline"
+                className="text-xs text-blue-600 dark:text-blue-400 hover:underline"
               >
                 How to find your webhook URL
               </a>

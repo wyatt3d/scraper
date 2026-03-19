@@ -156,7 +156,7 @@ export default function NewFlowPage() {
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-8 p-6">
       <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" asChild>
+        <Button variant="ghost" size="icon" asChild aria-label="Back to flows">
           <Link href="/flows">
             <ArrowLeft className="h-4 w-4" />
           </Link>
@@ -331,7 +331,7 @@ export default function NewFlowPage() {
             </div>
             {generating && (
               <div className="mt-4 p-4 rounded-lg border bg-muted/50 text-center">
-                <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2 text-blue-600" />
+                <Loader2 className="h-6 w-6 animate-spin mx-auto mb-2 text-blue-600 dark:text-blue-400" />
                 <p className="text-sm font-medium">Creating your flow...</p>
                 <p className="text-xs text-muted-foreground mt-1">This usually takes a few seconds</p>
               </div>

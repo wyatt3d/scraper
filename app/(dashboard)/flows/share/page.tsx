@@ -308,7 +308,7 @@ export default function FlowSharePage() {
                         readOnly
                         className="font-mono text-xs"
                       />
-                      <Button variant="outline" size="icon" onClick={copyLink}>
+                      <Button variant="outline" size="icon" onClick={copyLink} aria-label="Copy link">
                         <Copy className="size-4" />
                       </Button>
                     </div>

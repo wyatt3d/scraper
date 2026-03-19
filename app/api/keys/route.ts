@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import crypto from "crypto"
 import { listApiKeys, createApiKey } from "@/lib/db"
 
 export async function GET() {
@@ -19,9 +20,10 @@ export async function POST(request: NextRequest) {
 
   try {
     const rawKey = `scr_live_${crypto.randomUUID().replace(/-/g, "")}`
+    const keyHash = crypto.createHash("sha256").update(rawKey).digest("hex")
     const key = await createApiKey({
       name: body.name ?? "New API Key",
-      key_hash: rawKey,
+      key_hash: keyHash,
       prefix: "scr_live_",
       scopes: body.scopes ?? ["flows:read", "runs:read"],
     })

@@ -90,7 +90,7 @@ function WidgetPreview({ widget, small }: { widget: WidgetConfig; small?: boolea
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2">
         <div className="rounded-md bg-blue-600/10 p-2">
-          <Icon className="size-5 text-blue-600" />
+          <Icon className="size-5 text-blue-600 dark:text-blue-400" />
         </div>
         <div>
           <p className="text-sm font-semibold">{widget.title}</p>
@@ -138,13 +138,13 @@ function WidgetPreview({ widget, small }: { widget: WidgetConfig; small?: boolea
         )}
         {widget.id === "quick-actions" && (
           <div className="mt-3 flex gap-2">
-            <div className="flex-1 rounded bg-blue-600/10 p-2 text-center text-xs text-blue-600">+ Create Flow</div>
+            <div className="flex-1 rounded bg-blue-600/10 p-2 text-center text-xs text-blue-600 dark:text-blue-400">+ Create Flow</div>
             <div className="flex-1 rounded bg-green-600/10 p-2 text-center text-xs text-green-600">Run Flow</div>
           </div>
         )}
         {widget.id === "api-usage" && (
           <div className="mt-3">
-            <div className="h-2 rounded-full bg-muted"><div className="h-2 w-3/5 rounded-full bg-blue-600" /></div>
+            <div className="h-2 rounded-full bg-muted"><div className="h-2 w-3/5 rounded-full bg-blue-600 dark:bg-blue-500" /></div>
             <p className="mt-1 text-center text-xs">6,200 / 10,000 requests</p>
           </div>
         )}
@@ -316,13 +316,13 @@ export default function CustomizeDashboardPage() {
                 >
                   <CardContent className="flex items-center gap-3 p-3">
                     <div className="rounded-md bg-blue-600/10 p-2">
-                      <Icon className="size-4 text-blue-600" />
+                      <Icon className="size-4 text-blue-600 dark:text-blue-400" />
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium">{widget.title}</p>
                       <p className="text-xs text-muted-foreground truncate">{widget.description}</p>
                     </div>
-                    <Button variant="ghost" size="sm" className="shrink-0 text-xs text-blue-600">
+                    <Button variant="ghost" size="sm" className="shrink-0 text-xs text-blue-600 dark:text-blue-400">
                       Add
                     </Button>
                   </CardContent>

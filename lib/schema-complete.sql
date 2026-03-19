@@ -159,6 +159,7 @@ CREATE INDEX IF NOT EXISTS idx_tickets_status ON tickets(status);
 CREATE INDEX IF NOT EXISTS idx_jobs_status ON jobs(status);
 CREATE INDEX IF NOT EXISTS idx_jobs_scheduled_at ON jobs(scheduled_at);
 CREATE INDEX IF NOT EXISTS idx_jobs_type ON jobs(type);
+CREATE INDEX IF NOT EXISTS idx_jobs_pending_scheduled ON jobs(scheduled_at) WHERE status = 'pending';
 
 -- ============================================
 -- Row Level Security (open for now)
@@ -185,6 +186,39 @@ CREATE POLICY "public_sessions" ON sessions FOR ALL USING (true) WITH CHECK (tru
 CREATE POLICY "public_audit_log" ON audit_log FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "public_tickets" ON tickets FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "public_jobs" ON jobs FOR ALL USING (true) WITH CHECK (true);
+
+-- ============================================
+-- Atomic queue functions (prevent race conditions)
+-- ============================================
+
+-- Atomic job claim function (prevents race conditions)
+CREATE OR REPLACE FUNCTION claim_next_job()
+RETURNS SETOF jobs AS $$
+  UPDATE jobs
+  SET status = 'processing',
+      started_at = NOW(),
+      attempts = attempts + 1
+  WHERE id = (
+    SELECT id FROM jobs
+    WHERE status = 'pending'
+      AND scheduled_at <= NOW()
+    ORDER BY scheduled_at ASC
+    LIMIT 1
+    FOR UPDATE SKIP LOCKED
+  )
+  RETURNING *;
+$$ LANGUAGE sql;
+
+-- Atomic job fail with retry logic
+CREATE OR REPLACE FUNCTION fail_job(job_id UUID, error_message TEXT)
+RETURNS jobs AS $$
+  UPDATE jobs
+  SET status = CASE WHEN attempts >= max_attempts THEN 'failed' ELSE 'pending' END,
+      error = error_message,
+      started_at = NULL
+  WHERE id = job_id
+  RETURNING *;
+$$ LANGUAGE sql;
 
 -- ============================================
 -- Seed data (5 starter flows)

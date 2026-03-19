@@ -122,7 +122,7 @@ import { formatDuration, timeAgo } from "@/lib/format"
 import type { Flow, FlowStep, StepType, Run } from "@/lib/types"
 
 const stepTypeConfig: Record<StepType, { label: string; icon: typeof Globe; color: string }> = {
-  navigate: { label: "Navigate", icon: Globe, color: "text-blue-600" },
+  navigate: { label: "Navigate", icon: Globe, color: "text-blue-600 dark:text-blue-400" },
   click: { label: "Click", icon: MousePointerClick, color: "text-purple-600" },
   fill: { label: "Fill", icon: Type, color: "text-green-600" },
   extract: { label: "Extract", icon: FileText, color: "text-amber-600" },
@@ -136,7 +136,7 @@ const stepTypeConfig: Record<StepType, { label: string; icon: typeof Globe; colo
 const runStatusConfig: Record<string, { color: string; icon: typeof CheckCircle2 }> = {
   completed: { color: "text-green-600", icon: CheckCircle2 },
   failed: { color: "text-red-600", icon: XCircle },
-  running: { color: "text-blue-600", icon: Loader2 },
+  running: { color: "text-blue-600 dark:text-blue-400", icon: Loader2 },
   queued: { color: "text-yellow-600", icon: Clock },
   cancelled: { color: "text-muted-foreground", icon: XCircle },
 }
@@ -285,7 +285,7 @@ export default function FlowDetailPage() {
       <div className="flex h-full flex-col">
         <div className="flex items-center justify-between border-b px-4 py-3">
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" asChild>
+            <Button variant="ghost" size="icon" asChild aria-label="Back to flows">
               <Link href="/flows">
                 <ArrowLeft className="h-4 w-4" />
               </Link>
@@ -354,7 +354,7 @@ export default function FlowDetailPage() {
                       className={cn(
                         "flex-1 px-3 py-2 text-xs font-medium capitalize transition-colors",
                         mobileBuilderTab === tab
-                          ? "border-b-2 border-blue-600 text-blue-600"
+                          ? "border-b-2 border-blue-600 text-blue-600 dark:text-blue-400"
                           : "text-muted-foreground"
                       )}
                     >
@@ -546,7 +546,7 @@ function StepsPanel({
         </span>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-7 w-7">
+            <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Add step">
               <Plus className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -599,7 +599,7 @@ function PreviewPanel({
           <Lock className="h-3 w-3 text-green-600" />
           <span className="text-muted-foreground font-mono truncate">{url}</span>
         </div>
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onLoadPreview} disabled={previewLoading}>
+        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onLoadPreview} disabled={previewLoading} aria-label="Refresh preview">
           <RefreshCw className={cn("h-3.5 w-3.5", previewLoading && "animate-spin")} />
         </Button>
       </div>
@@ -641,7 +641,7 @@ function PreviewPanel({
                   {selectedStep.selector && (
                     <div className="mt-2 rounded bg-muted p-2 font-mono text-xs">
                       <span className="text-muted-foreground">selector: </span>
-                      <span className="text-blue-600">{selectedStep.selector}</span>
+                      <span className="text-blue-600 dark:text-blue-400">{selectedStep.selector}</span>
                     </div>
                   )}
                 </CardContent>
@@ -682,7 +682,7 @@ function ConfigPanel({
         <div className="flex items-center gap-1">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-7 w-7">
+              <Button variant="ghost" size="icon" className="h-7 w-7" aria-label="Duplicate step">
                 <Copy className="h-3.5 w-3.5" />
               </Button>
             </TooltipTrigger>
@@ -690,7 +690,7 @@ function ConfigPanel({
           </Tooltip>
           <Tooltip>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:text-red-600">
+              <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:text-red-600" aria-label="Delete step">
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
             </TooltipTrigger>
@@ -805,7 +805,7 @@ function ConfigPanel({
                           <code className="text-xs font-mono">{rule.field}</code>
                         </TableCell>
                         <TableCell className="py-1.5">
-                          <code className="text-xs font-mono text-blue-600">{rule.selector}</code>
+                          <code className="text-xs font-mono text-blue-600 dark:text-blue-400">{rule.selector}</code>
                         </TableCell>
                         <TableCell className="py-1.5">
                           <Badge variant="secondary" className="text-[10px]">
@@ -921,7 +921,7 @@ function RunsTab({ runs, flowId, flowName, onRunComplete }: { runs: Run[]; flowI
                       </TableCell>
                       <TableCell className="text-sm">${run.cost.toFixed(3)}</TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="View run details">
                           <ChevronRight className="h-4 w-4" />
                         </Button>
                       </TableCell>
@@ -1002,7 +1002,7 @@ print(run.id)  # run_xxxxxxxxxxxxx`
             <div className="flex items-center gap-2 rounded-md bg-muted p-3">
               <Badge className="bg-green-600 hover:bg-green-600 text-xs shrink-0">POST</Badge>
               <code className="font-mono text-sm truncate">{endpoint}</code>
-              <Button variant="ghost" size="icon" className="h-7 w-7 ml-auto shrink-0">
+              <Button variant="ghost" size="icon" className="h-7 w-7 ml-auto shrink-0" aria-label="Copy to clipboard">
                 <Copy className="h-3.5 w-3.5" />
               </Button>
             </div>
@@ -1018,7 +1018,7 @@ print(run.id)  # run_xxxxxxxxxxxxx`
               <pre className="rounded-md bg-zinc-950 p-4 text-xs text-zinc-100 overflow-x-auto">
                 <code>{curlExample}</code>
               </pre>
-              <Button variant="ghost" size="icon" className="absolute right-2 top-2 h-7 w-7 text-zinc-400 hover:text-zinc-100">
+              <Button variant="ghost" size="icon" className="absolute right-2 top-2 h-7 w-7 text-zinc-400 hover:text-zinc-100" aria-label="Copy to clipboard">
                 <Copy className="h-3.5 w-3.5" />
               </Button>
             </div>
@@ -1034,7 +1034,7 @@ print(run.id)  # run_xxxxxxxxxxxxx`
               <pre className="rounded-md bg-zinc-950 p-4 text-xs text-zinc-100 overflow-x-auto">
                 <code>{jsExample}</code>
               </pre>
-              <Button variant="ghost" size="icon" className="absolute right-2 top-2 h-7 w-7 text-zinc-400 hover:text-zinc-100">
+              <Button variant="ghost" size="icon" className="absolute right-2 top-2 h-7 w-7 text-zinc-400 hover:text-zinc-100" aria-label="Copy to clipboard">
                 <Copy className="h-3.5 w-3.5" />
               </Button>
             </div>
@@ -1050,7 +1050,7 @@ print(run.id)  # run_xxxxxxxxxxxxx`
               <pre className="rounded-md bg-zinc-950 p-4 text-xs text-zinc-100 overflow-x-auto">
                 <code>{pythonExample}</code>
               </pre>
-              <Button variant="ghost" size="icon" className="absolute right-2 top-2 h-7 w-7 text-zinc-400 hover:text-zinc-100">
+              <Button variant="ghost" size="icon" className="absolute right-2 top-2 h-7 w-7 text-zinc-400 hover:text-zinc-100" aria-label="Copy to clipboard">
                 <Copy className="h-3.5 w-3.5" />
               </Button>
             </div>

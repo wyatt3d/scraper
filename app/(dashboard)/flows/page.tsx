@@ -441,7 +441,7 @@ function FlowCard({
           <div className="min-w-0 flex-1">
             <Link
               href={`/flows/${flow.id}`}
-              className="font-[family-name:var(--font-crimson-text)] text-lg font-semibold leading-tight hover:text-blue-600 transition-colors"
+              className="font-[family-name:var(--font-crimson-text)] text-lg font-semibold leading-tight hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
               {flow.name}
             </Link>
@@ -451,7 +451,7 @@ function FlowCard({
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0">
+              <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" aria-label="More options">
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -587,7 +587,7 @@ function FlowRow({
         <div className="flex items-center gap-3">
           <Link
             href={`/flows/${flow.id}`}
-            className="font-[family-name:var(--font-crimson-text)] font-semibold hover:text-blue-600 transition-colors truncate"
+            className="font-[family-name:var(--font-crimson-text)] font-semibold hover:text-blue-600 dark:hover:text-blue-400 transition-colors truncate"
           >
             {flow.name}
           </Link>
@@ -632,7 +632,7 @@ function FlowRow({
       <div className="flex items-center gap-1">
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
+            <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Run now">
               <Play className="h-4 w-4" />
             </Button>
           </TooltipTrigger>
@@ -640,7 +640,7 @@ function FlowRow({
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8" asChild aria-label="Edit">
               <Link href={`/flows/${flow.id}`}>
                 <Pencil className="h-4 w-4" />
               </Link>
@@ -650,7 +650,7 @@ function FlowRow({
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onTogglePause}>
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onTogglePause} aria-label={flow.status === "paused" ? "Resume" : "Pause"}>
               {flow.status === "paused" ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
             </Button>
           </TooltipTrigger>
@@ -658,7 +658,7 @@ function FlowRow({
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600" onClick={onDelete}>
+            <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600" onClick={onDelete} aria-label="Delete">
               <Trash2 className="h-4 w-4" />
             </Button>
           </TooltipTrigger>

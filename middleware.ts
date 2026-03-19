@@ -74,6 +74,8 @@ export async function middleware(request: NextRequest) {
         { status: 403 }
       )
     }
+    // Note: Full key validation against the database cannot run in edge middleware.
+    // API routes must call validateApiKey() from lib/api-auth.ts for DB verification.
   }
 
   return NextResponse.next()

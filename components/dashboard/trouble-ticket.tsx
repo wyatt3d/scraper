@@ -347,7 +347,7 @@ function CaptureOverlay({
           </Button>
           <Button
             size="sm"
-            className="bg-white text-blue-600 hover:bg-blue-50"
+            className="bg-white text-blue-600 hover:bg-blue-50 dark:bg-blue-600 dark:text-white dark:hover:bg-blue-500"
             onClick={() => onDone(elements)}
             disabled={elements.length === 0}
           >
@@ -862,7 +862,7 @@ function VisualBugReporter({
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-[540px]">
         <DialogHeader>
           <div className="flex items-center gap-2">
-            <Bot className="size-5 text-blue-600" />
+            <Bot className="size-5 text-blue-600 dark:text-blue-400" />
             <DialogTitle className="font-serif">
               {step === "success" ? "Thank You" : "Report an Issue"}
             </DialogTitle>

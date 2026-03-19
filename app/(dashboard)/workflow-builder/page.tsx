@@ -558,7 +558,7 @@ function NodeConfigPanel({
 
         <Separator />
 
-        <Button variant="outline" size="sm" className="w-full text-xs text-blue-600 border-blue-600/30 hover:bg-blue-600/10" onClick={() => toast.success("Step test passed")}>
+        <Button variant="outline" size="sm" className="w-full text-xs text-blue-600 dark:text-blue-400 border-blue-600/30 hover:bg-blue-600/10" onClick={() => toast.success("Step test passed")}>
           Test This Step
         </Button>
       </div>

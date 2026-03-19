@@ -144,7 +144,7 @@ export function SavedViews({
               </span>
               <div className="flex items-center gap-1">
                 {view.id === activeViewId && (
-                  <Check className="size-3.5 text-blue-600" />
+                  <Check className="size-3.5 text-blue-600 dark:text-blue-400" />
                 )}
                 {!view.isDefault && (
                   <button

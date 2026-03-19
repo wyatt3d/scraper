@@ -482,7 +482,7 @@ export default function PipelinesPage() {
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1 space-y-3">
                   <div className="flex items-center gap-3">
-                    <GitMerge className="size-5 text-blue-600 shrink-0" />
+                    <GitMerge className="size-5 text-blue-600 dark:text-blue-400 shrink-0" />
                     <h3 className="font-semibold truncate">{pipeline.name}</h3>
                     {pipeline.status === "active" ? (
                       <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-500/25 dark:text-emerald-400 shrink-0">

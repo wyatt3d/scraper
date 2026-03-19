@@ -36,20 +36,7 @@ export async function enqueueJob(
 }
 
 export async function processNextJob(): Promise<Job | null> {
-  const { data, error } = await supabase
-    .from("jobs")
-    .update({
-      status: "processing",
-      started_at: new Date().toISOString(),
-      attempts: 1,
-    })
-    .eq("status", "pending")
-    .lte("scheduled_at", new Date().toISOString())
-    .order("scheduled_at", { ascending: true })
-    .limit(1)
-    .select()
-    .single()
-
+  const { data, error } = await supabase.rpc("claim_next_job").single()
   if (error || !data) return null
   return data as unknown as Job
 }
@@ -69,23 +56,7 @@ export async function completeJob(
 }
 
 export async function failJob(jobId: string, error: string): Promise<void> {
-  const { data } = await supabase
-    .from("jobs")
-    .select("attempts, max_attempts")
-    .eq("id", jobId)
-    .single()
-
-  const shouldRetry = data && data.attempts < data.max_attempts
-
-  await supabase
-    .from("jobs")
-    .update({
-      status: shouldRetry ? "pending" : "failed",
-      error,
-      attempts: (data?.attempts || 0) + 1,
-      started_at: null,
-    })
-    .eq("id", jobId)
+  await supabase.rpc("fail_job", { job_id: jobId, error_message: error })
 }
 
 export async function listJobs(filters?: {

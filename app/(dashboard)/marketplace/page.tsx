@@ -467,7 +467,7 @@ export default function MarketplacePage() {
               className={cn(
                 "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
                 category === cat
-                  ? "bg-blue-600 text-white border-blue-600"
+                  ? "bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500"
                   : "bg-background text-muted-foreground border-border hover:bg-accent hover:text-foreground"
               )}
             >

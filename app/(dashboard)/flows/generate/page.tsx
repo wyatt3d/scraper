@@ -324,7 +324,7 @@ export default function GenerateFlowPage() {
                   onClick={() => handlePromptClick(prompt.text)}
                 >
                   <CardContent className="flex items-start gap-3 p-4">
-                    <prompt.icon className="size-5 shrink-0 text-blue-600 mt-0.5" />
+                    <prompt.icon className="size-5 shrink-0 text-blue-600 dark:text-blue-400 mt-0.5" />
                     <span className="text-sm">{prompt.text}</span>
                   </CardContent>
                 </Card>
@@ -358,7 +358,7 @@ export default function GenerateFlowPage() {
                   {gs.done ? (
                     <CheckCircle2 className="size-5 text-emerald-500 shrink-0" />
                   ) : genSteps.slice(0, i).every((s) => s.done) ? (
-                    <Loader2 className="size-5 text-blue-600 animate-spin shrink-0" />
+                    <Loader2 className="size-5 text-blue-600 dark:text-blue-400 animate-spin shrink-0" />
                   ) : (
                     <div className="size-5 rounded-full border-2 border-muted shrink-0" />
                   )}
@@ -389,7 +389,7 @@ export default function GenerateFlowPage() {
                     />
                   ) : (
                     <CardTitle
-                      className="font-serif cursor-pointer hover:text-blue-600 transition-colors"
+                      className="font-serif cursor-pointer hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                       onClick={() => setEditingName(true)}
                     >
                       {flowName}
@@ -426,7 +426,7 @@ export default function GenerateFlowPage() {
                       key={flowStep.id || i}
                       className="flex items-center gap-3 rounded-lg border p-3"
                     >
-                      <div className="flex size-8 items-center justify-center rounded-md bg-blue-600/10 text-blue-600">
+                      <div className="flex size-8 items-center justify-center rounded-md bg-blue-600/10 text-blue-600 dark:text-blue-400">
                         <Icon className="size-4" />
                       </div>
                       <div className="flex-1 min-w-0">
