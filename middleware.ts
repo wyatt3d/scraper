@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
+import { createMiddlewareClient } from "@/lib/supabase-middleware"
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
   const hostname = request.headers.get("host") || ""
 
@@ -72,15 +73,17 @@ export function middleware(request: NextRequest) {
   const isDashboardPath = dashboardPaths.some(p => pathname.startsWith(p))
 
   if (isDashboardPath) {
-    const authCookie = request.cookies.get("sb-usyfgavadcruunblhegi-auth-token")
-      || request.cookies.get("sb-usyfgavadcruunblhegi-auth-token.0")
+    const { supabase, response } = createMiddlewareClient(request)
+    const { data: { user } } = await supabase.auth.getUser()
 
-    if (!authCookie) {
+    if (!user) {
       const signInUrl = request.nextUrl.clone()
       signInUrl.pathname = "/sign-in"
       signInUrl.searchParams.set("redirect", pathname)
       return NextResponse.redirect(signInUrl)
     }
+
+    return response
   }
 
   // API routes require API key validation (except public endpoints)

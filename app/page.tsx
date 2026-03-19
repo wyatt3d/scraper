@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { supabase } from "@/lib/supabase"
+import { createClient } from "@/lib/supabase-browser"
+
+const supabase = createClient()
 import { Button } from "@/components/ui/button"
 import { Logo } from "@/components/brand/logo"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
