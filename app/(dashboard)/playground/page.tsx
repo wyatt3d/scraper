@@ -118,11 +118,25 @@ export default function PlaygroundPage() {
 
   function handleSendMessage() {
     if (!inputValue.trim()) return
-    addMessage("user", inputValue.trim())
+    const msg = inputValue.trim()
+    addMessage("user", msg)
     setInputValue("")
 
+    const lower = msg.toLowerCase()
+    let response: string
+
+    if (/price|cost|amount|\$/.test(lower)) {
+      response = "To extract pricing fields, I added a `price` selector targeting `.price`, `.product-price`, and `[data-price]` elements. The values are automatically parsed to numbers with currency symbols stripped. You can filter by price range in a follow-up step."
+    } else if (/paginate|next page|pagination|page\s?\d/.test(lower)) {
+      response = "I detected pagination on this page using `.pagination a.next` selectors. The flow will automatically click through all pages and aggregate results. Set a max page limit in the flow config to control depth. Currently configured for up to 10 pages."
+    } else if (/schedule|cron|recurring|automat/.test(lower)) {
+      response = "You can schedule this flow to run automatically. Go to the Flows page and set a cron expression — e.g. `0 */6 * * *` for every 6 hours. Results will be delivered to your configured webhook or saved to your output destination each run."
+    } else {
+      response = "Got it. I can refine the extraction or add more fields. Try asking me to filter by price range, handle pagination across multiple pages, or schedule this flow to run automatically."
+    }
+
     setTimeout(() => {
-      addMessage("system", "Got it. I can refine the extraction or add more fields. Try asking me to filter by price range, add new fields, or export in a different format.")
+      addMessage("system", response)
     }, 1000)
   }
 

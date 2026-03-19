@@ -130,10 +130,12 @@ function WebhookWizard({
   integration,
   open,
   onOpenChange,
+  onConnected,
 }: {
   integration: Integration
   open: boolean
   onOpenChange: (open: boolean) => void
+  onConnected?: () => void
 }) {
   const [step, setStep] = useState(1)
   const [webhookUrl, setWebhookUrl] = useState("")
@@ -166,6 +168,7 @@ function WebhookWizard({
 
   function handleFinish() {
     toast.success(`${integration.name} connected successfully`)
+    onConnected?.()
     reset()
     onOpenChange(false)
   }
@@ -301,9 +304,11 @@ function WebhookWizard({
 function GoogleSheetsWizard({
   open,
   onOpenChange,
+  onConnected,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onConnected?: () => void
 }) {
   const [step, setStep] = useState(1)
   const [connected, setConnected] = useState(false)
@@ -324,6 +329,7 @@ function GoogleSheetsWizard({
 
   function handleFinish() {
     toast.success("Google Sheets connected successfully")
+    onConnected?.()
     reset()
     onOpenChange(false)
   }
@@ -476,9 +482,11 @@ function ZapierCard({ integration }: { integration: Integration }) {
 function EmailSetup({
   open,
   onOpenChange,
+  onConnected,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
+  onConnected?: () => void
 }) {
   const [email, setEmail] = useState("")
   const [frequency, setFrequency] = useState("")
@@ -496,6 +504,7 @@ function EmailSetup({
 
   function handleSave() {
     toast.success("Email notifications configured")
+    onConnected?.()
     reset()
     onOpenChange(false)
   }
@@ -595,6 +604,18 @@ function EmailSetup({
 export default function IntegrationsPage() {
   const [activeWizard, setActiveWizard] = useState<string | null>(null)
   const [zapierExpanded, setZapierExpanded] = useState(false)
+  const [connectedIds, setConnectedIds] = useState<Set<string>>(new Set())
+
+  function markConnected(id: string) {
+    setConnectedIds((prev) => new Set(prev).add(id))
+  }
+
+  function getStatus(integration: Integration): { status: IntegrationStatus; statusLabel: string } {
+    if (connectedIds.has(integration.id)) {
+      return { status: "connected", statusLabel: "Connected" }
+    }
+    return { status: integration.status, statusLabel: integration.statusLabel }
+  }
 
   function handleConnect(integration: Integration) {
     if (integration.type === "custom-webhook") {
@@ -632,6 +653,7 @@ export default function IntegrationsPage() {
       <div className="grid gap-4 sm:grid-cols-2">
         {integrations.map((integration) => {
           const Icon = integration.icon
+          const { status, statusLabel } = getStatus(integration)
           return (
             <Card
               key={integration.id}
@@ -665,12 +687,12 @@ export default function IntegrationsPage() {
                     variant="outline"
                     className={cn(
                       "text-xs",
-                      integration.status === "connected"
+                      status === "connected"
                         ? "border-emerald-500/25 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                         : "text-muted-foreground"
                     )}
                   >
-                    {integration.statusLabel}
+                    {statusLabel}
                   </Badge>
                   {integration.type === "custom-webhook" ? (
                     <Button variant="outline" size="sm" asChild>
@@ -682,7 +704,7 @@ export default function IntegrationsPage() {
                       size="sm"
                       onClick={() => handleConnect(integration)}
                     >
-                      {integration.status === "connected" ? "Manage" : "Connect"}
+                      {status === "connected" ? "Manage" : "Connect"}
                     </Button>
                   )}
                 </div>
@@ -699,19 +721,23 @@ export default function IntegrationsPage() {
         integration={slackIntegration}
         open={activeWizard === "slack"}
         onOpenChange={(open) => !open && setActiveWizard(null)}
+        onConnected={() => markConnected("slack")}
       />
       <WebhookWizard
         integration={discordIntegration}
         open={activeWizard === "discord"}
         onOpenChange={(open) => !open && setActiveWizard(null)}
+        onConnected={() => markConnected("discord")}
       />
       <GoogleSheetsWizard
         open={activeWizard === "google-sheets"}
         onOpenChange={(open) => !open && setActiveWizard(null)}
+        onConnected={() => markConnected("google-sheets")}
       />
       <EmailSetup
         open={activeWizard === "email"}
         onOpenChange={(open) => !open && setActiveWizard(null)}
+        onConnected={() => markConnected("email")}
       />
     </div>
   )

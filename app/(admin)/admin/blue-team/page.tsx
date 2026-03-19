@@ -204,7 +204,8 @@ const items: DefenseItem[] = [
     id: "RT-029",
     title: "Playground is fully faked with hardcoded responses",
     severity: "MEDIUM",
-    status: "ACKNOWLEDGED",
+    status: "FIXED",
+    resolution: "Added varied bot responses in playground based on message content: price/cost triggers extraction pricing response, paginate/next page triggers pagination response, schedule/cron triggers scheduling response, with a generic fallback.",
   },
   {
     id: "RT-030",
@@ -264,6 +265,20 @@ const items: DefenseItem[] = [
     resolution: "Use Flow buttons wrapped in Link to /flows/new. Install Flow in preview dialog shows success toast and closes dialog. Publish Your Flow shows coming-soon toast.",
   },
   {
+    id: "RT-036",
+    title: "Playground follow-up messages always return same canned reply",
+    severity: "MEDIUM",
+    status: "FIXED",
+    resolution: "Added content-aware response templates: price/cost keywords trigger extraction pricing response, paginate/next page triggers pagination response, schedule/cron triggers scheduling response, with a varied generic fallback.",
+  },
+  {
+    id: "RT-053",
+    title: "Integration wizard completion doesn't update connection status",
+    severity: "MEDIUM",
+    status: "FIXED",
+    resolution: "Added connectedIds state set to IntegrationsPage. Wizard components (WebhookWizard, GoogleSheetsWizard, EmailSetup) now call onConnected callback on finish, updating badge from 'Not Connected' to 'Connected' and button label from 'Connect' to 'Manage'.",
+  },
+  {
     id: "RT-054",
     title: "Community thread links are broken",
     severity: "MEDIUM",
@@ -283,6 +298,13 @@ const items: DefenseItem[] = [
     severity: "HIGH",
     status: "FIXED",
     resolution: "Created ExtensionButtons client component. Add to Chrome shows waitlist toast. Watch Demo shows coming-soon toast. Both hero and CTA sections wired.",
+  },
+  {
+    id: "RT-059",
+    title: "Blog share buttons don't open share URLs",
+    severity: "MEDIUM",
+    status: "FIXED",
+    resolution: "Verified share buttons already use proper anchor tags with target='_blank' and correct Twitter intent/LinkedIn share-offsite URLs with encoded parameters.",
   },
   {
     id: "RT-062",
