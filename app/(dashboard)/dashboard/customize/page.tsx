@@ -360,7 +360,7 @@ export default function CustomizeDashboardPage() {
                     "transition-all",
                     widget.size === "large" && "sm:col-span-2",
                     dragIndex === index && "opacity-50",
-                    dragOverIndex === index && dragIndex !== index && "ring-2 ring-blue-500"
+                    dragOverIndex === index && dragIndex !== index && "ring-2 ring-foreground"
                   )}
                 >
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

@@ -929,7 +929,7 @@ export default function WorkflowBuilderPage() {
                   refY="3"
                   orient="auto"
                 >
-                  <polygon points="0 0, 8 3, 0 6" className="fill-blue-500" />
+                  <polygon points="0 0, 8 3, 0 6" className="fill-foreground" />
                 </marker>
               </defs>
               {connections.map((conn) => {
@@ -948,7 +948,7 @@ export default function WorkflowBuilderPage() {
                     strokeWidth={2}
                     className={cn(
                       "transition-colors",
-                      isActive ? "stroke-blue-500" : "stroke-muted-foreground/25"
+                      isActive ? "stroke-foreground" : "stroke-muted-foreground/25"
                     )}
                     markerEnd={isActive ? "url(#arrowhead-active)" : "url(#arrowhead)"}
                   />
@@ -971,7 +971,7 @@ export default function WorkflowBuilderPage() {
                   className={cn(
                     "absolute w-48 cursor-pointer select-none rounded-xl border shadow-md transition-shadow hover:shadow-lg",
                     "bg-card",
-                    isSelected && "ring-2 ring-blue-500 ring-offset-2 ring-offset-background shadow-lg shadow-blue-500/10"
+                    isSelected && "ring-2 ring-foreground ring-offset-2 ring-offset-background shadow-lg"
                   )}
                   style={{ left: node.x, top: node.y }}
                   onClick={(e) => {
@@ -1000,7 +1000,7 @@ export default function WorkflowBuilderPage() {
                     <div
                       className={cn(
                         "absolute -left-[5px] top-1/2 size-2.5 -translate-y-1/2 rounded-full border-2 border-background",
-                        isSelected ? "bg-blue-500" : "bg-muted-foreground/40"
+                        isSelected ? "bg-foreground" : "bg-muted-foreground/40"
                       )}
                     />
                   )}
@@ -1009,7 +1009,7 @@ export default function WorkflowBuilderPage() {
                   <div
                     className={cn(
                       "absolute -right-[5px] top-1/2 size-2.5 -translate-y-1/2 rounded-full border-2 border-background",
-                      isSelected ? "bg-blue-500" : "bg-muted-foreground/40"
+                      isSelected ? "bg-foreground" : "bg-muted-foreground/40"
                     )}
                   />
                 </div>
@@ -1067,4 +1067,3 @@ export default function WorkflowBuilderPage() {
     </div>
   )
 }
- 

@@ -357,7 +357,7 @@ export default function RunDetailPage() {
               ))}
               {isRunning && (
                 <div className="flex items-center gap-2 py-1 mt-1">
-                  <Loader2 className="size-3 text-blue-500 animate-spin" />
+                  <Loader2 className="size-3 text-amber-500 animate-spin" />
                   <span className="text-blue-400 text-[10px]">Waiting for next event...</span>
                 </div>
               )}
@@ -386,7 +386,7 @@ export default function RunDetailPage() {
               <div className="bg-zinc-950 p-4 h-36 flex items-center justify-center">
                 {isRunning ? (
                   <div className="text-center space-y-2">
-                    <Loader2 className="w-8 h-8 text-blue-500 animate-spin mx-auto" />
+                    <Loader2 className="w-8 h-8 text-amber-500 animate-spin mx-auto" />
                     <p className="text-xs text-zinc-400">Extracting data...</p>
                   </div>
                 ) : (
@@ -412,7 +412,7 @@ export default function RunDetailPage() {
                     key={step.id}
                     className={cn(
                       "flex items-center gap-2 rounded-md border px-3 py-2 text-xs transition-colors",
-                      isCurrent && "border-blue-500 bg-blue-500/10",
+                      isCurrent && "border-amber-500 bg-amber-500/10",
                       (isCompleted || isAllDone) && !isCurrent && "border-border bg-background",
                       isPending && !isCurrent && "border-border bg-muted/30 text-muted-foreground"
                     )}
@@ -420,7 +420,7 @@ export default function RunDetailPage() {
                     {(isCompleted || isAllDone) && !isCurrent ? (
                       <CheckCircle2 className="size-3.5 text-emerald-500 shrink-0" />
                     ) : isCurrent ? (
-                      <Loader2 className="size-3.5 text-blue-500 animate-spin shrink-0" />
+                      <Loader2 className="size-3.5 text-amber-500 animate-spin shrink-0" />
                     ) : (
                       <div className="size-3.5 rounded-full border border-muted-foreground/30 shrink-0" />
                     )}
@@ -452,7 +452,7 @@ export default function RunDetailPage() {
                   <span className="font-mono font-semibold">
                     {formatDuration(elapsedMs)}
                     {isRunning && (
-                      <span className="inline-block ml-1 w-1 h-3 bg-blue-500 animate-pulse rounded-full align-middle" />
+                      <span className="inline-block ml-1 w-1 h-3 bg-amber-500 animate-pulse rounded-full align-middle" />
                     )}
                   </span>
                 </div>

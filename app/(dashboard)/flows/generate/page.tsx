@@ -240,7 +240,7 @@ export default function GenerateFlowPage() {
           <h1 className="font-serif text-3xl font-bold tracking-tight">
             Generate Flow with AI
           </h1>
-          <Badge className="bg-blue-600/10 text-blue-600 border-blue-600/20 dark:text-blue-400 gap-1">
+          <Badge className="bg-muted text-muted-foreground border-border gap-1">
             <Sparkles className="size-3" />
             Powered by Claude
           </Badge>

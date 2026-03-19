@@ -415,7 +415,7 @@ export default function GraphQLExplorerPage() {
                             </span>
                           )}
                         </span>
-                        <span className="font-mono text-blue-500 ml-2 shrink-0">
+                        <span className="font-mono text-muted-foreground ml-2 shrink-0">
                           {field.type}
                         </span>
                       </div>
