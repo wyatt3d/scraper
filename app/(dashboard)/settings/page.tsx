@@ -5,16 +5,19 @@ import dynamic from "next/dynamic"
 import {
   Bell,
   Check,
+  Clock,
   Copy,
   CreditCard,
   DollarSign,
   Download,
   Gift,
+  History,
   Link2,
   Linkedin,
   Mail,
   MessageSquare,
   Plus,
+  RefreshCw,
   Send,
   Settings,
   Shield,
@@ -25,6 +28,7 @@ import {
   Users,
   UserPlus,
   Webhook,
+  X,
   Zap,
 } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -37,9 +41,26 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { Separator } from "@/components/ui/separator"
 import { Switch } from "@/components/ui/switch"
 import {
   Table,
@@ -55,6 +76,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
+import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
 import { mockUser } from "@/lib/mock-data"
 
@@ -66,12 +88,29 @@ const BillingChart = dynamic(
   }
 )
 
+type TeamRole = "owner" | "admin" | "editor" | "viewer"
+
 interface TeamMember {
   id: string
   name: string
   email: string
-  role: "owner" | "admin" | "member" | "viewer"
-  joinedAt: string
+  role: TeamRole
+  lastActive: string
+  isYou?: boolean
+}
+
+interface PendingInvite {
+  id: string
+  email: string
+  role: TeamRole
+  sent: string
+  status: "pending"
+}
+
+interface ActivityEntry {
+  id: string
+  description: string
+  time: string
 }
 
 interface Integration {
@@ -82,11 +121,30 @@ interface Integration {
   icon: typeof Mail
 }
 
-const teamMembers: TeamMember[] = [
-  { id: "tm-1", name: "Wyatt", email: "wyatt@scraper.dev", role: "owner", joinedAt: "2026-01-01" },
-  { id: "tm-2", name: "Alex Chen", email: "alex@scraper.dev", role: "admin", joinedAt: "2026-02-10" },
-  { id: "tm-3", name: "Sarah Kim", email: "sarah@scraper.dev", role: "member", joinedAt: "2026-03-01" },
+const initialTeamMembers: TeamMember[] = [
+  { id: "tm-1", name: "Wyatt", email: "wyatt@scraper.bot", role: "owner", lastActive: "Now", isYou: true },
+  { id: "tm-2", name: "Sarah Chen", email: "sarah@team.com", role: "admin", lastActive: "2 hours ago" },
+  { id: "tm-3", name: "Mike Johnson", email: "mike@team.com", role: "editor", lastActive: "1 day ago" },
+  { id: "tm-4", name: "Alex Rivera", email: "alex@team.com", role: "viewer", lastActive: "3 days ago" },
 ]
+
+const initialPendingInvites: PendingInvite[] = [
+  { id: "inv-1", email: "newuser@company.com", role: "editor", sent: "2 hours ago", status: "pending" },
+]
+
+const activityLog: ActivityEntry[] = [
+  { id: "act-1", description: "Wyatt changed Mike's role from Viewer to Editor", time: "1 hour ago" },
+  { id: "act-2", description: "Sarah created flow 'Amazon Monitor'", time: "3 hours ago" },
+  { id: "act-3", description: "Alex viewed run results for 'Job Scraper'", time: "5 hours ago" },
+  { id: "act-4", description: "Wyatt invited alex@team.com as Viewer", time: "2 days ago" },
+]
+
+const roleDescriptions: Record<TeamRole, string> = {
+  owner: "Full access, billing, team management, delete account",
+  admin: "Manage flows, runs, API keys, integrations. Cannot manage billing.",
+  editor: "Create and edit flows, trigger runs, view results. Cannot manage team or keys.",
+  viewer: "Read-only access to flows, runs, and analytics. Cannot create or modify.",
+}
 
 const integrations: Integration[] = [
   { id: "int-1", name: "Google Sheets", description: "Export extracted data directly to Google Sheets", connected: true, icon: Link2 },
@@ -110,7 +168,7 @@ const invoices = [
   { date: "Nov 15, 2025", description: "Pro Plan - Monthly (prorated)", amount: "$14.50", status: "Paid" },
 ]
 
-function roleBadge(role: TeamMember["role"]) {
+function roleBadge(role: TeamRole) {
   switch (role) {
     case "owner":
       return (
@@ -124,10 +182,10 @@ function roleBadge(role: TeamMember["role"]) {
           Admin
         </Badge>
       )
-    case "member":
+    case "editor":
       return (
         <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-500/25 dark:text-emerald-400">
-          Member
+          Editor
         </Badge>
       )
     case "viewer":
@@ -267,64 +325,8 @@ export default function SettingsPage() {
           </Card>
         </TabsContent>
 
-        <TabsContent value="team" className="mt-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Team Members</CardTitle>
-                  <CardDescription className="mt-1">
-                    Manage who has access to your workspace.
-                  </CardDescription>
-                </div>
-                <Button size="sm" className="gap-1.5" onClick={() => toast.success("Invitation sent")}>
-                  <Plus className="size-3.5" />
-                  Invite Member
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {teamMembers.map((member) => (
-                <div
-                  key={member.id}
-                  className="flex items-center justify-between rounded-lg border p-4"
-                >
-                  <div className="flex items-center gap-3">
-                    <Avatar>
-                      <AvatarFallback className="text-sm">
-                        {member.name
-                          .split(" ")
-                          .map((n) => n[0])
-                          .join("")
-                          .toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">
-                          {member.name}
-                        </span>
-                        {roleBadge(member.role)}
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        {member.email}
-                      </p>
-                    </div>
-                  </div>
-                  {member.role !== "owner" && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-8 text-red-500 hover:text-red-600"
-                      onClick={() => toast.success(`${member.name} removed from team`)}
-                    >
-                      <Trash2 className="size-3.5" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-            </CardContent>
-          </Card>
+        <TabsContent value="team" className="mt-6 space-y-6">
+          <TeamSection />
         </TabsContent>
 
         <TabsContent value="billing" className="mt-6 space-y-6">
