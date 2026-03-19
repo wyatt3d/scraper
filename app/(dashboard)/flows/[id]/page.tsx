@@ -1,0 +1,948 @@
+"use client"
+
+import { useState, useMemo } from "react"
+import { useParams } from "next/navigation"
+import Link from "next/link"
+import {
+  ArrowLeft,
+  Play,
+  Save,
+  Plus,
+  GripVertical,
+  Globe,
+  MousePointerClick,
+  Type,
+  FileText,
+  Clock,
+  ScrollText,
+  Camera,
+  GitBranch,
+  Repeat,
+  Trash2,
+  Copy,
+  Terminal,
+  Code2,
+  Settings,
+  Activity,
+  Calendar,
+  Bell,
+  RefreshCw,
+  ChevronRight,
+  ExternalLink,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+  AlertCircle,
+  Lock,
+  Unlock,
+  Eye,
+  Search,
+  ArrowUpDown,
+  Hash,
+  Braces,
+} from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import { Badge } from "@/components/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Switch } from "@/components/ui/switch"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+  ResizablePanelGroup,
+  ResizablePanel,
+  ResizableHandle,
+} from "@/components/ui/resizable"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
+import { cn } from "@/lib/utils"
+import { mockFlows, mockRuns } from "@/lib/mock-data"
+import type { FlowStep, StepType, Run } from "@/lib/types"
+
+const stepTypeConfig: Record<StepType, { label: string; icon: typeof Globe; color: string }> = {
+  navigate: { label: "Navigate", icon: Globe, color: "text-blue-600" },
+  click: { label: "Click", icon: MousePointerClick, color: "text-purple-600" },
+  fill: { label: "Fill", icon: Type, color: "text-green-600" },
+  extract: { label: "Extract", icon: FileText, color: "text-amber-600" },
+  wait: { label: "Wait", icon: Clock, color: "text-gray-600" },
+  scroll: { label: "Scroll", icon: ScrollText, color: "text-cyan-600" },
+  screenshot: { label: "Screenshot", icon: Camera, color: "text-pink-600" },
+  condition: { label: "Condition", icon: GitBranch, color: "text-orange-600" },
+  loop: { label: "Loop", icon: Repeat, color: "text-indigo-600" },
+}
+
+function timeAgo(dateStr: string): string {
+  const now = new Date("2026-03-18T18:30:00Z")
+  const date = new Date(dateStr)
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+  if (seconds < 60) return "just now"
+  const minutes = Math.floor(seconds / 60)
+  if (minutes < 60) return `${minutes}m ago`
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return `${hours}h ago`
+  const days = Math.floor(hours / 24)
+  return `${days}d ago`
+}
+
+function formatDuration(ms: number): string {
+  if (ms < 1000) return `${ms}ms`
+  const seconds = ms / 1000
+  if (seconds < 60) return `${seconds.toFixed(1)}s`
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = Math.round(seconds % 60)
+  return `${minutes}m ${remainingSeconds}s`
+}
+
+const runStatusConfig: Record<string, { color: string; icon: typeof CheckCircle2 }> = {
+  completed: { color: "text-green-600", icon: CheckCircle2 },
+  failed: { color: "text-red-600", icon: XCircle },
+  running: { color: "text-blue-600", icon: Loader2 },
+  queued: { color: "text-yellow-600", icon: Clock },
+  cancelled: { color: "text-gray-600", icon: XCircle },
+}
+
+export default function FlowDetailPage() {
+  const params = useParams()
+  const flowId = params.id as string
+  const flow = mockFlows.find((f) => f.id === flowId) ?? mockFlows[0]
+  const flowRuns = mockRuns.filter((r) => r.flowId === flow.id)
+
+  const [activeTab, setActiveTab] = useState("builder")
+  const [selectedStepId, setSelectedStepId] = useState<string | null>(flow.steps[0]?.id ?? null)
+
+  const selectedStep = useMemo(() => {
+    function findStep(steps: FlowStep[]): FlowStep | undefined {
+      for (const s of steps) {
+        if (s.id === selectedStepId) return s
+        if (s.children) {
+          const found = findStep(s.children)
+          if (found) return found
+        }
+      }
+    }
+    return findStep(flow.steps)
+  }, [flow.steps, selectedStepId])
+
+  return (
+    <TooltipProvider>
+      <div className="flex h-full flex-col">
+        <div className="flex items-center justify-between border-b px-4 py-3">
+          <div className="flex items-center gap-3">
+            <Button variant="ghost" size="icon" asChild>
+              <Link href="/flows">
+                <ArrowLeft className="h-4 w-4" />
+              </Link>
+            </Button>
+            <div>
+              <h1 className="font-[family-name:var(--font-crimson-text)] text-xl font-bold">
+                {flow.name}
+              </h1>
+              <p className="text-muted-foreground text-xs">{flow.url}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="capitalize">{flow.mode}</Badge>
+            <Badge
+              variant="secondary"
+              className={cn(
+                flow.status === "active" && "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300",
+                flow.status === "paused" && "bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300",
+                flow.status === "draft" && "bg-gray-100 text-gray-700",
+                flow.status === "error" && "bg-red-100 text-red-700"
+              )}
+            >
+              {flow.status}
+            </Badge>
+          </div>
+        </div>
+
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex flex-1 flex-col overflow-hidden">
+          <div className="border-b px-4">
+            <TabsList className="h-10 bg-transparent p-0">
+              <TabsTrigger value="builder" className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none">
+                <Code2 className="mr-2 h-4 w-4" />
+                Builder
+              </TabsTrigger>
+              <TabsTrigger value="runs" className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none">
+                <Activity className="mr-2 h-4 w-4" />
+                Runs
+              </TabsTrigger>
+              <TabsTrigger value="api" className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none">
+                <Terminal className="mr-2 h-4 w-4" />
+                API
+              </TabsTrigger>
+              <TabsTrigger value="settings" className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none">
+                <Settings className="mr-2 h-4 w-4" />
+                Settings
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          <TabsContent value="builder" className="flex-1 overflow-hidden mt-0 p-0">
+            <ResizablePanelGroup direction="horizontal" className="h-full">
+              <ResizablePanel defaultSize={22} minSize={18} maxSize={35}>
+                <StepsPanel
+                  steps={flow.steps}
+                  selectedStepId={selectedStepId}
+                  onSelectStep={setSelectedStepId}
+                />
+              </ResizablePanel>
+              <ResizableHandle withHandle />
+              <ResizablePanel defaultSize={48} minSize={30}>
+                <PreviewPanel url={flow.url} selectedStep={selectedStep} />
+              </ResizablePanel>
+              <ResizableHandle withHandle />
+              <ResizablePanel defaultSize={30} minSize={22} maxSize={45}>
+                <ConfigPanel step={selectedStep} outputSchema={flow.outputSchema} />
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </TabsContent>
+
+          <TabsContent value="runs" className="flex-1 overflow-auto mt-0 p-0">
+            <RunsTab runs={flowRuns} />
+          </TabsContent>
+
+          <TabsContent value="api" className="flex-1 overflow-auto mt-0 p-0">
+            <ApiTab flowId={flow.id} flowName={flow.name} />
+          </TabsContent>
+
+          <TabsContent value="settings" className="flex-1 overflow-auto mt-0 p-0">
+            <SettingsTab flow={flow} />
+          </TabsContent>
+        </Tabs>
+
+        <div className="flex items-center justify-between border-t bg-muted/30 px-4 py-2">
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <span>{flow.steps.length} steps</span>
+            <Separator orientation="vertical" className="h-4" />
+            <span>Avg {formatDuration(flow.avgDuration)}</span>
+            <Separator orientation="vertical" className="h-4" />
+            <span className="flex items-center gap-1">
+              <Terminal className="h-3 w-3" />
+              <code className="font-mono text-xs">POST /api/flows/{flow.id}/run</code>
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm">
+              <Calendar className="mr-2 h-3.5 w-3.5" />
+              Schedule
+            </Button>
+            <Button variant="outline" size="sm">
+              <Save className="mr-2 h-3.5 w-3.5" />
+              Save
+            </Button>
+            <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+              <Play className="mr-2 h-3.5 w-3.5" />
+              Run Flow
+            </Button>
+          </div>
+        </div>
+      </div>
+    </TooltipProvider>
+  )
+}
+
+function StepsPanel({
+  steps,
+  selectedStepId,
+  onSelectStep,
+}: {
+  steps: FlowStep[]
+  selectedStepId: string | null
+  onSelectStep: (id: string) => void
+}) {
+  function renderStep(step: FlowStep, depth: number = 0) {
+    const config = stepTypeConfig[step.type]
+    const Icon = config.icon
+    const isSelected = step.id === selectedStepId
+
+    return (
+      <div key={step.id}>
+        <button
+          className={cn(
+            "flex w-full items-center gap-2 rounded-md px-2 py-2 text-left text-sm transition-colors hover:bg-muted",
+            isSelected && "bg-blue-50 ring-1 ring-blue-200 dark:bg-blue-950/50 dark:ring-blue-800"
+          )}
+          style={{ paddingLeft: `${depth * 16 + 8}px` }}
+          onClick={() => onSelectStep(step.id)}
+        >
+          <GripVertical className="h-3.5 w-3.5 text-muted-foreground/50 cursor-grab shrink-0" />
+          <div className={cn("flex h-6 w-6 items-center justify-center rounded shrink-0", isSelected ? "bg-blue-100 dark:bg-blue-900" : "bg-muted")}>
+            <Icon className={cn("h-3.5 w-3.5", config.color)} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <span className="block truncate font-medium text-xs">{step.label}</span>
+            {step.selector && (
+              <code className="block truncate text-[10px] text-muted-foreground font-mono">
+                {step.selector}
+              </code>
+            )}
+          </div>
+        </button>
+        {step.children?.map((child) => renderStep(child, depth + 1))}
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex h-full flex-col">
+      <div className="flex items-center justify-between border-b px-3 py-2">
+        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Steps
+        </span>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-7 w-7">
+              <Plus className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {Object.entries(stepTypeConfig).map(([type, cfg]) => {
+              const Icon = cfg.icon
+              return (
+                <DropdownMenuItem key={type}>
+                  <Icon className={cn("mr-2 h-4 w-4", cfg.color)} />
+                  {cfg.label}
+                </DropdownMenuItem>
+              )
+            })}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+      <ScrollArea className="flex-1 p-2">
+        <div className="flex flex-col gap-0.5">
+          {steps.map((step) => renderStep(step))}
+        </div>
+      </ScrollArea>
+    </div>
+  )
+}
+
+function PreviewPanel({
+  url,
+  selectedStep,
+}: {
+  url: string
+  selectedStep?: FlowStep
+}) {
+  return (
+    <div className="flex h-full flex-col bg-muted/20">
+      <div className="flex items-center gap-2 border-b bg-muted/50 px-3 py-2">
+        <div className="flex items-center gap-1.5">
+          <div className="h-2.5 w-2.5 rounded-full bg-red-400" />
+          <div className="h-2.5 w-2.5 rounded-full bg-yellow-400" />
+          <div className="h-2.5 w-2.5 rounded-full bg-green-400" />
+        </div>
+        <div className="bg-background flex flex-1 items-center gap-2 rounded-md border px-3 py-1 text-xs">
+          <Lock className="h-3 w-3 text-green-600" />
+          <span className="text-muted-foreground font-mono truncate">{url}</span>
+        </div>
+        <Button variant="ghost" size="icon" className="h-7 w-7">
+          <RefreshCw className="h-3.5 w-3.5" />
+        </Button>
+      </div>
+      <div className="flex flex-1 items-center justify-center p-8">
+        <div className="flex flex-col items-center gap-4 text-center max-w-sm">
+          <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-muted">
+            <Eye className="h-8 w-8 text-muted-foreground" />
+          </div>
+          <div>
+            <p className="font-[family-name:var(--font-crimson-text)] text-lg font-semibold">
+              Live Preview
+            </p>
+            <p className="text-muted-foreground mt-1 text-sm">
+              The target page will render here when you run the flow. Selectors from the
+              active step will be highlighted on the page.
+            </p>
+          </div>
+          {selectedStep && (
+            <Card className="w-full">
+              <CardContent className="p-3">
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="text-muted-foreground">Active step:</span>
+                  <Badge variant="secondary" className="text-xs">
+                    {stepTypeConfig[selectedStep.type].label}
+                  </Badge>
+                  <span className="font-medium">{selectedStep.label}</span>
+                </div>
+                {selectedStep.selector && (
+                  <div className="mt-2 rounded bg-muted p-2 font-mono text-xs">
+                    <span className="text-muted-foreground">selector: </span>
+                    <span className="text-blue-600">{selectedStep.selector}</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+          <Button variant="outline" size="sm">
+            <Play className="mr-2 h-3.5 w-3.5" />
+            Load Preview
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ConfigPanel({
+  step,
+  outputSchema,
+}: {
+  step?: FlowStep
+  outputSchema: Record<string, unknown>
+}) {
+  if (!step) {
+    return (
+      <div className="flex h-full items-center justify-center p-8">
+        <p className="text-muted-foreground text-sm">Select a step to configure</p>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex h-full flex-col">
+      <div className="flex items-center justify-between border-b px-3 py-2">
+        <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Configuration
+        </span>
+        <div className="flex items-center gap-1">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-7 w-7">
+                <Copy className="h-3.5 w-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Duplicate step</TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:text-red-600">
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Delete step</TooltipContent>
+          </Tooltip>
+        </div>
+      </div>
+      <ScrollArea className="flex-1">
+        <div className="flex flex-col gap-4 p-3">
+          <div className="flex items-center gap-2">
+            {(() => {
+              const cfg = stepTypeConfig[step.type]
+              const Icon = cfg.icon
+              return (
+                <>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-md bg-muted">
+                    <Icon className={cn("h-4 w-4", cfg.color)} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold">{cfg.label} Step</p>
+                    <p className="text-xs text-muted-foreground">{step.id}</p>
+                  </div>
+                </>
+              )
+            })()}
+          </div>
+
+          <Separator />
+
+          <div className="flex flex-col gap-2">
+            <Label className="text-xs">Label</Label>
+            <Input defaultValue={step.label} className="h-8 text-sm" />
+          </div>
+
+          {(step.type === "navigate") && (
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs">URL</Label>
+              <Input defaultValue={step.selector || ""} placeholder="https://..." className="h-8 text-sm font-mono" />
+            </div>
+          )}
+
+          {(step.type === "click" || step.type === "scroll") && (
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs">CSS Selector</Label>
+              <Input defaultValue={step.selector || ""} placeholder=".class, #id, [attr]" className="h-8 text-sm font-mono" />
+              <p className="text-muted-foreground text-[10px]">
+                Use the preview panel to visually select elements
+              </p>
+            </div>
+          )}
+
+          {step.type === "fill" && (
+            <>
+              <div className="flex flex-col gap-2">
+                <Label className="text-xs">CSS Selector</Label>
+                <Input defaultValue={step.selector || ""} placeholder="#input-id" className="h-8 text-sm font-mono" />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label className="text-xs">Value</Label>
+                <Input defaultValue={step.value || ""} placeholder="Text to enter or {{variable}}" className="h-8 text-sm" />
+                <p className="text-muted-foreground text-[10px]">
+                  Use {"{{variable}}"} syntax for dynamic values
+                </p>
+              </div>
+            </>
+          )}
+
+          {step.type === "wait" && (
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs">Wait Condition</Label>
+              <Select defaultValue="selector">
+                <SelectTrigger className="h-8 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="selector">Wait for selector</SelectItem>
+                  <SelectItem value="timeout">Fixed timeout</SelectItem>
+                  <SelectItem value="navigation">Wait for navigation</SelectItem>
+                  <SelectItem value="network">Wait for network idle</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input placeholder=".element-to-wait-for" className="h-8 text-sm font-mono" />
+            </div>
+          )}
+
+          {step.type === "condition" && (
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs">Condition Selector</Label>
+              <Input defaultValue={step.condition || ""} placeholder="Selector to check existence" className="h-8 text-sm font-mono" />
+              <p className="text-muted-foreground text-[10px]">
+                If this selector exists on the page, child steps will execute
+              </p>
+            </div>
+          )}
+
+          {step.type === "extract" && step.extractionRules && (
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs">Extraction Rules</Label>
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="hover:bg-transparent">
+                      <TableHead className="h-8 text-xs">Field</TableHead>
+                      <TableHead className="h-8 text-xs">Selector</TableHead>
+                      <TableHead className="h-8 text-xs">Transform</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {step.extractionRules.map((rule, i) => (
+                      <TableRow key={i} className="hover:bg-muted/50">
+                        <TableCell className="py-1.5">
+                          <code className="text-xs font-mono">{rule.field}</code>
+                        </TableCell>
+                        <TableCell className="py-1.5">
+                          <code className="text-xs font-mono text-blue-600">{rule.selector}</code>
+                        </TableCell>
+                        <TableCell className="py-1.5">
+                          <Badge variant="secondary" className="text-[10px]">
+                            {rule.transform || "text"}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              <Button variant="outline" size="sm" className="w-fit text-xs">
+                <Plus className="mr-1 h-3 w-3" />
+                Add Rule
+              </Button>
+            </div>
+          )}
+
+          <Separator />
+
+          <div className="flex flex-col gap-2">
+            <Label className="text-xs">Output Schema</Label>
+            <div className="rounded-md border bg-muted/50 p-3">
+              <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap">
+                {JSON.stringify(outputSchema, null, 2)}
+              </pre>
+            </div>
+          </div>
+        </div>
+      </ScrollArea>
+    </div>
+  )
+}
+
+function RunsTab({ runs }: { runs: Run[] }) {
+  return (
+    <div className="p-6">
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <h2 className="font-[family-name:var(--font-crimson-text)] text-xl font-semibold">
+            Run History
+          </h2>
+          <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
+            <Play className="mr-2 h-3.5 w-3.5" />
+            Run Now
+          </Button>
+        </div>
+
+        {runs.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-12">
+            <Activity className="text-muted-foreground mb-3 h-10 w-10" />
+            <p className="text-sm font-medium">No runs yet</p>
+            <p className="text-muted-foreground text-xs mt-1">
+              Run this flow to see execution history
+            </p>
+          </div>
+        ) : (
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[100px]">Status</TableHead>
+                  <TableHead>Started</TableHead>
+                  <TableHead>Duration</TableHead>
+                  <TableHead>Items</TableHead>
+                  <TableHead>Cost</TableHead>
+                  <TableHead className="w-[60px]" />
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {runs.map((run) => {
+                  const statusCfg = runStatusConfig[run.status] || runStatusConfig.completed
+                  const StatusIcon = statusCfg.icon
+                  return (
+                    <TableRow key={run.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <StatusIcon className={cn("h-4 w-4", statusCfg.color, run.status === "running" && "animate-spin")} />
+                          <span className="text-sm capitalize">{run.status}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-sm">{timeAgo(run.startedAt)}</TableCell>
+                      <TableCell className="text-sm">
+                        {run.duration ? formatDuration(run.duration) : "--"}
+                      </TableCell>
+                      <TableCell className="text-sm">
+                        {run.itemsExtracted > 0 ? run.itemsExtracted : "--"}
+                      </TableCell>
+                      <TableCell className="text-sm">${run.cost.toFixed(3)}</TableCell>
+                      <TableCell>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        )}
+
+        {runs.length > 0 && runs[0].error && (
+          <Card className="border-red-200 dark:border-red-900">
+            <CardContent className="flex items-start gap-3 p-4">
+              <AlertCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-medium">Last Error</p>
+                <p className="text-muted-foreground text-sm mt-0.5">{runs[0].error}</p>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function ApiTab({ flowId, flowName }: { flowId: string; flowName: string }) {
+  const endpoint = `https://api.scraper.dev/v1/flows/${flowId}/run`
+  const curlExample = `curl -X POST "${endpoint}" \\
+  -H "Authorization: Bearer scr_live_your_api_key" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "webhook": "https://your-site.com/webhook",
+    "format": "json"
+  }'`
+
+  const jsExample = `import { Scraper } from '@scraper/sdk';
+
+const scraper = new Scraper('scr_live_your_api_key');
+
+const run = await scraper.flows.run('${flowId}', {
+  webhook: 'https://your-site.com/webhook',
+  format: 'json',
+});
+
+console.log(run.id); // run_xxxxxxxxxxxxx`
+
+  const pythonExample = `from scraper import Scraper
+
+client = Scraper(api_key="scr_live_your_api_key")
+
+run = client.flows.run(
+    flow_id="${flowId}",
+    webhook="https://your-site.com/webhook",
+    format="json",
+)
+
+print(run.id)  # run_xxxxxxxxxxxxx`
+
+  return (
+    <div className="mx-auto max-w-3xl p-6">
+      <div className="flex flex-col gap-6">
+        <div>
+          <h2 className="font-[family-name:var(--font-crimson-text)] text-xl font-semibold">
+            API Access
+          </h2>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Trigger &quot;{flowName}&quot; programmatically via the REST API or SDK.
+          </p>
+        </div>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm">Endpoint</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-2 rounded-md bg-muted p-3">
+              <Badge className="bg-green-600 hover:bg-green-600 text-xs shrink-0">POST</Badge>
+              <code className="font-mono text-sm truncate">{endpoint}</code>
+              <Button variant="ghost" size="icon" className="h-7 w-7 ml-auto shrink-0">
+                <Copy className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm">cURL</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="relative">
+              <pre className="rounded-md bg-zinc-950 p-4 text-xs text-zinc-100 overflow-x-auto">
+                <code>{curlExample}</code>
+              </pre>
+              <Button variant="ghost" size="icon" className="absolute right-2 top-2 h-7 w-7 text-zinc-400 hover:text-zinc-100">
+                <Copy className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm">JavaScript / TypeScript</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="relative">
+              <pre className="rounded-md bg-zinc-950 p-4 text-xs text-zinc-100 overflow-x-auto">
+                <code>{jsExample}</code>
+              </pre>
+              <Button variant="ghost" size="icon" className="absolute right-2 top-2 h-7 w-7 text-zinc-400 hover:text-zinc-100">
+                <Copy className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm">Python</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="relative">
+              <pre className="rounded-md bg-zinc-950 p-4 text-xs text-zinc-100 overflow-x-auto">
+                <code>{pythonExample}</code>
+              </pre>
+              <Button variant="ghost" size="icon" className="absolute right-2 top-2 h-7 w-7 text-zinc-400 hover:text-zinc-100">
+                <Copy className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
+function SettingsTab({ flow }: { flow: typeof mockFlows[0] }) {
+  return (
+    <div className="mx-auto max-w-2xl p-6">
+      <div className="flex flex-col gap-8">
+        <div>
+          <h2 className="font-[family-name:var(--font-crimson-text)] text-xl font-semibold">
+            Settings
+          </h2>
+          <p className="text-muted-foreground mt-1 text-sm">
+            Configure schedule, notifications, and retry behavior.
+          </p>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Calendar className="h-4 w-4" />
+              Schedule
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>Enabled</Label>
+                <p className="text-muted-foreground text-xs mt-0.5">
+                  Automatically run this flow on a schedule
+                </p>
+              </div>
+              <Switch defaultChecked={flow.schedule?.enabled} />
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs">Cron Expression</Label>
+              <Input
+                defaultValue={flow.schedule?.expression || ""}
+                placeholder="0 */6 * * *"
+                className="h-8 text-sm font-mono"
+              />
+              <p className="text-muted-foreground text-[10px]">
+                {flow.schedule?.expression === "0 */6 * * *"
+                  ? "Every 6 hours"
+                  : flow.schedule?.expression === "0 8 * * *"
+                    ? "Daily at 8:00 AM"
+                    : flow.schedule?.expression === "0 */2 * * *"
+                      ? "Every 2 hours"
+                      : "Custom schedule"}
+              </p>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs">Timezone</Label>
+              <Select defaultValue={flow.schedule?.timezone || "America/New_York"}>
+                <SelectTrigger className="h-8 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="America/New_York">America/New_York (EST)</SelectItem>
+                  <SelectItem value="America/Chicago">America/Chicago (CST)</SelectItem>
+                  <SelectItem value="America/Denver">America/Denver (MST)</SelectItem>
+                  <SelectItem value="America/Los_Angeles">America/Los_Angeles (PST)</SelectItem>
+                  <SelectItem value="UTC">UTC</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Bell className="h-4 w-4" />
+              Notifications
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>On Failure</Label>
+                <p className="text-muted-foreground text-xs mt-0.5">
+                  Get notified when a run fails
+                </p>
+              </div>
+              <Switch defaultChecked />
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>On Success</Label>
+                <p className="text-muted-foreground text-xs mt-0.5">
+                  Get notified when a run completes
+                </p>
+              </div>
+              <Switch />
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>On Change Detected</Label>
+                <p className="text-muted-foreground text-xs mt-0.5">
+                  Alert when monitored data changes
+                </p>
+              </div>
+              <Switch defaultChecked />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <RefreshCw className="h-4 w-4" />
+              Retry Configuration
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs">Max Retries</Label>
+              <Select defaultValue="3">
+                <SelectTrigger className="h-8 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="0">No retries</SelectItem>
+                  <SelectItem value="1">1 retry</SelectItem>
+                  <SelectItem value="2">2 retries</SelectItem>
+                  <SelectItem value="3">3 retries</SelectItem>
+                  <SelectItem value="5">5 retries</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs">Backoff Strategy</Label>
+              <Select defaultValue="exponential">
+                <SelectTrigger className="h-8 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="linear">Linear</SelectItem>
+                  <SelectItem value="exponential">Exponential</SelectItem>
+                  <SelectItem value="fixed">Fixed delay</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs">Timeout (seconds)</Label>
+              <Input defaultValue="120" className="h-8 text-sm" type="number" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <div className="flex justify-end">
+          <Button className="bg-blue-600 hover:bg-blue-700">
+            <Save className="mr-2 h-4 w-4" />
+            Save Settings
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}

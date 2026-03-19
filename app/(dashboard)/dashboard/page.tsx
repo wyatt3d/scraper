@@ -1,0 +1,502 @@
+"use client"
+
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
+import {
+  Activity,
+  AlertTriangle,
+  ArrowDown,
+  ArrowUp,
+  Bell,
+  CheckCircle2,
+  Clock,
+  Database,
+  Edit,
+  Layers,
+  Pause,
+  Play,
+  TrendingUp,
+  XCircle,
+  Zap,
+} from "lucide-react"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import { mockFlows, mockRuns, mockAlerts } from "@/lib/mock-data"
+
+const chartData = [
+  { day: "Mon", runs: 18, successful: 16 },
+  { day: "Tue", runs: 24, successful: 22 },
+  { day: "Wed", runs: 21, successful: 19 },
+  { day: "Thu", runs: 28, successful: 26 },
+  { day: "Fri", runs: 32, successful: 30 },
+  { day: "Sat", runs: 15, successful: 14 },
+  { day: "Sun", runs: 22, successful: 21 },
+]
+
+const chartConfig = {
+  runs: {
+    label: "Total Runs",
+    color: "hsl(221, 83%, 53%)",
+  },
+  successful: {
+    label: "Successful",
+    color: "hsl(142, 71%, 45%)",
+  },
+} satisfies ChartConfig
+
+const stats = [
+  {
+    title: "Total Flows",
+    value: mockFlows.length.toString(),
+    change: "+2",
+    trend: "up" as const,
+    description: "from last month",
+    icon: Layers,
+  },
+  {
+    title: "Runs (24h)",
+    value: mockRuns.length.toString(),
+    change: "+12%",
+    trend: "up" as const,
+    description: "vs. yesterday",
+    icon: Activity,
+  },
+  {
+    title: "Success Rate",
+    value: `${((mockRuns.filter((r) => r.status === "completed").length / mockRuns.filter((r) => r.status !== "running" && r.status !== "queued").length) * 100).toFixed(1)}%`,
+    change: "+2.1%",
+    trend: "up" as const,
+    description: "vs. last week",
+    icon: TrendingUp,
+  },
+  {
+    title: "Data Points",
+    value: mockRuns
+      .reduce((sum, r) => sum + r.itemsExtracted, 0)
+      .toLocaleString(),
+    change: "+293",
+    trend: "up" as const,
+    description: "extracted today",
+    icon: Database,
+  },
+]
+
+function statusBadge(status: string) {
+  switch (status) {
+    case "completed":
+      return (
+        <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-500/25 dark:text-emerald-400">
+          <CheckCircle2 className="size-3" />
+          Completed
+        </Badge>
+      )
+    case "running":
+      return (
+        <Badge className="bg-blue-500/15 text-blue-600 border-blue-500/25 dark:text-blue-400">
+          <span className="relative flex size-2">
+            <span className="absolute inline-flex size-full animate-ping rounded-full bg-blue-500 opacity-75" />
+            <span className="relative inline-flex size-2 rounded-full bg-blue-500" />
+          </span>
+          Running
+        </Badge>
+      )
+    case "failed":
+      return (
+        <Badge className="bg-red-500/15 text-red-600 border-red-500/25 dark:text-red-400">
+          <XCircle className="size-3" />
+          Failed
+        </Badge>
+      )
+    case "queued":
+      return (
+        <Badge className="bg-gray-500/15 text-gray-600 border-gray-500/25 dark:text-gray-400">
+          <Clock className="size-3" />
+          Queued
+        </Badge>
+      )
+    default:
+      return <Badge variant="outline">{status}</Badge>
+  }
+}
+
+function flowStatusBadge(status: string) {
+  switch (status) {
+    case "active":
+      return (
+        <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-500/25 dark:text-emerald-400">
+          Active
+        </Badge>
+      )
+    case "paused":
+      return (
+        <Badge className="bg-amber-500/15 text-amber-600 border-amber-500/25 dark:text-amber-400">
+          Paused
+        </Badge>
+      )
+    case "draft":
+      return (
+        <Badge className="bg-gray-500/15 text-gray-600 border-gray-500/25 dark:text-gray-400">
+          Draft
+        </Badge>
+      )
+    case "error":
+      return (
+        <Badge className="bg-red-500/15 text-red-600 border-red-500/25 dark:text-red-400">
+          Error
+        </Badge>
+      )
+    default:
+      return <Badge variant="outline">{status}</Badge>
+  }
+}
+
+function severityClasses(severity: string) {
+  switch (severity) {
+    case "critical":
+      return "border-red-500/30 bg-red-500/5"
+    case "warning":
+      return "border-amber-500/30 bg-amber-500/5"
+    case "info":
+      return "border-blue-500/30 bg-blue-500/5"
+    default:
+      return ""
+  }
+}
+
+function severityIcon(severity: string) {
+  switch (severity) {
+    case "critical":
+      return <XCircle className="size-4 text-red-500" />
+    case "warning":
+      return <AlertTriangle className="size-4 text-amber-500" />
+    case "info":
+      return <Bell className="size-4 text-blue-500" />
+    default:
+      return <Bell className="size-4 text-muted-foreground" />
+  }
+}
+
+function formatDuration(ms: number) {
+  if (ms === 0) return "--"
+  const seconds = Math.floor(ms / 1000)
+  if (seconds < 60) return `${seconds}s`
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = seconds % 60
+  return `${minutes}m ${remainingSeconds}s`
+}
+
+function formatRelativeTime(dateString: string) {
+  const date = new Date(dateString)
+  const now = new Date("2026-03-18T18:30:00Z")
+  const diffMs = now.getTime() - date.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+  if (diffMins < 1) return "just now"
+  if (diffMins < 60) return `${diffMins}m ago`
+  const diffHours = Math.floor(diffMins / 60)
+  if (diffHours < 24) return `${diffHours}h ago`
+  const diffDays = Math.floor(diffHours / 24)
+  return `${diffDays}d ago`
+}
+
+const activeFlows = mockFlows.filter(
+  (f) => f.status === "active" || f.status === "paused"
+)
+const recentRuns = [...mockRuns]
+  .sort(
+    (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
+  )
+  .slice(0, 5)
+
+export default function DashboardPage() {
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="font-serif text-3xl font-bold tracking-tight">
+          Dashboard
+        </h1>
+        <p className="text-muted-foreground mt-1">
+          Overview of your scraping flows, runs, and monitoring alerts.
+        </p>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat) => (
+          <Card key={stat.title} className="py-4">
+            <CardHeader className="pb-2">
+              <div className="flex items-center justify-between">
+                <CardDescription className="text-sm font-medium">
+                  {stat.title}
+                </CardDescription>
+                <stat.icon className="size-4 text-muted-foreground" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stat.value}</div>
+              <div className="mt-1 flex items-center gap-1 text-xs">
+                {stat.trend === "up" ? (
+                  <ArrowUp className="size-3 text-emerald-500" />
+                ) : (
+                  <ArrowDown className="size-3 text-red-500" />
+                )}
+                <span
+                  className={
+                    stat.trend === "up" ? "text-emerald-600" : "text-red-600"
+                  }
+                >
+                  {stat.change}
+                </span>
+                <span className="text-muted-foreground">
+                  {stat.description}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Runs Over Time</CardTitle>
+            <CardDescription>Total and successful runs this week</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ChartContainer config={chartConfig} className="h-[280px] w-full">
+              <AreaChart
+                data={chartData}
+                margin={{ top: 4, right: 4, bottom: 0, left: -20 }}
+              >
+                <defs>
+                  <linearGradient id="fillRuns" x1="0" y1="0" x2="0" y2="1">
+                    <stop
+                      offset="0%"
+                      stopColor="var(--color-runs)"
+                      stopOpacity={0.3}
+                    />
+                    <stop
+                      offset="100%"
+                      stopColor="var(--color-runs)"
+                      stopOpacity={0.02}
+                    />
+                  </linearGradient>
+                  <linearGradient
+                    id="fillSuccessful"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+                    <stop
+                      offset="0%"
+                      stopColor="var(--color-successful)"
+                      stopOpacity={0.3}
+                    />
+                    <stop
+                      offset="100%"
+                      stopColor="var(--color-successful)"
+                      stopOpacity={0.02}
+                    />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  className="stroke-border"
+                />
+                <XAxis
+                  dataKey="day"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={8}
+                />
+                <YAxis tickLine={false} axisLine={false} tickMargin={8} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Area
+                  dataKey="runs"
+                  type="monotone"
+                  fill="url(#fillRuns)"
+                  stroke="var(--color-runs)"
+                  strokeWidth={2}
+                />
+                <Area
+                  dataKey="successful"
+                  type="monotone"
+                  fill="url(#fillSuccessful)"
+                  stroke="var(--color-successful)"
+                  strokeWidth={2}
+                />
+              </AreaChart>
+            </ChartContainer>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Alerts</CardTitle>
+            <CardDescription>
+              {mockAlerts.filter((a) => !a.acknowledged).length} unacknowledged
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {mockAlerts.map((alert) => (
+              <div
+                key={alert.id}
+                className={`flex gap-3 rounded-lg border p-3 ${severityClasses(alert.severity)} ${alert.acknowledged ? "opacity-50" : ""}`}
+              >
+                <div className="mt-0.5 shrink-0">
+                  {severityIcon(alert.severity)}
+                </div>
+                <div className="min-w-0 flex-1 space-y-1">
+                  <p className="text-sm font-medium leading-tight">
+                    {alert.flowName}
+                  </p>
+                  <p className="text-muted-foreground text-xs leading-snug">
+                    {alert.message}
+                  </p>
+                  <div className="flex items-center justify-between pt-1">
+                    <span className="text-muted-foreground text-xs">
+                      {formatRelativeTime(alert.createdAt)}
+                    </span>
+                    {!alert.acknowledged && (
+                      <Button variant="ghost" size="sm" className="h-6 text-xs">
+                        Acknowledge
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Recent Runs</CardTitle>
+          <CardDescription>
+            Latest execution results across all flows
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Flow</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Duration</TableHead>
+                <TableHead>Items</TableHead>
+                <TableHead>Cost</TableHead>
+                <TableHead>Started</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {recentRuns.map((run) => (
+                <TableRow key={run.id}>
+                  <TableCell className="font-medium">{run.flowName}</TableCell>
+                  <TableCell>{statusBadge(run.status)}</TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {formatDuration(run.duration ?? 0)}
+                  </TableCell>
+                  <TableCell>
+                    {run.itemsExtracted > 0 ? (
+                      run.itemsExtracted.toLocaleString()
+                    ) : (
+                      <span className="text-muted-foreground">--</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    ${run.cost.toFixed(3)}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {formatRelativeTime(run.startedAt)}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Active Flows</CardTitle>
+          <CardDescription>
+            Manage and monitor your scraping flows
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {activeFlows.map((flow) => (
+              <div
+                key={flow.id}
+                className="flex items-center justify-between rounded-lg border p-4"
+              >
+                <div className="min-w-0 flex-1 space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">{flow.name}</span>
+                    {flowStatusBadge(flow.status)}
+                  </div>
+                  <div className="text-muted-foreground flex flex-wrap items-center gap-3 text-xs">
+                    <span className="flex items-center gap-1">
+                      <Zap className="size-3" />
+                      {flow.totalRuns} runs
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <TrendingUp className="size-3" />
+                      {flow.successRate}% success
+                    </span>
+                    {flow.lastRunAt && (
+                      <span className="flex items-center gap-1">
+                        <Clock className="size-3" />
+                        Last run {formatRelativeTime(flow.lastRunAt)}
+                      </span>
+                    )}
+                    <span className="flex items-center gap-1">
+                      <Activity className="size-3" />
+                      Avg {formatDuration(flow.avgDuration)}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1 pl-4">
+                  <Button variant="outline" size="sm" className="h-8 gap-1">
+                    <Play className="size-3" />
+                    Run
+                  </Button>
+                  <Button variant="ghost" size="icon" className="size-8">
+                    {flow.status === "paused" ? (
+                      <Play className="size-3.5" />
+                    ) : (
+                      <Pause className="size-3.5" />
+                    )}
+                  </Button>
+                  <Button variant="ghost" size="icon" className="size-8">
+                    <Edit className="size-3.5" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
