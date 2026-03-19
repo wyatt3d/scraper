@@ -145,11 +145,11 @@ export default function SignUpPage() {
             />
             <label htmlFor="terms" className="text-sm text-muted-foreground leading-snug cursor-pointer">
               I agree to the{" "}
-              <Link href="/terms" className="text-blue-600 hover:text-blue-700 underline">
+              <Link href="/terms" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline">
                 Terms of Service
               </Link>{" "}
               and{" "}
-              <Link href="/privacy" className="text-blue-600 hover:text-blue-700 underline">
+              <Link href="/privacy" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline">
                 Privacy Policy
               </Link>
             </label>
@@ -210,7 +210,7 @@ export default function SignUpPage() {
       <CardFooter className="justify-center">
         <p className="text-sm text-muted-foreground">
           Already have an account?{" "}
-          <Link href="/sign-in" className="text-blue-600 hover:text-blue-700 font-medium">
+          <Link href="/sign-in" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
             Sign in
           </Link>
         </p>

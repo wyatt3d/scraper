@@ -31,16 +31,16 @@ export function MobileMenu({ isSignedIn }: MobileMenuProps) {
         <SheetContent side="right" className="w-72">
           <SheetTitle className="font-serif">Navigation</SheetTitle>
           <nav className="flex flex-col gap-4 mt-6">
-            <a href="#features" onClick={() => setMobileOpen(false)} className="text-foreground hover:text-blue-600 transition-colors text-lg font-medium">
+            <a href="#features" onClick={() => setMobileOpen(false)} className="text-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-lg font-medium">
               Features
             </a>
-            <a href="#how-it-works" onClick={() => setMobileOpen(false)} className="text-foreground hover:text-blue-600 transition-colors text-lg font-medium">
+            <a href="#how-it-works" onClick={() => setMobileOpen(false)} className="text-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-lg font-medium">
               How It Works
             </a>
-            <a href="#pricing" onClick={() => setMobileOpen(false)} className="text-foreground hover:text-blue-600 transition-colors text-lg font-medium">
+            <a href="#pricing" onClick={() => setMobileOpen(false)} className="text-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-lg font-medium">
               Pricing
             </a>
-            <Link href="/docs" onClick={() => setMobileOpen(false)} className="text-foreground hover:text-blue-600 transition-colors text-lg font-medium">
+            <Link href="/docs" onClick={() => setMobileOpen(false)} className="text-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-lg font-medium">
               Docs
             </Link>
             <hr className="border-border" />

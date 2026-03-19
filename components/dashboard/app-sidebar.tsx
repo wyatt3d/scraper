@@ -202,7 +202,7 @@ export function AppSidebar() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/settings">
+                    <Link href="/settings?tab=billing">
                       <CreditCard />
                       Billing
                     </Link>

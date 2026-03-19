@@ -1,6 +1,16 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
 import { toFlow } from "@/lib/mappers"
+import { z } from "zod"
+
+const createFlowSchema = z.object({
+  name: z.string().min(1).max(200),
+  description: z.string().max(1000).optional().default(""),
+  url: z.string().url(),
+  mode: z.enum(["extract", "interact", "monitor"]),
+  steps: z.array(z.any()).optional().default([]),
+  output_schema: z.record(z.any()).optional().default({}),
+})
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams
@@ -27,20 +37,22 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
 
-    if (!body.name && !body.url) {
-      return NextResponse.json({ error: "Name or URL is required" }, { status: 400 })
+    const result = createFlowSchema.safeParse(body)
+    if (!result.success) {
+      return NextResponse.json({ error: result.error.issues[0].message }, { status: 400 })
     }
+    const validated = result.data
 
     const { data, error } = await supabase
       .from("flows")
       .insert({
-        name: body.name || "Untitled Flow",
-        description: body.description || "",
-        url: body.url || "https://example.com",
-        mode: body.mode || "extract",
-        status: body.status || "draft",
-        steps: body.steps || [],
-        output_schema: body.outputSchema || body.output_schema || {},
+        name: validated.name,
+        description: validated.description,
+        url: validated.url,
+        mode: validated.mode,
+        status: "draft",
+        steps: validated.steps,
+        output_schema: validated.output_schema,
       })
       .select()
       .single()

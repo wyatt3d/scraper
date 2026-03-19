@@ -2,11 +2,20 @@ import { NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
 import { executeFlow } from "@/lib/engine/runner"
 import type { Flow } from "@/lib/types"
+import { z } from "zod"
+
+const triggerRunSchema = z.object({
+  flowId: z.string().uuid(),
+})
 
 export async function POST(request: Request) {
   try {
-    const { flowId } = await request.json()
-    if (!flowId) return NextResponse.json({ error: "flowId required" }, { status: 400 })
+    const body = await request.json()
+    const parsed = triggerRunSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 })
+    }
+    const { flowId } = parsed.data
 
     const { data: flow, error: flowError } = await supabase
       .from("flows")

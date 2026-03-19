@@ -71,7 +71,7 @@ export default async function LandingPage() {
           <div className="text-center max-w-4xl mx-auto">
             <h1 id="hero-heading" className="font-serif font-black text-4xl md:text-6xl lg:text-7xl text-balance mb-6 text-foreground">
               Turn Any Website Into a{" "}
-              <span className="text-blue-600">Structured API</span>
+              <span className="text-blue-600 dark:text-blue-400">Structured API</span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground text-balance mb-10 leading-relaxed max-w-3xl mx-auto">
               Describe what you need in plain English. Our AI generates scraping flows, executes them in a real browser engine, and returns structured data via API. No infrastructure, no maintenance, no code.
@@ -391,7 +391,7 @@ export default async function LandingPage() {
             </p>
             <p className="text-muted-foreground">
               We are collecting testimonials from early users. Want to share your story?{" "}
-              <a href="mailto:hello@scraper.bot" className="text-blue-600 hover:underline">
+              <a href="mailto:hello@scraper.bot" className="text-blue-600 dark:text-blue-400 hover:underline">
                 Get in touch
               </a>.
             </p>

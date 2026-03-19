@@ -1,5 +1,16 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
+import { z } from "zod"
+
+const createTicketSchema = z.object({
+  type: z.enum(["bug", "feature", "question"]).default("bug"),
+  severity: z.enum(["low", "medium", "high", "critical"]).default("medium"),
+  title: z.string().min(1).max(200),
+  description: z.string().min(1).max(5000),
+  steps_to_reproduce: z.string().max(5000).optional().default(""),
+  page_url: z.string().max(500).optional().default(""),
+  email: z.string().email().optional().or(z.literal("")).default(""),
+})
 
 export async function GET(request: NextRequest) {
   try {
@@ -25,16 +36,21 @@ export async function GET(request: NextRequest) {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
+    const result = createTicketSchema.safeParse(body)
+    if (!result.success) {
+      return NextResponse.json({ error: result.error.issues[0].message }, { status: 400 })
+    }
+    const validated = result.data
     const { data, error } = await supabase
       .from("tickets")
       .insert({
-        type: body.type,
-        severity: body.severity || "medium",
-        title: body.title,
-        description: body.description,
-        steps_to_reproduce: body.stepsToReproduce || "",
-        page_url: body.pageUrl || "",
-        email: body.email || "",
+        type: validated.type,
+        severity: validated.severity,
+        title: validated.title,
+        description: validated.description,
+        steps_to_reproduce: validated.steps_to_reproduce,
+        page_url: validated.page_url,
+        email: validated.email,
         status: "open",
       })
       .select()

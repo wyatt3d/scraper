@@ -116,7 +116,7 @@ function SignInForm() {
               <button
                 type="button"
                 onClick={() => setForgotOpen(true)}
-                className="text-sm text-blue-600 hover:text-blue-700"
+                className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
               >
                 Forgot password?
               </button>
@@ -187,7 +187,7 @@ function SignInForm() {
       <CardFooter className="justify-center">
         <p className="text-sm text-muted-foreground">
           Don&apos;t have an account?{" "}
-          <Link href="/sign-up" className="text-blue-600 hover:text-blue-700 font-medium">
+          <Link href="/sign-up" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
             Sign up
           </Link>
         </p>

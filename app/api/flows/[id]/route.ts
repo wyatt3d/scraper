@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
 import { toFlow } from "@/lib/mappers"
+import { z } from "zod"
+
+const updateFlowSchema = z.object({
+  name: z.string().min(1).max(200).optional(),
+  description: z.string().max(1000).optional(),
+  url: z.string().url().optional(),
+  mode: z.enum(["extract", "interact", "monitor"]).optional(),
+  status: z.enum(["active", "paused", "draft", "error"]).optional(),
+  steps: z.array(z.any()).optional(),
+  output_schema: z.record(z.any()).optional(),
+  schedule: z.any().optional(),
+})
 
 export async function GET(
   _req: NextRequest,
@@ -28,15 +40,21 @@ export async function PATCH(
   const { id } = await params
   const body = await req.json()
 
+  const result = updateFlowSchema.safeParse(body)
+  if (!result.success) {
+    return NextResponse.json({ error: result.error.issues[0].message }, { status: 400 })
+  }
+  const validated = result.data
+
   const updateFields: Record<string, unknown> = {}
-  if (body.name !== undefined) updateFields.name = body.name
-  if (body.description !== undefined) updateFields.description = body.description
-  if (body.url !== undefined) updateFields.url = body.url
-  if (body.mode !== undefined) updateFields.mode = body.mode
-  if (body.status !== undefined) updateFields.status = body.status
-  if (body.steps !== undefined) updateFields.steps = body.steps
-  if (body.outputSchema !== undefined) updateFields.output_schema = body.outputSchema
-  if (body.schedule !== undefined) updateFields.schedule = body.schedule
+  if (validated.name !== undefined) updateFields.name = validated.name
+  if (validated.description !== undefined) updateFields.description = validated.description
+  if (validated.url !== undefined) updateFields.url = validated.url
+  if (validated.mode !== undefined) updateFields.mode = validated.mode
+  if (validated.status !== undefined) updateFields.status = validated.status
+  if (validated.steps !== undefined) updateFields.steps = validated.steps
+  if (validated.output_schema !== undefined) updateFields.output_schema = validated.output_schema
+  if (validated.schedule !== undefined) updateFields.schedule = validated.schedule
   updateFields.updated_at = new Date().toISOString()
 
   const { data, error } = await supabase

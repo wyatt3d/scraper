@@ -1,5 +1,14 @@
 import { NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
+import { z } from "zod"
+
+const createAuditSchema = z.object({
+  actor: z.string().min(1).max(200),
+  action: z.enum(["created", "updated", "deleted", "executed", "viewed", "error"]),
+  resourceType: z.string().min(1).max(100),
+  resourceName: z.string().max(200).optional(),
+  details: z.record(z.any()).optional().default({}),
+})
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
@@ -35,12 +44,17 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
+    const result = createAuditSchema.safeParse(body)
+    if (!result.success) {
+      return NextResponse.json({ error: result.error.issues[0].message }, { status: 400 })
+    }
+    const validated = result.data
     const { error } = await supabase.from("audit_log").insert({
-      actor: body.actor || "system",
-      action: body.action,
-      resource_type: body.resourceType,
-      resource_name: body.resourceName,
-      details: body.details || {},
+      actor: validated.actor,
+      action: validated.action,
+      resource_type: validated.resourceType,
+      resource_name: validated.resourceName,
+      details: validated.details,
       ip_address: request.headers.get("x-forwarded-for") || "unknown",
     })
     if (error) throw error

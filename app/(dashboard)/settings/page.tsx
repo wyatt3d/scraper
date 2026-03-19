@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import dynamic from "next/dynamic"
+import { useSearchParams } from "next/navigation"
 import {
   Bell,
   Check,
@@ -525,7 +526,17 @@ function TeamSection() {
 }
 
 export default function SettingsPage() {
+  return (
+    <Suspense>
+      <SettingsContent />
+    </Suspense>
+  )
+}
+
+function SettingsContent() {
   const { user } = useAuth()
+  const searchParams = useSearchParams()
+  const initialTab = searchParams.get("tab") || "profile"
   const [name, setName] = useState(user?.user_metadata?.name || user?.email?.split("@")[0] || "")
   const [email, setEmail] = useState(user?.email || "")
   const [notifications, setNotifications] = useState({
@@ -571,7 +582,7 @@ export default function SettingsPage() {
         </p>
       </div>
 
-      <Tabs defaultValue="profile">
+      <Tabs defaultValue={initialTab}>
         <TabsList>
           <TabsTrigger value="profile" className="gap-1.5">
             <User className="size-3.5" />
