@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server"
-import { scrapeUrl, type ExtractionRule } from "@/lib/engine/scraper"
+import { scrapeUrl, scrapeWithBrowser, type ExtractionRule } from "@/lib/engine/scraper"
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { url, rules } = body
+    const { url, rules, mode } = body
 
     if (!url) {
       return NextResponse.json({ error: "url is required" }, { status: 400 })
@@ -12,7 +12,9 @@ export async function POST(request: Request) {
 
     let extractionRules: ExtractionRule[] | undefined = rules
 
-    const result = await scrapeUrl(url, extractionRules)
+    const result = mode === "browser"
+      ? await scrapeWithBrowser(url, extractionRules)
+      : await scrapeUrl(url, extractionRules)
 
     if (!result.success) {
       return NextResponse.json({

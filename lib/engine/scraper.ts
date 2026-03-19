@@ -52,6 +52,76 @@ export async function scrapeUrl(url: string, rules?: ExtractionRule[]): Promise<
   }
 }
 
+export async function scrapeWithBrowser(url: string, rules?: ExtractionRule[]): Promise<ScrapeResult> {
+  const start = Date.now()
+  const browserlessUrl = process.env.BROWSERLESS_URL
+  const browserlessToken = process.env.BROWSERLESS_TOKEN
+
+  if (!browserlessUrl || !browserlessToken) {
+    return scrapeUrl(url, rules)
+  }
+
+  try {
+    const response = await fetch(`${browserlessUrl}/content?token=${browserlessToken}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        url,
+        waitForSelector: "body",
+        waitForTimeout: 3000,
+        gotoOptions: { waitUntil: "networkidle2", timeout: 30000 },
+      }),
+      signal: AbortSignal.timeout(35000),
+    })
+
+    if (!response.ok) {
+      return scrapeUrl(url, rules)
+    }
+
+    const html = await response.text()
+    const $ = cheerio.load(html)
+    const title = $("title").text().trim()
+
+    const items = rules && rules.length > 0
+      ? extractWithRules($, rules, url)
+      : autoExtract($, url)
+
+    return { success: true, url, title, items, duration: Date.now() - start }
+  } catch {
+    return scrapeUrl(url, rules)
+  }
+}
+
+export async function takeScreenshot(url: string): Promise<{ success: boolean; data?: string; error?: string }> {
+  const browserlessUrl = process.env.BROWSERLESS_URL
+  const browserlessToken = process.env.BROWSERLESS_TOKEN
+
+  if (!browserlessUrl || !browserlessToken) {
+    return { success: false, error: "Browserless not configured" }
+  }
+
+  try {
+    const response = await fetch(`${browserlessUrl}/screenshot?token=${browserlessToken}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        url,
+        options: { fullPage: false, type: "png" },
+        gotoOptions: { waitUntil: "networkidle2", timeout: 15000 },
+      }),
+      signal: AbortSignal.timeout(20000),
+    })
+
+    if (!response.ok) return { success: false, error: `HTTP ${response.status}` }
+
+    const buffer = await response.arrayBuffer()
+    const base64 = Buffer.from(buffer).toString("base64")
+    return { success: true, data: `data:image/png;base64,${base64}` }
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : "Screenshot failed" }
+  }
+}
+
 function extractWithRules($: cheerio.CheerioAPI, rules: ExtractionRule[], baseUrl: string): Record<string, unknown>[] {
   const firstRule = rules[0]
   const elements = $(firstRule.selector)

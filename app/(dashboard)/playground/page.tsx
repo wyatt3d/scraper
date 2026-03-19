@@ -1,9 +1,11 @@
 "use client"
 
 import { useState, useRef, useEffect } from "react"
-import { Bot, Send, Sparkles, User, Loader2, Globe, Copy, Check } from "lucide-react"
+import { Bot, Send, Sparkles, User, Loader2, Globe, Copy, Check, Monitor } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
@@ -26,6 +28,7 @@ interface ScrapeResponse {
 }
 
 export default function PlaygroundPage() {
+  const [useBrowser, setUseBrowser] = useState(false)
   const [url, setUrl] = useState("")
   const [inputValue, setInputValue] = useState("")
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -80,7 +83,7 @@ export default function PlaygroundPage() {
       const res = await fetch("/api/extract", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: targetUrl }),
+        body: JSON.stringify({ url: targetUrl, ...(useBrowser && { mode: "browser" }) }),
       })
 
       const data: ScrapeResponse & { error?: string } = await res.json()
@@ -160,6 +163,25 @@ export default function PlaygroundPage() {
       <div className="flex h-[calc(100vh-220px)] gap-4">
         {/* Left: Chat */}
         <div className="flex w-[60%] flex-col rounded-lg border">
+          {/* Mode toggle */}
+          <div className="flex items-center gap-3 border-b px-3 py-2">
+            <div className="flex items-center gap-2">
+              <Switch
+                id="browser-mode"
+                checked={useBrowser}
+                onCheckedChange={setUseBrowser}
+              />
+              <Label htmlFor="browser-mode" className="text-xs font-medium cursor-pointer">
+                {useBrowser ? "Full Browser" : "Fast (HTTP)"}
+              </Label>
+            </div>
+            {useBrowser && (
+              <span className="text-muted-foreground text-[11px]">
+                Browser mode renders JavaScript. Slower but handles dynamic sites.
+              </span>
+            )}
+          </div>
+
           {/* URL bar */}
           <div className="flex items-center gap-2 border-b p-3">
             <Globe className="text-muted-foreground size-4 shrink-0" />
