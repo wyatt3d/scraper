@@ -159,8 +159,7 @@ const integrations: Integration[] = [
 
 const plans = [
   { name: "Free", price: "$0/mo", runs: 100, apiCalls: 1000, current: false },
-  { name: "Starter", price: "$19/mo", runs: 1000, apiCalls: 10000, current: false },
-  { name: "Professional", price: "$49/mo", runs: 5000, apiCalls: 50000, current: true },
+  { name: "Pro", price: "$29/mo", runs: 5000, apiCalls: 50000, current: true },
   { name: "Enterprise", price: "Custom", runs: -1, apiCalls: -1, current: false },
 ]
 
@@ -701,7 +700,7 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {plans.map((plan) => (
               <Card
                 key={plan.name}

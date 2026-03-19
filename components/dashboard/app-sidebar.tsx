@@ -152,7 +152,7 @@ export function AppSidebar() {
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-medium">Wyatt S.</span>
                     <span className="text-muted-foreground truncate text-xs">
-                      Professional Plan
+                      Pro Plan
                     </span>
                   </div>
                   <ChevronsUpDown className="ml-auto size-4" />
