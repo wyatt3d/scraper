@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useRef } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import {
@@ -40,6 +40,11 @@ import {
   ArrowUpDown,
   Hash,
   Braces,
+  Download,
+  Upload,
+  History,
+  RotateCcw,
+  GitCompare,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -77,6 +82,24 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import {
   ResizablePanelGroup,
   ResizablePanel,
   ResizableHandle,
@@ -84,6 +107,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
+import { downloadJSON } from "@/lib/export"
 import { mockFlows, mockRuns } from "@/lib/mock-data"
 import type { FlowStep, StepType, Run } from "@/lib/types"
 
@@ -790,7 +814,100 @@ print(run.id)  # run_xxxxxxxxxxxxx`
   )
 }
 
+const mockVersionHistory = [
+  {
+    version: 3,
+    date: "2026-03-18",
+    author: "Wyatt",
+    changes: "Updated extraction rules",
+    current: true,
+    snapshot: {
+      steps: [
+        { type: "navigate", label: "Go to page", selector: "https://example.com" },
+        { type: "wait", label: "Wait for content" },
+        { type: "extract", label: "Extract data (updated selectors)" },
+      ],
+    },
+  },
+  {
+    version: 2,
+    date: "2026-03-15",
+    author: "Wyatt",
+    changes: "Added pagination step",
+    current: false,
+    snapshot: {
+      steps: [
+        { type: "navigate", label: "Go to page", selector: "https://example.com" },
+        { type: "wait", label: "Wait for content" },
+        { type: "extract", label: "Extract data" },
+        { type: "click", label: "Next page", selector: ".pagination .next" },
+      ],
+    },
+  },
+  {
+    version: 1,
+    date: "2026-03-10",
+    author: "Wyatt",
+    changes: "Initial version",
+    current: false,
+    snapshot: {
+      steps: [
+        { type: "navigate", label: "Go to page", selector: "https://example.com" },
+        { type: "extract", label: "Extract data" },
+      ],
+    },
+  },
+]
+
 function SettingsTab({ flow }: { flow: typeof mockFlows[0] }) {
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [importPreview, setImportPreview] = useState<Record<string, unknown> | null>(null)
+  const [importDialogOpen, setImportDialogOpen] = useState(false)
+  const [restoreTarget, setRestoreTarget] = useState<(typeof mockVersionHistory)[0] | null>(null)
+  const [compareDialogOpen, setCompareDialogOpen] = useState(false)
+  const [compareVersions, setCompareVersions] = useState<{
+    from: (typeof mockVersionHistory)[0]
+    to: (typeof mockVersionHistory)[0]
+  } | null>(null)
+
+  function handleExport() {
+    const exportData = {
+      name: flow.name,
+      description: flow.description,
+      url: flow.url,
+      mode: flow.mode,
+      steps: flow.steps,
+      outputSchema: flow.outputSchema,
+    }
+    downloadJSON(exportData, `flow-${flow.id}`)
+  }
+
+  function handleImportClick() {
+    fileInputRef.current?.click()
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      try {
+        const parsed = JSON.parse(event.target?.result as string)
+        setImportPreview(parsed)
+        setImportDialogOpen(true)
+      } catch {
+        alert("Invalid JSON file")
+      }
+    }
+    reader.readAsText(file)
+    if (fileInputRef.current) fileInputRef.current.value = ""
+  }
+
+  function handleCompare(from: (typeof mockVersionHistory)[0], to: (typeof mockVersionHistory)[0]) {
+    setCompareVersions({ from, to })
+    setCompareDialogOpen(true)
+  }
+
   return (
     <div className="mx-auto max-w-2xl p-6">
       <div className="flex flex-col gap-8">
@@ -802,6 +919,110 @@ function SettingsTab({ flow }: { flow: typeof mockFlows[0] }) {
             Configure schedule, notifications, and retry behavior.
           </p>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Download className="h-4 w-4" />
+              Import / Export
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <p className="text-muted-foreground text-sm">
+              Export this flow as JSON for backup or sharing, or import a flow configuration from a file.
+            </p>
+            <div className="flex items-center gap-3">
+              <Button variant="outline" onClick={handleExport}>
+                <Download className="mr-2 h-4 w-4" />
+                Export as JSON
+              </Button>
+              <Button variant="outline" onClick={handleImportClick}>
+                <Upload className="mr-2 h-4 w-4" />
+                Import Flow
+              </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json,application/json"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <History className="h-4 w-4" />
+              Versions
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <p className="text-muted-foreground text-sm">
+                View and restore previous versions of this flow.
+              </p>
+              {mockVersionHistory.length >= 2 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    handleCompare(mockVersionHistory[1], mockVersionHistory[0])
+                  }
+                >
+                  <GitCompare className="mr-2 h-3.5 w-3.5" />
+                  Compare
+                </Button>
+              )}
+            </div>
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[100px]">Version</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Author</TableHead>
+                    <TableHead>Changes</TableHead>
+                    <TableHead className="w-[80px]">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {mockVersionHistory.map((v) => (
+                    <TableRow key={v.version}>
+                      <TableCell className="font-mono text-sm">
+                        v{v.version}
+                        {v.current && (
+                          <Badge variant="secondary" className="ml-2 text-[10px]">
+                            current
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-sm">{v.date}</TableCell>
+                      <TableCell className="text-sm">{v.author}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
+                        {v.changes}
+                      </TableCell>
+                      <TableCell>
+                        {!v.current && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 px-2 text-xs"
+                            onClick={() => setRestoreTarget(v)}
+                          >
+                            <RotateCcw className="mr-1 h-3 w-3" />
+                            Restore
+                          </Button>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>
@@ -943,6 +1164,113 @@ function SettingsTab({ flow }: { flow: typeof mockFlows[0] }) {
           </Button>
         </div>
       </div>
+
+      <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Import Flow Preview</DialogTitle>
+            <DialogDescription>
+              Review the flow configuration before importing.
+            </DialogDescription>
+          </DialogHeader>
+          {importPreview && (
+            <div className="rounded-md border bg-muted/50 p-3 max-h-80 overflow-auto">
+              <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap">
+                {JSON.stringify(importPreview, null, 2)}
+              </pre>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setImportDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-blue-600 hover:bg-blue-700"
+              onClick={() => setImportDialogOpen(false)}
+            >
+              <Upload className="mr-2 h-4 w-4" />
+              Import
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={!!restoreTarget} onOpenChange={(o) => !o && setRestoreTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Restore Version</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to restore to v{restoreTarget?.version}? This will overwrite
+              the current flow configuration. A new version will be created from the current state
+              before restoring.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-blue-600 hover:bg-blue-700"
+              onClick={() => setRestoreTarget(null)}
+            >
+              Restore
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <Dialog open={compareDialogOpen} onOpenChange={setCompareDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              Compare Versions: v{compareVersions?.from.version} vs v{compareVersions?.to.version}
+            </DialogTitle>
+            <DialogDescription>
+              Differences between version {compareVersions?.from.version} and version{" "}
+              {compareVersions?.to.version}.
+            </DialogDescription>
+          </DialogHeader>
+          {compareVersions && (
+            <div className="rounded-md border bg-zinc-950 p-4 max-h-96 overflow-auto">
+              <pre className="text-xs font-mono whitespace-pre-wrap">
+                <span className="text-zinc-500">{"--- v" + compareVersions.from.version + " (" + compareVersions.from.date + ")\n"}</span>
+                <span className="text-zinc-500">{"+++ v" + compareVersions.to.version + " (" + compareVersions.to.date + ")\n\n"}</span>
+                {compareVersions.from.snapshot.steps.map((step, i) => {
+                  const toStep = compareVersions.to.snapshot.steps[i]
+                  if (!toStep) {
+                    return (
+                      <span key={`removed-${i}`} className="text-red-400">
+                        {"- " + JSON.stringify(step) + "\n"}
+                      </span>
+                    )
+                  }
+                  if (JSON.stringify(step) !== JSON.stringify(toStep)) {
+                    return (
+                      <span key={`changed-${i}`}>
+                        <span className="text-red-400">{"- " + JSON.stringify(step) + "\n"}</span>
+                        <span className="text-green-400">{"+ " + JSON.stringify(toStep) + "\n"}</span>
+                      </span>
+                    )
+                  }
+                  return (
+                    <span key={`same-${i}`} className="text-zinc-400">
+                      {"  " + JSON.stringify(step) + "\n"}
+                    </span>
+                  )
+                })}
+                {compareVersions.to.snapshot.steps.slice(compareVersions.from.snapshot.steps.length).map((step, i) => (
+                  <span key={`added-${i}`} className="text-green-400">
+                    {"+ " + JSON.stringify(step) + "\n"}
+                  </span>
+                ))}
+              </pre>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCompareDialogOpen(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

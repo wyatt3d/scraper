@@ -44,6 +44,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
+import { toast } from "sonner"
 import { mockAlerts, mockFlows } from "@/lib/mock-data"
 import type { MonitorAlert } from "@/lib/types"
 
@@ -191,6 +192,7 @@ export default function MonitoringPage() {
     setAlerts((prev) =>
       prev.map((a) => (a.id === id ? { ...a, acknowledged: true } : a))
     )
+    toast.success("Alert acknowledged")
   }
 
   function openAddRule() {
@@ -239,6 +241,9 @@ export default function MonitoringPage() {
       ])
     }
     setRuleDialogOpen(false)
+    if (!editingRule) {
+      toast.success("Monitoring rule created")
+    }
   }
 
   function toggleRule(id: string) {

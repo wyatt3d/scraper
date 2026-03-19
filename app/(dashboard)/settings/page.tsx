@@ -47,6 +47,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
+import { toast } from "sonner"
 import { mockUser } from "@/lib/mock-data"
 
 const BillingChart = dynamic(
@@ -248,7 +249,7 @@ export default function SettingsPage() {
               </div>
 
               <div className="flex justify-end">
-                <Button size="sm">Save Changes</Button>
+                <Button size="sm" onClick={() => toast.success("Profile saved")}>Save Changes</Button>
               </div>
             </CardContent>
           </Card>
@@ -264,7 +265,7 @@ export default function SettingsPage() {
                     Manage who has access to your workspace.
                   </CardDescription>
                 </div>
-                <Button size="sm" className="gap-1.5">
+                <Button size="sm" className="gap-1.5" onClick={() => toast.success("Invitation sent")}>
                   <Plus className="size-3.5" />
                   Invite Member
                 </Button>

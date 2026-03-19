@@ -64,7 +64,7 @@ const tiers = [
     annualPrice: null,
     cta: "Contact Sales",
     ctaVariant: "outline" as const,
-    ctaHref: "/contact",
+    ctaHref: "mailto:sales@scraper.bot",
     highlighted: false,
     features: [
       "Unlimited runs",

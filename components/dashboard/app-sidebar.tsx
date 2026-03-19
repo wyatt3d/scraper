@@ -1,11 +1,12 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import {
   Bell,
   ChevronsUpDown,
   CreditCard,
+  GitBranch,
   Key,
   LayoutDashboard,
   LayoutTemplate,
@@ -13,6 +14,8 @@ import {
   Play,
   Settings,
   Sparkles,
+  Store,
+  Terminal,
   Workflow,
 } from "lucide-react"
 
@@ -46,14 +49,18 @@ const navItems = [
   { title: "Playground", href: "/playground", icon: Sparkles },
   { title: "Flows", href: "/flows", icon: Workflow },
   { title: "Templates", href: "/templates", icon: LayoutTemplate },
+  { title: "Workflow Builder", href: "/workflow-builder", icon: GitBranch },
   { title: "Runs", href: "/runs", icon: Play },
   { title: "Monitoring", href: "/monitoring", icon: Bell },
+  { title: "API Playground", href: "/api-playground", icon: Terminal },
+  { title: "Marketplace", href: "/marketplace", icon: Store },
   { title: "API Keys", href: "/api-keys", icon: Key },
   { title: "Settings", href: "/settings", icon: Settings },
 ]
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
   const { state } = useSidebar()
   const isCollapsed = state === "collapsed"
 
@@ -158,7 +165,7 @@ export function AppSidebar() {
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push("/")}>
                   <LogOut />
                   Sign out
                 </DropdownMenuItem>

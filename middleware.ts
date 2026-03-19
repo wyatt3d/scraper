@@ -41,6 +41,24 @@ export function middleware(request: NextRequest) {
     }
   }
 
+  // Subdomain routing: community.scraper.bot -> /community
+  if (hostname.startsWith("community.")) {
+    if (!pathname.startsWith("/community")) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/community${pathname === "/" ? "" : pathname}`
+      return NextResponse.rewrite(url)
+    }
+  }
+
+  // Subdomain routing: api.scraper.bot -> /api
+  if (hostname.startsWith("api.")) {
+    if (!pathname.startsWith("/api")) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/api${pathname === "/" ? "" : pathname}`
+      return NextResponse.rewrite(url)
+    }
+  }
+
   // API routes require API key validation
   if (pathname.startsWith("/api/") && !pathname.startsWith("/api/auth")) {
     const apiKey = request.headers.get("x-api-key") || request.headers.get("authorization")?.replace("Bearer ", "")

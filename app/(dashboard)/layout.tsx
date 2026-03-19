@@ -6,6 +6,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { DashboardShortcuts } from "@/components/dashboard/dashboard-shortcuts"
+import { Toaster } from "@/components/ui/sonner"
 
 export default async function DashboardLayout({
   children,
@@ -29,6 +30,7 @@ export default async function DashboardLayout({
           <main className="flex-1 p-6">{children}</main>
         </SidebarInset>
         <DashboardShortcuts />
+        <Toaster />
       </SidebarProvider>
     </ThemeProvider>
   )

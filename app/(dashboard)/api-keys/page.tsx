@@ -52,6 +52,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { toast } from "sonner"
 import { mockApiKeys } from "@/lib/mock-data"
 import type { ApiKey } from "@/lib/types"
 
@@ -118,16 +119,19 @@ export default function ApiKeysPage() {
     }
     setKeys((prev) => [...prev, newKey])
     setGeneratedKey(key)
+    toast.success("API key created")
   }
 
   function revokeKey(id: string) {
     setKeys((prev) => prev.filter((k) => k.id !== id))
+    toast.success("API key revoked")
   }
 
   function copyToClipboard(text: string, id: string) {
     navigator.clipboard.writeText(text)
     setCopiedId(id)
     setTimeout(() => setCopiedId(null), 2000)
+    toast.success("API key copied to clipboard")
   }
 
   function toggleScope(scope: string) {

@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/table"
 import { mockFlows, mockRuns, mockAlerts } from "@/lib/mock-data"
 import { UsageWarning } from "@/components/dashboard/usage-warning"
+import { OnboardingWizard } from "@/components/dashboard/onboarding-wizard"
 
 const UsageChart = dynamic(
   () => import("@/components/dashboard/usage-chart").then((mod) => ({ default: mod.UsageChart })),
@@ -212,6 +213,7 @@ const recentRuns = [...mockRuns]
 export default function DashboardPage() {
   return (
     <div className="space-y-6">
+      <OnboardingWizard />
       <UsageWarning />
       <div>
         <h1 className="font-serif text-3xl font-bold tracking-tight">

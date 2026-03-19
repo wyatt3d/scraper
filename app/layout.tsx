@@ -4,6 +4,7 @@ import { Crimson_Text } from "next/font/google"
 import { Inter } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
+import { Toaster } from "@/components/ui/sonner"
 import "./globals.css"
 
 const crimsonText = Crimson_Text({
@@ -58,6 +59,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${crimsonText.variable} ${inter.variable} font-sans antialiased`}>
         <Suspense fallback={null}>{children}</Suspense>
+        <Toaster />
         <Analytics />
       </body>
     </html>

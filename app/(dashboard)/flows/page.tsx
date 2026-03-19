@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useRef } from "react"
 import Link from "next/link"
 import {
   Plus,
@@ -23,6 +23,7 @@ import {
   Timer,
   MoreVertical,
   Download,
+  Upload,
   ChevronDown,
   FileDown,
   FileJson,
@@ -49,6 +50,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -110,6 +119,30 @@ export default function FlowsPage() {
   const [view, setView] = useState<"grid" | "list">("grid")
   const [deleteTarget, setDeleteTarget] = useState<Flow | null>(null)
   const [flows, setFlows] = useState(mockFlows)
+  const [importPreview, setImportPreview] = useState<Record<string, unknown> | null>(null)
+  const [importDialogOpen, setImportDialogOpen] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  function handleImportClick() {
+    fileInputRef.current?.click()
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      try {
+        const parsed = JSON.parse(event.target?.result as string)
+        setImportPreview(parsed)
+        setImportDialogOpen(true)
+      } catch {
+        alert("Invalid JSON file")
+      }
+    }
+    reader.readAsText(file)
+    if (fileInputRef.current) fileInputRef.current.value = ""
+  }
 
   const filtered = useMemo(() => {
     return flows.filter((f) => {
@@ -152,6 +185,17 @@ export default function FlowsPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="gap-1.5" onClick={handleImportClick}>
+              <Upload className="size-3.5" />
+              Import
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".json,application/json"
+              className="hidden"
+              onChange={handleFileChange}
+            />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm" className="gap-1.5">
@@ -331,6 +375,36 @@ export default function FlowsPage() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
+          <DialogContent className="max-w-lg">
+            <DialogHeader>
+              <DialogTitle>Import Flow Preview</DialogTitle>
+              <DialogDescription>
+                Review the flow configuration before importing.
+              </DialogDescription>
+            </DialogHeader>
+            {importPreview && (
+              <div className="rounded-md border bg-muted/50 p-3 max-h-80 overflow-auto">
+                <pre className="text-xs font-mono text-muted-foreground whitespace-pre-wrap">
+                  {JSON.stringify(importPreview, null, 2)}
+                </pre>
+              </div>
+            )}
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setImportDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                className="bg-blue-600 hover:bg-blue-700"
+                onClick={() => setImportDialogOpen(false)}
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                Import
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </TooltipProvider>
   )

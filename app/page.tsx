@@ -1,3 +1,6 @@
+"use client"
+
+import { useState } from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
@@ -9,6 +12,12 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+} from "@/components/ui/sheet"
 import { TrustedBy } from "@/components/landing/trusted-by"
 import {
   ArrowRight,
@@ -27,9 +36,13 @@ import {
   Twitter,
   Linkedin,
   Github,
+  Menu,
 } from "lucide-react"
 
 export default function LandingPage() {
+  const [showDemo, setShowDemo] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+
   return (
     <div className="min-h-screen bg-background">
       {/* Navigation */}
@@ -68,6 +81,46 @@ export default function LandingPage() {
                   Get Started Free
                 </Button>
               </Link>
+            </div>
+
+            {/* Mobile hamburger */}
+            <div className="md:hidden">
+              <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Menu className="size-5" />
+                    <span className="sr-only">Open menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-72">
+                  <SheetTitle className="font-serif">Navigation</SheetTitle>
+                  <nav className="flex flex-col gap-4 mt-6">
+                    <a href="#features" onClick={() => setMobileOpen(false)} className="text-foreground hover:text-blue-600 transition-colors text-lg font-medium">
+                      Features
+                    </a>
+                    <a href="#how-it-works" onClick={() => setMobileOpen(false)} className="text-foreground hover:text-blue-600 transition-colors text-lg font-medium">
+                      How It Works
+                    </a>
+                    <a href="#pricing" onClick={() => setMobileOpen(false)} className="text-foreground hover:text-blue-600 transition-colors text-lg font-medium">
+                      Pricing
+                    </a>
+                    <Link href="/docs" onClick={() => setMobileOpen(false)} className="text-foreground hover:text-blue-600 transition-colors text-lg font-medium">
+                      Docs
+                    </Link>
+                    <hr className="border-border" />
+                    <Link href="/sign-in" onClick={() => setMobileOpen(false)}>
+                      <Button variant="outline" className="w-full">
+                        Sign In
+                      </Button>
+                    </Link>
+                    <Link href="/sign-up" onClick={() => setMobileOpen(false)}>
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                        Get Started Free
+                      </Button>
+                    </Link>
+                  </nav>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
         </div>
@@ -284,7 +337,10 @@ export default function LandingPage() {
                   readOnly
                   defaultValue="https://news.ycombinator.com"
                 />
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white h-12 px-6">
+                <Button
+                  className="bg-blue-600 hover:bg-blue-700 text-white h-12 px-6"
+                  onClick={() => setShowDemo((prev) => !prev)}
+                >
                   <Bot className="w-4 h-4 mr-2" />
                   Extract
                 </Button>
@@ -292,30 +348,32 @@ export default function LandingPage() {
               <p className="text-sm text-muted-foreground mt-3">Prompt: &quot;Get the top 5 story titles, URLs, and point counts&quot;</p>
             </div>
 
-            <div className="rounded-xl overflow-hidden border border-border shadow-lg">
-              <div className="bg-gray-900 px-4 py-3 flex items-center justify-between">
-                <span className="text-gray-400 text-sm font-mono">Response - 200 OK - 1.2s</span>
-                <span className="text-xs text-green-400 font-mono">application/json</span>
+            {showDemo && (
+              <div className="rounded-xl overflow-hidden border border-border shadow-lg animate-in fade-in slide-in-from-top-2 duration-300">
+                <div className="bg-gray-900 px-4 py-3 flex items-center justify-between">
+                  <span className="text-gray-400 text-sm font-mono">Response - 200 OK - 1.2s</span>
+                  <span className="text-xs text-green-400 font-mono">application/json</span>
+                </div>
+                <div className="bg-gray-950 p-6 font-mono text-sm leading-relaxed">
+                  <p className="text-green-400">&#123;</p>
+                  <p className="text-green-400 pl-4">&quot;data&quot;: [</p>
+                  <p className="text-green-400 pl-8">&#123;</p>
+                  <p className="text-green-400 pl-12">&quot;title&quot;: &quot;Show HN: Open-source web scraping API&quot;,</p>
+                  <p className="text-green-400 pl-12">&quot;url&quot;: &quot;https://github.com/example/scraper&quot;,</p>
+                  <p className="text-green-400 pl-12">&quot;points&quot;: 342</p>
+                  <p className="text-green-400 pl-8">&#125;,</p>
+                  <p className="text-green-400 pl-8">&#123;</p>
+                  <p className="text-green-400 pl-12">&quot;title&quot;: &quot;Why deterministic scraping beats LLM-only&quot;,</p>
+                  <p className="text-green-400 pl-12">&quot;url&quot;: &quot;https://blog.example.com/deterministic&quot;,</p>
+                  <p className="text-green-400 pl-12">&quot;points&quot;: 287</p>
+                  <p className="text-green-400 pl-8">&#125;,</p>
+                  <p className="text-gray-600 pl-8">// ... 3 more results</p>
+                  <p className="text-green-400 pl-4">],</p>
+                  <p className="text-green-400 pl-4">&quot;meta&quot;: &#123; &quot;total&quot;: 5, &quot;cached&quot;: false &#125;</p>
+                  <p className="text-green-400">&#125;</p>
+                </div>
               </div>
-              <div className="bg-gray-950 p-6 font-mono text-sm leading-relaxed">
-                <p className="text-green-400">&#123;</p>
-                <p className="text-green-400 pl-4">&quot;data&quot;: [</p>
-                <p className="text-green-400 pl-8">&#123;</p>
-                <p className="text-green-400 pl-12">&quot;title&quot;: &quot;Show HN: Open-source web scraping API&quot;,</p>
-                <p className="text-green-400 pl-12">&quot;url&quot;: &quot;https://github.com/example/scraper&quot;,</p>
-                <p className="text-green-400 pl-12">&quot;points&quot;: 342</p>
-                <p className="text-green-400 pl-8">&#125;,</p>
-                <p className="text-green-400 pl-8">&#123;</p>
-                <p className="text-green-400 pl-12">&quot;title&quot;: &quot;Why deterministic scraping beats LLM-only&quot;,</p>
-                <p className="text-green-400 pl-12">&quot;url&quot;: &quot;https://blog.example.com/deterministic&quot;,</p>
-                <p className="text-green-400 pl-12">&quot;points&quot;: 287</p>
-                <p className="text-green-400 pl-8">&#125;,</p>
-                <p className="text-gray-600 pl-8">// ... 3 more results</p>
-                <p className="text-green-400 pl-4">],</p>
-                <p className="text-green-400 pl-4">&quot;meta&quot;: &#123; &quot;total&quot;: 5, &quot;cached&quot;: false &#125;</p>
-                <p className="text-green-400">&#125;</p>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       </section>
@@ -422,9 +480,11 @@ export default function LandingPage() {
                     </li>
                   ))}
                 </ul>
-                <Button variant="outline" className="w-full bg-transparent">
-                  Contact Sales
-                </Button>
+                <a href="mailto:sales@scraper.bot">
+                  <Button variant="outline" className="w-full bg-transparent">
+                    Contact Sales
+                  </Button>
+                </a>
               </CardContent>
             </Card>
           </div>
@@ -582,7 +642,7 @@ export default function LandingPage() {
             Join thousands of teams who&apos;ve replaced fragile scrapers with reliable, AI-generated APIs.
           </p>
           <Link href="/sign-up">
-            <Button size="lg" className="bg-white text-blue-600 hover:bg-blue-50 text-lg px-8 py-6 font-semibold">
+            <Button size="lg" className="bg-white text-blue-600 hover:bg-white/90 text-lg px-8 py-6 font-semibold">
               Get Started Free
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
@@ -611,27 +671,27 @@ export default function LandingPage() {
             <div>
               <h4 className="font-serif font-bold text-white text-lg mb-4">Product</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
-                <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
+                <li><a href="/#features" className="hover:text-white transition-colors">Features</a></li>
+                <li><Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link></li>
                 <li><Link href="/docs" className="hover:text-white transition-colors">Documentation</Link></li>
-                <li><a href="#" className="hover:text-white transition-colors">API Reference</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Changelog</a></li>
+                <li><Link href="/docs/api-reference" className="hover:text-white transition-colors">API Reference</Link></li>
+                <li><Link href="/changelog" className="hover:text-white transition-colors">Changelog</Link></li>
               </ul>
             </div>
             <div>
               <h4 className="font-serif font-bold text-white text-lg mb-4">Company</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white transition-colors">About</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
+                <li><Link href="/changelog" className="hover:text-white transition-colors">About</Link></li>
+                <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
+                <li><Link href="/changelog" className="hover:text-white transition-colors">Careers</Link></li>
+                <li><a href="mailto:hello@scraper.bot" className="hover:text-white transition-colors">Contact</a></li>
               </ul>
             </div>
             <div>
               <h4 className="font-serif font-bold text-white text-lg mb-4">Support</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Status</a></li>
+                <li><Link href="/docs" className="hover:text-white transition-colors">Help Center</Link></li>
+                <li><Link href="/status" className="hover:text-white transition-colors">Status</Link></li>
                 <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
               </ul>
@@ -640,13 +700,13 @@ export default function LandingPage() {
           <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-500 text-sm mb-4 md:mb-0">&copy; 2026 Scraper. All rights reserved.</p>
             <div className="flex items-center space-x-4">
-              <a href="#" className="text-gray-500 hover:text-white transition-colors">
+              <a href="#" className="text-gray-500 hover:text-white transition-colors" aria-label="Twitter">
                 <Twitter className="w-5 h-5" />
               </a>
-              <a href="#" className="text-gray-500 hover:text-white transition-colors">
+              <a href="#" className="text-gray-500 hover:text-white transition-colors" aria-label="GitHub">
                 <Github className="w-5 h-5" />
               </a>
-              <a href="#" className="text-gray-500 hover:text-white transition-colors">
+              <a href="#" className="text-gray-500 hover:text-white transition-colors" aria-label="LinkedIn">
                 <Linkedin className="w-5 h-5" />
               </a>
             </div>
