@@ -22,6 +22,7 @@ import {
   Globe,
   Bell,
   MessageSquareText,
+  MousePointerClick,
   Workflow,
   Clock,
   Users,
@@ -74,7 +75,7 @@ export default async function LandingPage() {
               <span className="text-blue-600 dark:text-blue-400">Structured API</span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground text-balance mb-10 leading-relaxed max-w-3xl mx-auto">
-              Describe what you need in plain English. Our AI generates scraping flows, executes them in a real browser engine, and returns structured data via API. No infrastructure, no maintenance, no code.
+              Point and click on any website to build a scraping flow. Our AI records your interactions, generates robust selectors, and delivers structured data via API.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
               <HeroCTA isSignedIn={isSignedIn} />
@@ -147,20 +148,20 @@ export default async function LandingPage() {
             {[
               {
                 step: "1",
-                title: "Describe",
-                description: "Tell us the URL and what data you need in plain English. No selectors, no XPath, no code.",
-                icon: MessageSquareText,
+                title: "Point & Click",
+                description: "Navigate to any website and click on the data you want. Our recorder captures every interaction.",
+                icon: MousePointerClick,
               },
               {
                 step: "2",
-                title: "Generate",
-                description: "Claude AI generates a complete scraping flow with selectors, steps, and output schema. A live REST API endpoint is created automatically.",
+                title: "AI Generates Selectors",
+                description: "We automatically generate robust CSS selectors and build a reusable scraping flow from your clicks.",
                 icon: Zap,
               },
               {
                 step: "3",
-                title: "Integrate",
-                description: "Use your REST API, install our SDK, or connect via webhook. Data flows in real time.",
+                title: "Run & Extract",
+                description: "Execute your flow on demand or on a schedule. Get structured JSON data via API.",
                 icon: Code,
               },
             ].map((item) => (

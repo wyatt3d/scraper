@@ -39,7 +39,7 @@ export async function middleware(request: NextRequest) {
     "/settings", "/playground", "/templates", "/workflow-builder", "/marketplace",
     "/analytics", "/usage", "/webhooks", "/integrations", "/mcp", "/proxies",
     "/secrets", "/sessions", "/api-versions", "/sso", "/api-logs", "/audit-log",
-    "/pipelines", "/reports", "/graphql", "/api-playground", "/admin"]
+    "/pipelines", "/reports", "/graphql", "/api-playground", "/admin", "/recorder"]
 
   const isDashboardPath = dashboardPaths.some(p => pathname.startsWith(p))
 

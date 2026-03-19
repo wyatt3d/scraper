@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { z } from "zod"
 import { executeRecorderSession } from "@/lib/engine/recorder"
+import { checkCsrf } from "@/lib/csrf"
 
 const actionSchema = z.object({
   url: z.string().url(),
@@ -12,6 +13,9 @@ const actionSchema = z.object({
 })
 
 export async function POST(req: NextRequest) {
+  const csrfError = checkCsrf(req)
+  if (csrfError) return csrfError
+
   try {
     const body = await req.json()
     const parsed = actionSchema.safeParse(body)

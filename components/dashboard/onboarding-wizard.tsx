@@ -113,10 +113,10 @@ export function OnboardingWizard() {
             <>
               <DialogHeader className="mb-6">
                 <DialogTitle className="font-serif text-2xl">
-                  Create Your First Flow
+                  Record Your First Flow
                 </DialogTitle>
                 <DialogDescription>
-                  What would you like to scrape?
+                  Point and click on any website to build a scraping flow. What would you like to do?
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-3">
@@ -210,11 +210,11 @@ export function OnboardingWizard() {
               </DialogHeader>
               <div className="space-y-2">
                 <Link
-                  href="/flows/new"
-                  className="flex items-center justify-between rounded-lg border p-3 text-sm font-medium hover:bg-muted/50 transition-colors"
+                  href="/recorder"
+                  className="flex items-center justify-between rounded-lg border border-blue-600 bg-blue-600/5 p-3 text-sm font-medium hover:bg-blue-600/10 transition-colors"
                   onClick={completeOnboarding}
                 >
-                  Create a Flow
+                  Record a Flow
                   <ArrowRight className="size-4 text-muted-foreground" />
                 </Link>
                 <Link
