@@ -27,7 +27,6 @@ import {
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
-import { mockFlows, mockRuns } from "@/lib/mock-data"
 
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE"
 
@@ -69,121 +68,67 @@ const EXAMPLE_BODIES: Record<string, string> = {
   ),
 }
 
+async function fetchRealApi(method: HttpMethod, path: string, apiKey: string, body?: string): Promise<{
+  status: number
+  statusText: string
+  time: number
+  size: string
+  headers: Record<string, string>
+  body: unknown
+}> {
+  const apiPath = `/api${path.replace("{id}", "example")}`
+  const start = performance.now()
+  try {
+    const options: RequestInit = {
+      method,
+      headers: {
+        "Content-Type": "application/json",
+        ...(apiKey ? { "X-API-Key": apiKey } : {}),
+      },
+    }
+    if ((method === "POST" || method === "PUT") && body?.trim()) {
+      options.body = body
+    }
+    const res = await fetch(apiPath, options)
+    const time = Math.round(performance.now() - start)
+    const responseBody = res.status === 204 ? null : await res.json().catch(() => null)
+    const size = JSON.stringify(responseBody || "").length
+    const sizeStr = size > 1024 ? `${(size / 1024).toFixed(1)} KB` : `${size} B`
+    const headers: Record<string, string> = {}
+    res.headers.forEach((v, k) => { headers[k] = v })
+    return { status: res.status, statusText: res.statusText, time, size: sizeStr, headers, body: responseBody }
+  } catch (err) {
+    return {
+      status: 0,
+      statusText: "Network Error",
+      time: Math.round(performance.now() - start),
+      size: "0 B",
+      headers: {},
+      body: { error: err instanceof Error ? err.message : "Request failed" },
+    }
+  }
+}
+
+// Keep legacy mock for destructive operations (DELETE, PUT) to avoid side effects
 function getMockResponse(method: HttpMethod, path: string) {
-  if (method === "GET" && path === "/flows") {
+  if (method === "PUT" && path === "/flows/{id}") {
     return {
       status: 200,
       statusText: "OK",
-      time: 245,
-      size: "3.8 KB",
-      headers: {
-        "content-type": "application/json",
-        "x-request-id": "req_abc123def456",
-        "x-ratelimit-remaining": "4982",
-        "x-ratelimit-limit": "5000",
-      },
-      body: {
-        data: mockFlows.map((f) => ({
-          id: f.id,
-          name: f.name,
-          url: f.url,
-          mode: f.mode,
-          status: f.status,
-          totalRuns: f.totalRuns,
-          successRate: f.successRate,
-          createdAt: f.createdAt,
-          updatedAt: f.updatedAt,
-        })),
-        total: mockFlows.length,
-        page: 1,
-        perPage: 25,
-      },
+      time: 198,
+      size: "0.5 KB",
+      headers: { "content-type": "application/json", "x-request-id": "req_upd123" },
+      body: { id: "flow-1", name: "Updated Flow", status: "active", updatedAt: new Date().toISOString() },
     }
   }
-  if (method === "GET" && path === "/flows/{id}") {
-    const f = mockFlows[0]
+  if (method === "DELETE" && path === "/flows/{id}") {
     return {
-      status: 200,
-      statusText: "OK",
-      time: 128,
-      size: "1.2 KB",
-      headers: {
-        "content-type": "application/json",
-        "x-request-id": "req_xyz789ghi012",
-      },
-      body: {
-        id: f.id,
-        name: f.name,
-        description: f.description,
-        url: f.url,
-        mode: f.mode,
-        status: f.status,
-        steps: f.steps,
-        outputSchema: f.outputSchema,
-        schedule: f.schedule,
-        createdAt: f.createdAt,
-        updatedAt: f.updatedAt,
-      },
-    }
-  }
-  if (method === "POST" && path === "/flows") {
-    return {
-      status: 201,
-      statusText: "Created",
-      time: 312,
-      size: "0.6 KB",
-      headers: {
-        "content-type": "application/json",
-        "x-request-id": "req_new123flow",
-        location: "/v1/flows/flow-new-1",
-      },
-      body: {
-        id: "flow-new-1",
-        name: "My Scraper",
-        url: "https://example.com",
-        mode: "extract",
-        description: "Extract product data",
-        status: "draft",
-        createdAt: "2026-03-18T18:30:00Z",
-      },
-    }
-  }
-  if (method === "GET" && path === "/runs") {
-    return {
-      status: 200,
-      statusText: "OK",
-      time: 189,
-      size: "2.4 KB",
-      headers: {
-        "content-type": "application/json",
-        "x-request-id": "req_runs456list",
-      },
-      body: {
-        data: mockRuns.map((r) => ({
-          id: r.id,
-          flowId: r.flowId,
-          flowName: r.flowName,
-          status: r.status,
-          startedAt: r.startedAt,
-          duration: r.duration,
-          itemsExtracted: r.itemsExtracted,
-          cost: r.cost,
-        })),
-        total: mockRuns.length,
-        page: 1,
-        perPage: 25,
-      },
-    }
-  }
-  if (method === "GET" && path === "/runs/{id}") {
-    const r = mockRuns[0]
-    return {
-      status: 200,
-      statusText: "OK",
-      time: 95,
-      size: "1.8 KB",
-      headers: { "content-type": "application/json", "x-request-id": "req_run789detail" },
-      body: r,
+      status: 204,
+      statusText: "No Content",
+      time: 112,
+      size: "0 B",
+      headers: { "x-request-id": "req_del789" },
+      body: null,
     }
   }
   if (method === "POST" && path === "/runs") {
@@ -307,7 +252,7 @@ export default function ApiPlaygroundPage() {
   const [body, setBody] = useState("")
   const [headersOpen, setHeadersOpen] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [response, setResponse] = useState<ReturnType<typeof getMockResponse> | null>(null)
+  const [response, setResponse] = useState<{ status: number; statusText: string; time: number; size: string; headers: Record<string, string>; body: unknown } | null>(null)
   const [copied, setCopied] = useState(false)
 
   function handlePathChange(path: string) {
@@ -343,17 +288,27 @@ export default function ApiPlaygroundPage() {
     }
   }
 
-  function handleSend() {
+  async function handleSend() {
     setLoading(true)
     setResponse(null)
-    setTimeout(() => {
-      const res = getMockResponse(method, selectedPath)
+    const useMock = method === "DELETE" || method === "PUT" || (method === "POST" && selectedPath === "/runs")
+    if (useMock) {
+      setTimeout(() => {
+        const res = getMockResponse(method, selectedPath)
+        setResponse(res)
+        setLoading(false)
+        toast.success("Request simulated", {
+          description: `${method} ${selectedPath} — ${res.status} ${res.statusText}`,
+        })
+      }, 500)
+    } else {
+      const res = await fetchRealApi(method, selectedPath, apiKey, body)
       setResponse(res)
       setLoading(false)
       toast.success("Request sent", {
         description: `${method} ${selectedPath} — ${res.status} ${res.statusText}`,
       })
-    }, 800)
+    }
   }
 
   function generateCurl() {
