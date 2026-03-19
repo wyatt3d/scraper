@@ -5,7 +5,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { ThemeProvider } from "next-themes"
 import { cn } from "@/lib/utils"
-import { Bot, Moon, Sun } from "lucide-react"
+import { Bot, Moon, ShieldAlert, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 
 const navItems = [
@@ -14,6 +14,7 @@ const navItems = [
   { label: "Teams", href: "/admin/teams" },
   { label: "Roadmap", href: "/admin/roadmap" },
   { label: "System Health", href: "/admin/system" },
+  { label: "Red Team", href: "/admin/red-team", icon: ShieldAlert },
 ]
 
 function ThemeToggle() {
@@ -55,6 +56,7 @@ function AdminNav() {
                       : "text-gray-400 hover:text-white hover:bg-gray-900"
                   )}
                 >
+                  {"icon" in item && item.icon ? <item.icon className="size-3.5 mr-1.5 inline" /> : null}
                   {item.label}
                 </Link>
               ))}

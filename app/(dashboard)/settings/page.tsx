@@ -1,9 +1,11 @@
 "use client"
 
 import { useState } from "react"
+import dynamic from "next/dynamic"
 import {
   Bell,
   CreditCard,
+  Download,
   Link2,
   Mail,
   MessageSquare,
@@ -17,8 +19,6 @@ import {
   Webhook,
   Zap,
 } from "lucide-react"
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts"
-import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -34,12 +34,28 @@ import { Label } from "@/components/ui/label"
 import { Progress } from "@/components/ui/progress"
 import { Switch } from "@/components/ui/switch"
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
+import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
 import { mockUser } from "@/lib/mock-data"
+
+const BillingChart = dynamic(
+  () => import("@/components/dashboard/billing-chart").then((mod) => ({ default: mod.BillingChart })),
+  {
+    loading: () => <div className="h-[200px] bg-muted animate-pulse rounded-lg" />,
+    ssr: false,
+  }
+)
 
 interface TeamMember {
   id: string
@@ -77,27 +93,13 @@ const plans = [
   { name: "Enterprise", price: "Custom", runs: -1, apiCalls: -1, current: false },
 ]
 
-const dailyUsageData = Array.from({ length: 30 }, (_, i) => {
-  const day = i + 1
-  const base = 30 + Math.floor(Math.random() * 40)
-  const apiBase = base * 6 + Math.floor(Math.random() * 100)
-  return {
-    date: `Mar ${day}`,
-    runs: day <= 18 ? base : 0,
-    apiCalls: day <= 18 ? apiBase : 0,
-  }
-})
-
-const usageChartConfig = {
-  runs: {
-    label: "Runs",
-    color: "hsl(221, 83%, 53%)",
-  },
-  apiCalls: {
-    label: "API Calls",
-    color: "hsl(262, 83%, 58%)",
-  },
-} satisfies ChartConfig
+const invoices = [
+  { date: "Mar 1, 2026", description: "Pro Plan - Monthly", amount: "$29.00", status: "Paid" },
+  { date: "Feb 1, 2026", description: "Pro Plan - Monthly", amount: "$29.00", status: "Paid" },
+  { date: "Jan 1, 2026", description: "Pro Plan - Monthly", amount: "$29.00", status: "Paid" },
+  { date: "Dec 1, 2025", description: "Pro Plan - Monthly", amount: "$29.00", status: "Paid" },
+  { date: "Nov 15, 2025", description: "Pro Plan - Monthly (prorated)", amount: "$14.50", status: "Paid" },
+]
 
 function roleBadge(role: TeamMember["role"]) {
   switch (role) {
@@ -354,44 +356,7 @@ export default function SettingsPage() {
                     Current billing period: Mar 1 - Mar 31, 2026
                   </span>
                 </div>
-                <ChartContainer config={usageChartConfig} className="h-[200px] w-full">
-                  <AreaChart data={dailyUsageData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
-                    <defs>
-                      <linearGradient id="fillRuns" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--color-runs)" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="var(--color-runs)" stopOpacity={0} />
-                      </linearGradient>
-                      <linearGradient id="fillApiCalls" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="var(--color-apiCalls)" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="var(--color-apiCalls)" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                    <XAxis
-                      dataKey="date"
-                      tickLine={false}
-                      axisLine={false}
-                      tickMargin={8}
-                      tickFormatter={(v) => v.replace("Mar ", "")}
-                    />
-                    <YAxis tickLine={false} axisLine={false} tickMargin={8} />
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <Area
-                      dataKey="apiCalls"
-                      type="monotone"
-                      fill="url(#fillApiCalls)"
-                      stroke="var(--color-apiCalls)"
-                      strokeWidth={1.5}
-                    />
-                    <Area
-                      dataKey="runs"
-                      type="monotone"
-                      fill="url(#fillRuns)"
-                      stroke="var(--color-runs)"
-                      strokeWidth={1.5}
-                    />
-                  </AreaChart>
-                </ChartContainer>
+                <BillingChart />
               </div>
             </CardContent>
           </Card>
@@ -428,6 +393,52 @@ export default function SettingsPage() {
               </Card>
             ))}
           </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Payment History</CardTitle>
+              <CardDescription>
+                Your recent invoices and payment records.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Invoice</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {invoices.map((invoice) => (
+                    <TableRow key={invoice.date}>
+                      <TableCell className="text-muted-foreground">
+                        {invoice.date}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {invoice.description}
+                      </TableCell>
+                      <TableCell>{invoice.amount}</TableCell>
+                      <TableCell>
+                        <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-500/25 dark:text-emerald-400">
+                          {invoice.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="ghost" size="sm" className="h-7 gap-1.5 text-xs">
+                          <Download className="size-3" />
+                          Download
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="notifications" className="mt-6">

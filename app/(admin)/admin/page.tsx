@@ -1,5 +1,6 @@
 "use client"
 
+import dynamic from "next/dynamic"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -15,16 +16,14 @@ import {
   Cpu,
   Layers,
 } from "lucide-react"
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-} from "recharts"
+
+const GrowthChart = dynamic(
+  () => import("@/components/admin/growth-chart").then((mod) => ({ default: mod.GrowthChart })),
+  {
+    loading: () => <div className="h-[350px] bg-muted animate-pulse rounded-lg" />,
+    ssr: false,
+  }
+)
 
 const platformStats = [
   { label: "Total Users", value: "10,247", change: "+12.3%", icon: Users, color: "text-blue-500" },
@@ -33,31 +32,6 @@ const platformStats = [
   { label: "Revenue MRR", value: "$127,450", change: "+15.4%", icon: DollarSign, color: "text-amber-500" },
   { label: "API Uptime", value: "99.97%", change: "0.00%", icon: Activity, color: "text-emerald-500" },
 ]
-
-function generateGrowthData() {
-  const data = []
-  const now = new Date(2026, 2, 18)
-  let users = 8900
-  let flows = 3200
-  let revenue = 108000
-
-  for (let i = 29; i >= 0; i--) {
-    const date = new Date(now)
-    date.setDate(date.getDate() - i)
-    users += Math.floor(Math.random() * 80 + 20)
-    flows += Math.floor(Math.random() * 30 + 5)
-    revenue += Math.floor(Math.random() * 1200 + 300)
-    data.push({
-      date: `${date.getMonth() + 1}/${date.getDate()}`,
-      users,
-      flows,
-      revenue: Math.round(revenue / 1000),
-    })
-  }
-  return data
-}
-
-const growthData = generateGrowthData()
 
 const services = [
   { name: "API Gateway", status: "healthy" as const, latency: "12ms", icon: Globe },
@@ -103,27 +77,7 @@ export default function AdminOverview() {
           <CardDescription>Users, active flows, and revenue (in $K) over the past 30 days</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-[350px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={growthData}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis dataKey="date" className="text-xs" tick={{ fill: "hsl(var(--muted-foreground))" }} />
-                <YAxis className="text-xs" tick={{ fill: "hsl(var(--muted-foreground))" }} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "8px",
-                    color: "hsl(var(--foreground))",
-                  }}
-                />
-                <Legend />
-                <Line type="monotone" dataKey="users" stroke="#3b82f6" strokeWidth={2} dot={false} name="Users" />
-                <Line type="monotone" dataKey="flows" stroke="#10b981" strokeWidth={2} dot={false} name="Flows" />
-                <Line type="monotone" dataKey="revenue" stroke="#f59e0b" strokeWidth={2} dot={false} name="Revenue ($K)" />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
+          <GrowthChart />
         </CardContent>
       </Card>
 

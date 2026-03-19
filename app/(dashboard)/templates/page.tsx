@@ -14,6 +14,7 @@ import {
   Camera,
   GitBranch,
   Repeat,
+  Share2,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -36,6 +37,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 import { mockTemplates } from "@/lib/mock-data"
 import type { FlowTemplate, StepType } from "@/lib/types"
 
@@ -173,6 +175,16 @@ export default function TemplatesPage() {
                       Use Template
                       <ArrowRight className="size-3.5" />
                     </Link>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      navigator.clipboard.writeText(`https://scraper.bot/templates/${template.id}`)
+                      toast.success("Link copied to clipboard")
+                    }}
+                  >
+                    <Share2 className="size-3.5" />
                   </Button>
                   <Button
                     variant="outline"

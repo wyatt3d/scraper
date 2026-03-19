@@ -1,14 +1,15 @@
 import type React from "react"
 import Link from "next/link"
-import { ArrowLeft, Book, Rocket, Layers, Code, BookOpen, LayoutTemplate } from "lucide-react"
+import { ArrowLeft, Book, Rocket, Layers, Code, BookOpen, LayoutTemplate, Terminal } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const sidebarNav = [
   { title: "Overview", href: "/docs", icon: Book },
   { title: "Quickstart", href: "/docs/quickstart", icon: Rocket },
   { title: "Concepts", href: "/docs/concepts", icon: Layers },
-  { title: "API Reference", href: "/docs/api-reference", icon: Code },
   { title: "Guides", href: "/docs/guides", icon: BookOpen },
+  { title: "SDK Reference", href: "/docs/sdk", icon: Terminal },
+  { title: "API Reference", href: "/docs/api-reference", icon: Code },
   { title: "Templates", href: "/docs/templates", icon: LayoutTemplate },
 ]
 

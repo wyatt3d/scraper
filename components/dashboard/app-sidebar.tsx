@@ -64,9 +64,7 @@ export function AppSidebar() {
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/dashboard">
-                <div className="bg-accent text-accent-foreground flex size-8 items-center justify-center rounded-md">
-                  <Workflow className="size-4" />
-                </div>
+                <img src="/images/scraper-logo.png" alt="Scraper" className="size-8 rounded-md" />
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-serif text-base font-semibold">Scraper</span>
                   <span className="text-muted-foreground text-xs">Web Automation</span>

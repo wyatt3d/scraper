@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { CTABanner } from "@/components/docs/cta-banner"
 
 export const metadata: Metadata = {
   title: "Quickstart Guide",
@@ -97,6 +98,8 @@ print(data["id"])  # run-xyz789`}
           </div>
         </Step>
       </div>
+
+      <CTABanner />
     </div>
   )
 }

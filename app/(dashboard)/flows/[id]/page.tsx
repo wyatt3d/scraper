@@ -92,7 +92,7 @@ const stepTypeConfig: Record<StepType, { label: string; icon: typeof Globe; colo
   click: { label: "Click", icon: MousePointerClick, color: "text-purple-600" },
   fill: { label: "Fill", icon: Type, color: "text-green-600" },
   extract: { label: "Extract", icon: FileText, color: "text-amber-600" },
-  wait: { label: "Wait", icon: Clock, color: "text-gray-600" },
+  wait: { label: "Wait", icon: Clock, color: "text-gray-600 dark:text-gray-400" },
   scroll: { label: "Scroll", icon: ScrollText, color: "text-cyan-600" },
   screenshot: { label: "Screenshot", icon: Camera, color: "text-pink-600" },
   condition: { label: "Condition", icon: GitBranch, color: "text-orange-600" },
@@ -126,7 +126,7 @@ const runStatusConfig: Record<string, { color: string; icon: typeof CheckCircle2
   failed: { color: "text-red-600", icon: XCircle },
   running: { color: "text-blue-600", icon: Loader2 },
   queued: { color: "text-yellow-600", icon: Clock },
-  cancelled: { color: "text-gray-600", icon: XCircle },
+  cancelled: { color: "text-gray-600 dark:text-gray-400", icon: XCircle },
 }
 
 export default function FlowDetailPage() {
@@ -175,8 +175,8 @@ export default function FlowDetailPage() {
               className={cn(
                 flow.status === "active" && "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300",
                 flow.status === "paused" && "bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300",
-                flow.status === "draft" && "bg-gray-100 text-gray-700",
-                flow.status === "error" && "bg-red-100 text-red-700"
+                flow.status === "draft" && "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
+                flow.status === "error" && "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"
               )}
             >
               {flow.status}

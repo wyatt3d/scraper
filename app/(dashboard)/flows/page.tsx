@@ -26,6 +26,7 @@ import {
   ChevronDown,
   FileDown,
   FileJson,
+  Share2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -62,6 +63,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 import { mockFlows } from "@/lib/mock-data"
 import { downloadCSV, downloadJSON } from "@/lib/export"
 import type { Flow, FlowMode, FlowStatus } from "@/lib/types"
@@ -388,6 +390,15 @@ function FlowCard({
                     Pause
                   </>
                 )}
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  navigator.clipboard.writeText(`https://scraper.bot/flows/${flow.id}`)
+                  toast.success("Link copied to clipboard")
+                }}
+              >
+                <Share2 className="mr-2 h-4 w-4" />
+                Share
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-red-600" onClick={onDelete}>

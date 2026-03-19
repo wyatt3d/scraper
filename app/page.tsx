@@ -251,7 +251,7 @@ export default function LandingPage() {
             ].map((feature) => (
               <Card key={feature.title} className="border-border hover:shadow-lg transition-shadow">
                 <CardHeader>
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-950 rounded-lg flex items-center justify-center mb-4">
                     <feature.icon className="w-6 h-6 text-blue-600" />
                   </div>
                   <CardTitle className="font-serif font-bold text-lg">{feature.title}</CardTitle>
@@ -470,7 +470,7 @@ export default function LandingPage() {
                   </div>
                   <p className="text-muted-foreground mb-6">&quot;{t.quote}&quot;</p>
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                    <div className="w-10 h-10 bg-blue-100 dark:bg-blue-950 rounded-full flex items-center justify-center">
                       <span className="font-medium text-blue-600 text-sm">{t.initials}</span>
                     </div>
                     <div>

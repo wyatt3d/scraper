@@ -1,5 +1,6 @@
 "use client"
 
+import dynamic from "next/dynamic"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
@@ -22,15 +23,14 @@ import {
   XCircle,
   GitCommit,
 } from "lucide-react"
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts"
+
+const ErrorChart = dynamic(
+  () => import("@/components/admin/error-chart").then((mod) => ({ default: mod.ErrorChart })),
+  {
+    loading: () => <div className="h-[250px] bg-muted animate-pulse rounded-lg" />,
+    ssr: false,
+  }
+)
 
 const services = [
   { name: "API Gateway", status: "healthy" as const, latency: "12ms", uptime: "99.99%", requests: "1.2M/day", icon: Globe, errors: 3 },
@@ -66,21 +66,6 @@ const buildRoutes = [
   { route: "/docs", size: "38 kB", firstLoad: "194 kB", type: "SSG" },
   { route: "/admin", size: "76 kB", firstLoad: "232 kB", type: "Dynamic" },
 ]
-
-function generateErrorData() {
-  const data = []
-  for (let i = 23; i >= 0; i--) {
-    const hour = (24 - i) % 24
-    data.push({
-      time: `${hour.toString().padStart(2, "0")}:00`,
-      errors: Math.floor(Math.random() * 8 + (hour >= 2 && hour <= 5 ? 1 : 3)),
-      warnings: Math.floor(Math.random() * 15 + 5),
-    })
-  }
-  return data
-}
-
-const errorData = generateErrorData()
 
 const resourceMeters = [
   { name: "CPU Usage", value: 34, max: "vCPU x4", color: "text-blue-500" },
@@ -207,25 +192,7 @@ export default function SystemHealthPage() {
           <CardDescription>Errors and warnings per hour across all services</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="h-[250px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={errorData}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis dataKey="time" className="text-xs" tick={{ fill: "hsl(var(--muted-foreground))" }} />
-                <YAxis className="text-xs" tick={{ fill: "hsl(var(--muted-foreground))" }} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "hsl(var(--card))",
-                    border: "1px solid hsl(var(--border))",
-                    borderRadius: "8px",
-                    color: "hsl(var(--foreground))",
-                  }}
-                />
-                <Area type="monotone" dataKey="warnings" stackId="1" stroke="#f59e0b" fill="#f59e0b" fillOpacity={0.2} name="Warnings" />
-                <Area type="monotone" dataKey="errors" stackId="2" stroke="#ef4444" fill="#ef4444" fillOpacity={0.3} name="Errors" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+          <ErrorChart />
         </CardContent>
       </Card>
 

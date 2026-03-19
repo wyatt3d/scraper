@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { CTABanner } from "@/components/docs/cta-banner"
 
 export const metadata: Metadata = {
   title: "API Reference",
@@ -368,6 +369,8 @@ const { data } = await res.json();
 // Save data.key - it won't be shown again`}
         />
       </div>
+
+      <CTABanner title="Ready to integrate?" buttonText="Get Your API Key" buttonHref="/api-keys" />
     </div>
   )
 }

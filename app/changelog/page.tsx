@@ -74,7 +74,8 @@ export default function ChangelogPage() {
     <div className="min-h-screen bg-background">
       <nav className="border-b">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
-          <Link href="/" className="font-serif text-xl font-bold">
+          <Link href="/" className="flex items-center gap-2 font-serif text-xl font-bold">
+            <img src="/images/scraper-logo.png" alt="Scraper" className="h-8 w-8 rounded" />
             Scraper.bot
           </Link>
           <Link
