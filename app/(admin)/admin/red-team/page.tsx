@@ -1,5 +1,3 @@
-"use client"
-
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { AlertTriangle, AlertOctagon, Info, ShieldAlert, ExternalLink, CheckCircle, XCircle } from "lucide-react"

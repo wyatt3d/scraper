@@ -269,22 +269,51 @@ export default function DashboardPage() {
     }
   }
 
-  function handleTogglePause(flowId: string) {
+  async function handleTogglePause(flowId: string) {
+    const flow = flows.find((f) => f.id === flowId)
+    if (!flow) return
+    const newStatus = flow.status === "paused" ? "active" : "paused"
     setFlows((prev) =>
-      prev.map((f) => {
-        if (f.id !== flowId) return f
-        const newStatus = f.status === "paused" ? "active" : "paused"
-        toast(newStatus === "paused" ? "Flow paused" : "Flow resumed")
-        return { ...f, status: newStatus } as Flow
-      })
+      prev.map((f) => (f.id === flowId ? { ...f, status: newStatus } as Flow : f))
     )
+    toast(newStatus === "paused" ? "Flow paused" : "Flow resumed")
+    try {
+      const res = await fetch(`/api/flows/${flowId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      })
+      if (!res.ok) {
+        throw new Error("Failed to update flow")
+      }
+    } catch {
+      setFlows((prev) =>
+        prev.map((f) => (f.id === flowId ? { ...f, status: flow.status } as Flow : f))
+      )
+      toast.error("Failed to update flow status")
+    }
   }
 
-  function handleAcknowledge(alertId: string) {
+  async function handleAcknowledge(alertId: string) {
     setAlerts((prev) =>
       prev.map((a) => (a.id === alertId ? { ...a, acknowledged: true } : a))
     )
     toast.success("Alert acknowledged")
+    try {
+      const res = await fetch(`/api/alerts/${alertId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ acknowledged: true }),
+      })
+      if (!res.ok) {
+        throw new Error("Failed to acknowledge alert")
+      }
+    } catch {
+      setAlerts((prev) =>
+        prev.map((a) => (a.id === alertId ? { ...a, acknowledged: false } : a))
+      )
+      toast.error("Failed to acknowledge alert")
+    }
   }
 
   if (loading) {

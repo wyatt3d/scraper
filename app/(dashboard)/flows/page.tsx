@@ -162,19 +162,46 @@ export default function FlowsPage() {
     })
   }, [flows, search, modeFilter, statusFilter])
 
-  function handleDelete(flow: Flow) {
+  async function handleDelete(flow: Flow) {
     setFlows((prev) => prev.filter((f) => f.id !== flow.id))
     setDeleteTarget(null)
+    try {
+      const res = await fetch(`/api/flows/${flow.id}`, { method: "DELETE" })
+      if (!res.ok) {
+        throw new Error("Failed to delete flow")
+      }
+      toast.success(`"${flow.name}" deleted`)
+    } catch {
+      setFlows((prev) => [...prev, flow])
+      toast.error("Failed to delete flow")
+    }
   }
 
-  function handleTogglePause(flow: Flow) {
+  async function handleTogglePause(flow: Flow) {
+    const newStatus = flow.status === "paused" ? "active" : "paused"
     setFlows((prev) =>
       prev.map((f) =>
-        f.id === flow.id
-          ? { ...f, status: f.status === "paused" ? "active" : "paused" }
-          : f
+        f.id === flow.id ? { ...f, status: newStatus } : f
       ) as Flow[]
     )
+    toast(newStatus === "paused" ? "Flow paused" : "Flow resumed")
+    try {
+      const res = await fetch(`/api/flows/${flow.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      })
+      if (!res.ok) {
+        throw new Error("Failed to update flow")
+      }
+    } catch {
+      setFlows((prev) =>
+        prev.map((f) =>
+          f.id === flow.id ? { ...f, status: flow.status } : f
+        ) as Flow[]
+      )
+      toast.error("Failed to update flow status")
+    }
   }
 
   return (

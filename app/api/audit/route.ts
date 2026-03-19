@@ -26,8 +26,9 @@ export async function GET(request: Request) {
     const response = NextResponse.json({ data: data || [] })
     response.headers.set("Cache-Control", "s-maxage=30, stale-while-revalidate=60")
     return response
-  } catch {
-    return NextResponse.json({ data: [] })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to fetch audit log"
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
 

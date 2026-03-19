@@ -449,11 +449,42 @@ export default function FlowDetailPage() {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => toast("Schedule configured")}>
+            <Button variant="outline" size="sm" onClick={async () => {
+              try {
+                const res = await fetch(`/api/flows/${flow.id}`, {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ schedule: flow.schedule }),
+                })
+                if (!res.ok) throw new Error("Failed to save schedule")
+                toast.success("Schedule configured")
+              } catch {
+                toast.error("Failed to save schedule")
+              }
+            }}>
               <Calendar className="mr-2 h-3.5 w-3.5" />
               Schedule
             </Button>
-            <Button variant="outline" size="sm" onClick={() => toast.success("Flow saved")}>
+            <Button variant="outline" size="sm" onClick={async () => {
+              try {
+                const res = await fetch(`/api/flows/${flow.id}`, {
+                  method: "PATCH",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    steps,
+                    name: flow.name,
+                    description: flow.description,
+                    url: flow.url,
+                    mode: flow.mode,
+                    outputSchema: flow.outputSchema,
+                  }),
+                })
+                if (!res.ok) throw new Error("Failed to save flow")
+                toast.success("Flow saved")
+              } catch {
+                toast.error("Failed to save flow")
+              }
+            }}>
               <Save className="mr-2 h-3.5 w-3.5" />
               Save
             </Button>

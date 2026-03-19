@@ -10,8 +10,9 @@ export async function GET() {
       key: key.prefix + "****" + key.key_hash.slice(-4),
     }))
     return NextResponse.json({ data: masked, total: masked.length })
-  } catch {
-    return NextResponse.json({ data: [], total: 0 })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to fetch API keys"
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }
 

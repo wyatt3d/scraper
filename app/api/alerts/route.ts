@@ -5,7 +5,8 @@ export async function GET() {
   try {
     const alerts = await listAlerts()
     return NextResponse.json({ data: alerts, total: alerts.length })
-  } catch {
-    return NextResponse.json({ data: [], total: 0 })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to fetch alerts"
+    return NextResponse.json({ error: message }, { status: 500 })
   }
 }

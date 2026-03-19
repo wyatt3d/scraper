@@ -1,5 +1,3 @@
-"use client"
-
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
@@ -77,6 +75,8 @@ const phases: Phase[] = [
       { name: "Stealth mode anti-bot bypass", done: true },
       { name: "Database schema (PostgreSQL)", done: true },
       { name: "Queue system (Supabase-backed)", done: true },
+      { name: "Atomic job claiming (FOR UPDATE SKIP LOCKED)", done: true },
+      { name: "Job retry with atomic fail function", done: true },
     ],
   },
   {
@@ -91,6 +91,8 @@ const phases: Phase[] = [
       { name: "Graceful fallback when Claude API has billing issues", done: true },
       { name: "Natural language to extraction schema", done: true },
       { name: "AI-powered selector suggestion", done: true },
+      { name: "AI selector suggestion API (/api/suggest-selectors)", done: true },
+      { name: "NL-to-schema API (/api/suggest-schema)", done: true },
       { name: "Intelligent error recovery", done: true },
       { name: "Content summarization pipeline", done: false },
     ],
@@ -142,7 +144,7 @@ const phases: Phase[] = [
     number: 5,
     name: "Production Hardening",
     status: "IN PROGRESS",
-    completion: 75,
+    completion: 90,
     eta: "Apr 2",
     deliverables: [
       { name: "Vercel deployment (initial)", done: true },
@@ -165,6 +167,18 @@ const phases: Phase[] = [
       { name: "Trouble ticket system", done: true },
       { name: "Authentication (Supabase Auth + middleware guards)", done: true },
       { name: "Error tracking (ErrorTracker + Supabase audit)", done: true },
+      { name: "Security headers (CSP, X-Frame-Options, nosniff)", done: true },
+      { name: "SSRF protection on extract/generate endpoints", done: true },
+      { name: "API key SHA-256 hashing", done: true },
+      { name: "Middleware auth via @supabase/ssr (cookie-based)", done: true },
+      { name: "SSRF URL validation on scraping endpoints", done: true },
+      { name: "Playwright script injection prevention (JSON.stringify)", done: true },
+      { name: "API pagination on all list endpoints", done: true },
+      { name: "Cache-Control headers on GET endpoints", done: true },
+      { name: "Proper RLS policies with user_id columns", done: false },
+      { name: "Real API key DB validation in route handlers", done: false },
+      { name: "Rate limiting via Upstash Redis", done: false },
+      { name: "CSRF token validation", done: false },
       { name: "E2E test suite (Playwright)", done: false },
       { name: "Remaining security findings remediation (26 items)", done: false },
     ],
@@ -198,6 +212,24 @@ const phases: Phase[] = [
       { name: "Video tutorials", done: false },
     ],
   },
+  {
+    number: 7,
+    name: "Continuous Ops",
+    status: "IN PROGRESS",
+    completion: 85,
+    eta: "Ongoing",
+    deliverables: [
+      { name: "Ops Center admin page with automation runbook", done: true },
+      { name: "Automated cron-based audit/fix loops", done: true },
+      { name: "Dark mode contrast fixes (22 instances)", done: true },
+      { name: "Accessibility: aria-labels on icon buttons (15 instances)", done: true },
+      { name: "Breadcrumb labels for all 27+ routes", done: true },
+      { name: "Dead code cleanup (28 files, -2632 lines)", done: true },
+      { name: "Shared utility extraction (formatDuration, timeAgo, mappers)", done: true },
+      { name: "Admin pages converted to server components", done: true },
+      { name: "API response standardization", done: true },
+    ],
+  },
 ]
 
 export default function RoadmapPage() {
@@ -208,7 +240,7 @@ export default function RoadmapPage() {
         <p className="text-muted-foreground mt-1">Phased delivery plan for Scraper.bot platform</p>
       </div>
 
-      <div className="grid grid-cols-3 md:grid-cols-7 gap-2">
+      <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
         {phases.map((phase) => (
           <div key={phase.number} className="text-center">
             <div className="text-xs text-muted-foreground mb-1">Phase {phase.number}</div>
