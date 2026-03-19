@@ -15,31 +15,18 @@ import {
   GitBranch,
   Repeat,
   Share2,
+  Star,
+  Download,
+  Sparkles,
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
-import { mockTemplates } from "@/lib/mock-data"
-import type { FlowTemplate, StepType } from "@/lib/types"
+import { mockTemplates, templateRatings, templateUseCounts } from "@/lib/mock-data"
+import type { StepType } from "@/lib/types"
 
 const categories = [
   "All",
@@ -68,22 +55,16 @@ const modeColors: Record<string, string> = {
   monitor: "bg-emerald-500/15 text-emerald-600 border-emerald-500/25 dark:text-emerald-400",
 }
 
-const stepIcons: Record<StepType, React.ComponentType<{ className?: string }>> = {
-  navigate: Globe,
-  click: MousePointer,
-  fill: PenLine,
-  extract: Search,
-  wait: Timer,
-  scroll: Scroll,
-  screenshot: Camera,
-  condition: GitBranch,
-  loop: Repeat,
+function formatUseCount(n: number) {
+  if (n >= 1000) return `${(n / 1000).toFixed(1)}k`
+  return n.toString()
 }
+
+const featuredIds = new Set(mockTemplates.slice(0, 3).map((t) => t.id))
 
 export default function TemplatesPage() {
   const [search, setSearch] = useState("")
   const [activeCategory, setActiveCategory] = useState("All")
-  const [selectedTemplate, setSelectedTemplate] = useState<FlowTemplate | null>(null)
 
   const filtered = mockTemplates.filter((t) => {
     const matchesCategory = activeCategory === "All" || t.category === activeCategory
@@ -134,148 +115,116 @@ export default function TemplatesPage() {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((template) => (
-            <Card key={template.id} className="flex flex-col justify-between py-0 overflow-hidden">
-              <CardHeader className="pb-3 pt-5 px-5">
-                <div className="flex items-center justify-between">
-                  <Badge className={cn("text-[10px]", categoryColors[template.category] || "")}>
-                    {template.category}
-                  </Badge>
-                  <Badge variant="outline" className={cn("text-[10px] capitalize", modeColors[template.mode] || "")}>
-                    {template.mode}
-                  </Badge>
-                </div>
-                <h3 className="font-serif text-lg font-semibold leading-tight mt-3">
-                  {template.name}
-                </h3>
-                <p className="text-muted-foreground text-sm leading-snug">
-                  {template.description}
-                </p>
-              </CardHeader>
-              <CardContent className="px-5 pb-5 pt-0 space-y-4">
-                <div className="space-y-1.5">
-                  <p className="text-muted-foreground text-[11px] font-medium uppercase tracking-wider">
-                    Output Schema
+          {filtered.map((template) => {
+            const rating = templateRatings[template.id] || 4.5
+            const useCount = templateUseCounts[template.id] || 0
+            const isFeatured = featuredIds.has(template.id)
+            const schemaFields = Object.keys(template.outputSchema).slice(0, 3)
+
+            return (
+              <Card
+                key={template.id}
+                className={cn(
+                  "flex flex-col justify-between py-0 overflow-hidden",
+                  isFeatured && "border-blue-500/30"
+                )}
+              >
+                <CardHeader className="pb-3 pt-5 px-5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <Badge className={cn("text-[10px]", categoryColors[template.category] || "")}>
+                        {template.category}
+                      </Badge>
+                      {isFeatured && (
+                        <Badge className="text-[10px] bg-blue-600 text-white border-blue-600 gap-0.5">
+                          <Sparkles className="size-2.5" />
+                          Featured
+                        </Badge>
+                      )}
+                    </div>
+                    <Badge variant="outline" className={cn("text-[10px] capitalize", modeColors[template.mode] || "")}>
+                      {template.mode}
+                    </Badge>
+                  </div>
+                  <h3 className="font-serif text-lg font-semibold leading-tight mt-3">
+                    {template.name}
+                  </h3>
+                  <p className="text-muted-foreground text-sm leading-snug line-clamp-2">
+                    {template.description}
                   </p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {Object.entries(template.outputSchema).map(([field, type]) => (
+                </CardHeader>
+                <CardContent className="px-5 pb-5 pt-0 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <Star
+                          key={i}
+                          className={cn(
+                            "size-3",
+                            i <= Math.round(rating)
+                              ? "fill-amber-400 text-amber-400"
+                              : "text-zinc-300 dark:text-zinc-600"
+                          )}
+                        />
+                      ))}
+                      <span className="text-xs text-muted-foreground ml-1">{rating}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Download className="size-3" />
+                      {formatUseCount(useCount)} uses
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-1">
+                    {schemaFields.map((field) => (
                       <span
                         key={field}
-                        className="bg-muted inline-flex items-center gap-1 rounded px-2 py-0.5 text-[11px]"
+                        className="bg-muted inline-flex items-center rounded px-1.5 py-0.5 text-[10px] font-mono font-medium"
                       >
-                        <span className="font-medium">{field}</span>
-                        <span className="text-muted-foreground">{String(type)}</span>
+                        {field}
                       </span>
                     ))}
+                    {Object.keys(template.outputSchema).length > 3 && (
+                      <span className="text-muted-foreground text-[10px] flex items-center px-1">
+                        +{Object.keys(template.outputSchema).length - 3} more
+                      </span>
+                    )}
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button asChild size="sm" className="flex-1 gap-1.5">
-                    <Link href="/flows/new">
-                      Use Template
-                      <ArrowRight className="size-3.5" />
-                    </Link>
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      navigator.clipboard.writeText(`https://scraper.bot/templates/${template.id}`)
-                      toast.success("Link copied to clipboard")
-                    }}
-                  >
-                    <Share2 className="size-3.5" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setSelectedTemplate(template)}
-                  >
-                    <Eye className="size-3.5" />
-                    Preview
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+
+                  <div className="flex items-center gap-2">
+                    <Button asChild size="sm" className="flex-1 gap-1.5">
+                      <Link href={`/flows/new?template=${template.id}`}>
+                        Use Template
+                        <ArrowRight className="size-3.5" />
+                      </Link>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        navigator.clipboard.writeText(`https://scraper.bot/templates/${template.id}`)
+                        toast.success("Link copied to clipboard")
+                      }}
+                    >
+                      <Share2 className="size-3.5" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      asChild
+                    >
+                      <Link href={`/templates/${template.id}`}>
+                        <Eye className="size-3.5" />
+                        Preview
+                      </Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
         </div>
       )}
-
-      <Dialog open={!!selectedTemplate} onOpenChange={() => setSelectedTemplate(null)}>
-        {selectedTemplate && (
-          <DialogContent className="max-w-lg">
-            <DialogHeader>
-              <div className="flex items-center gap-2 mb-1">
-                <Badge className={cn("text-[10px]", categoryColors[selectedTemplate.category] || "")}>
-                  {selectedTemplate.category}
-                </Badge>
-                <Badge variant="outline" className={cn("text-[10px] capitalize", modeColors[selectedTemplate.mode] || "")}>
-                  {selectedTemplate.mode}
-                </Badge>
-              </div>
-              <DialogTitle className="font-serif text-xl">{selectedTemplate.name}</DialogTitle>
-              <DialogDescription>{selectedTemplate.description}</DialogDescription>
-            </DialogHeader>
-
-            <ScrollArea className="max-h-[400px]">
-              <div className="space-y-5">
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium">Steps</h4>
-                  <div className="space-y-2">
-                    {selectedTemplate.steps.map((step, i) => {
-                      const Icon = stepIcons[step.type] || Globe
-                      return (
-                        <div
-                          key={step.id}
-                          className="flex items-center gap-3 rounded-lg border p-3"
-                        >
-                          <div className="bg-muted flex size-8 items-center justify-center rounded-md">
-                            <Icon className="size-4" />
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium">{step.label}</p>
-                            <p className="text-muted-foreground text-xs capitalize">{step.type}</p>
-                          </div>
-                          <span className="text-muted-foreground text-xs">#{i + 1}</span>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium">Output Schema</h4>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead className="h-8 text-xs">Field</TableHead>
-                        <TableHead className="h-8 text-xs">Type</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {Object.entries(selectedTemplate.outputSchema).map(([field, type]) => (
-                        <TableRow key={field}>
-                          <TableCell className="py-2 font-mono text-sm">{field}</TableCell>
-                          <TableCell className="text-muted-foreground py-2 text-sm">
-                            {String(type)}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-              </div>
-            </ScrollArea>
-
-            <Button asChild className="w-full gap-1.5">
-              <Link href="/flows/new">
-                Use This Template
-                <ArrowRight className="size-3.5" />
-              </Link>
-            </Button>
-          </DialogContent>
-        )}
-      </Dialog>
     </div>
   )
 }
