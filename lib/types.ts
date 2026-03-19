@@ -111,3 +111,18 @@ export interface FlowTemplate {
   steps: FlowStep[]
   outputSchema: Record<string, unknown>
 }
+
+export interface ElementInfo {
+  selector: string
+  tagName: string
+  text: string
+  rect: { x: number; y: number; width: number; height: number }
+  isInteractive: boolean
+  type: "link" | "button" | "input" | "text" | "image" | "container"
+}
+
+export interface RecorderAction {
+  type: "click" | "fill" | "scroll" | "wait"
+  selector: string
+  value?: string
+}

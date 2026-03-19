@@ -31,6 +31,7 @@ import {
   Lock,
   Eye,
   Sparkles,
+  Video,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -80,6 +81,8 @@ import { RunsTab } from "@/components/flows/runs-tab"
 import { ApiTab } from "@/components/flows/api-tab"
 import { SettingsTab } from "@/components/flows/settings-tab"
 import type { Flow, FlowStep, StepType, Run } from "@/lib/types"
+import { useRecorder } from "@/components/recorder/use-recorder"
+import { RecorderPanel } from "@/components/recorder/recorder-panel"
 
 const stepTypeConfig: Record<StepType, { label: string; icon: typeof Globe; color: string }> = {
   navigate: { label: "Navigate", icon: Globe, color: "text-blue-600 dark:text-blue-400" },
@@ -135,6 +138,8 @@ export default function FlowDetailPage() {
   const [previewImage, setPreviewImage] = useState<string | null>(null)
   const [previewError, setPreviewError] = useState<string | null>(null)
   const [runningFlow, setRunningFlow] = useState(false)
+  const [recorderMode, setRecorderMode] = useState(false)
+  const recorder = useRecorder()
 
   useEffect(() => {
     if (flow) {
@@ -206,6 +211,13 @@ export default function FlowDetailPage() {
     setSteps((prev) => [...prev, newStep])
     setSelectedStepId(newStep.id)
     toast.success(`${cfg.label} step added`)
+  }
+
+  function handleRecorderAddStep(step: Omit<FlowStep, "id">) {
+    const newStep: FlowStep = { ...step, id: `step-${Date.now()}` }
+    setSteps((prev) => [...prev, newStep])
+    setSelectedStepId(newStep.id)
+    toast.success(`${step.label} recorded`)
   }
 
   if (loading) {
@@ -334,6 +346,10 @@ export default function FlowDetailPage() {
                       previewImage={previewImage}
                       previewError={previewError}
                       onLoadPreview={handleLoadPreview}
+                      recorderMode={recorderMode}
+                      onToggleRecorder={() => setRecorderMode(!recorderMode)}
+                      recorder={recorder}
+                      onRecorderAddStep={handleRecorderAddStep}
                     />
                   )}
                   {mobileBuilderTab === "config" && (
@@ -360,6 +376,10 @@ export default function FlowDetailPage() {
                       previewImage={previewImage}
                       previewError={previewError}
                       onLoadPreview={handleLoadPreview}
+                      recorderMode={recorderMode}
+                      onToggleRecorder={() => setRecorderMode(!recorderMode)}
+                      recorder={recorder}
+                      onRecorderAddStep={handleRecorderAddStep}
                     />
                 </ResizablePanel>
                 <ResizableHandle withHandle />
@@ -562,6 +582,10 @@ function PreviewPanel({
   previewImage,
   previewError,
   onLoadPreview,
+  recorderMode,
+  onToggleRecorder,
+  recorder,
+  onRecorderAddStep,
 }: {
   url: string
   selectedStep?: FlowStep
@@ -569,6 +593,10 @@ function PreviewPanel({
   previewImage: string | null
   previewError: string | null
   onLoadPreview: () => void
+  recorderMode?: boolean
+  onToggleRecorder?: () => void
+  recorder?: ReturnType<typeof useRecorder>
+  onRecorderAddStep?: (step: Omit<FlowStep, "id">) => void
 }) {
   return (
     <div className="flex h-full flex-col bg-muted/20">
@@ -585,7 +613,36 @@ function PreviewPanel({
         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onLoadPreview} disabled={previewLoading} aria-label="Refresh preview">
           <RefreshCw className={cn("h-3.5 w-3.5", previewLoading && "animate-spin")} />
         </Button>
+        {onToggleRecorder && (
+          <Button
+            variant={recorderMode ? "default" : "ghost"}
+            size="icon"
+            className={cn("h-7 w-7", recorderMode && "bg-red-600 hover:bg-red-700 text-white")}
+            onClick={onToggleRecorder}
+            aria-label="Toggle recorder"
+          >
+            <Video className="h-3.5 w-3.5" />
+          </Button>
+        )}
       </div>
+      {recorderMode && recorder && onRecorderAddStep ? (
+        <RecorderPanel
+          url={url}
+          screenshot={recorder.screenshot}
+          elements={recorder.elements}
+          selectedElement={recorder.selectedElement}
+          isLoading={recorder.isLoading}
+          mode={recorder.mode}
+          currentUrl={recorder.currentUrl}
+          error={recorder.error}
+          onStart={recorder.startRecording}
+          onAction={recorder.performAction}
+          onSelectElement={recorder.selectElement}
+          onSetMode={recorder.setMode}
+          onAddStep={onRecorderAddStep}
+          onStop={() => { recorder.stopRecording(); onToggleRecorder?.() }}
+        />
+      ) : (
       <div className="flex flex-1 items-center justify-center overflow-auto">
         {previewLoading ? (
           <div className="flex flex-col items-center gap-3">
@@ -637,6 +694,7 @@ function PreviewPanel({
           </div>
         )}
       </div>
+      )}
     </div>
   )
 }

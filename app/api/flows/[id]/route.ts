@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
+import { validateApiKey } from "@/lib/api-auth"
 import { toFlow } from "@/lib/mappers"
 import { z } from "zod"
 
@@ -18,6 +19,14 @@ export async function GET(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const apiKey = _req.headers.get("x-api-key")
+  if (apiKey) {
+    const isValid = await validateApiKey(apiKey)
+    if (!isValid) {
+      return NextResponse.json({ error: "Invalid API key" }, { status: 403 })
+    }
+  }
+
   const { id } = await params
 
   const { data, error } = await supabase

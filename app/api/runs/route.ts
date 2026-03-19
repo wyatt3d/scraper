@@ -1,8 +1,17 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
+import { validateApiKey } from "@/lib/api-auth"
 import { toRun } from "@/lib/mappers"
 
 export async function GET(req: NextRequest) {
+  const apiKey = req.headers.get("x-api-key")
+  if (apiKey) {
+    const isValid = await validateApiKey(apiKey)
+    if (!isValid) {
+      return NextResponse.json({ error: "Invalid API key" }, { status: 403 })
+    }
+  }
+
   const searchParams = req.nextUrl.searchParams
   const flowId = searchParams.get("flowId")
   const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100)

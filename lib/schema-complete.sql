@@ -280,6 +280,32 @@ RETURNS jobs AS $$
   RETURNING *;
 $$ LANGUAGE sql;
 
+-- Templates table
+CREATE TABLE IF NOT EXISTS templates (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT DEFAULT '',
+  category TEXT NOT NULL DEFAULT 'general',
+  url_pattern TEXT DEFAULT '',
+  steps JSONB DEFAULT '[]'::jsonb,
+  output_schema JSONB DEFAULT '{}'::jsonb,
+  icon TEXT DEFAULT 'globe',
+  difficulty TEXT DEFAULT 'beginner' CHECK (difficulty IN ('beginner', 'intermediate', 'advanced')),
+  rating NUMERIC DEFAULT 0,
+  use_count INTEGER DEFAULT 0,
+  is_featured BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_templates_category ON templates(category);
+CREATE INDEX IF NOT EXISTS idx_templates_featured ON templates(is_featured) WHERE is_featured = true;
+
+ALTER TABLE templates ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public_templates" ON templates FOR SELECT USING (true);
+CREATE POLICY "admin_templates_write" ON templates FOR INSERT WITH CHECK (auth.role() = 'service_role');
+CREATE POLICY "admin_templates_update" ON templates FOR UPDATE USING (auth.role() = 'service_role');
+
 -- ============================================
 -- Seed data (5 starter flows)
 -- ============================================

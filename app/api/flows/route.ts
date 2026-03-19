@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
+import { validateApiKey } from "@/lib/api-auth"
 import { toFlow } from "@/lib/mappers"
 import { z } from "zod"
 
@@ -13,6 +14,14 @@ const createFlowSchema = z.object({
 })
 
 export async function GET(req: NextRequest) {
+  const apiKey = req.headers.get("x-api-key")
+  if (apiKey) {
+    const isValid = await validateApiKey(apiKey)
+    if (!isValid) {
+      return NextResponse.json({ error: "Invalid API key" }, { status: 403 })
+    }
+  }
+
   const searchParams = req.nextUrl.searchParams
   const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100)
   const offset = parseInt(searchParams.get("offset") || "0")
