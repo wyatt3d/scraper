@@ -92,11 +92,11 @@ const suggestedPrompts = [
 ]
 
 const generationStepLabels = [
-  "Analyzing target URL...",
-  "Identifying page structure...",
-  "Generating CSS selectors...",
-  "Building extraction flow...",
-  "Optimizing for reliability...",
+  "Fetching target page...",
+  "Analyzing page structure...",
+  "Identifying data patterns...",
+  "Generating extraction rules...",
+  "Building flow definition...",
 ]
 
 const stepTypeIcons: Record<string, typeof Globe> = {

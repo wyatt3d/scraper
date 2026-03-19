@@ -40,11 +40,11 @@ export async function scrapeUrl(url: string, rules?: ExtractionRule[]): Promise<
 
     if (!rules || rules.length === 0) {
       const items = autoExtract($, url)
-      return { success: true, url, title, items, duration: Date.now() - start }
+      return { success: true, url, title, items, html, duration: Date.now() - start }
     }
 
     const items = extractWithRules($, rules, url)
-    return { success: true, url, title, items, duration: Date.now() - start }
+    return { success: true, url, title, items, html, duration: Date.now() - start }
 
   } catch (err) {
     const message = err instanceof Error ? err.message : "Scrape failed"
@@ -98,7 +98,7 @@ export async function scrapeWithBrowser(url: string, rules?: ExtractionRule[]): 
       ? extractWithRules($, rules, url)
       : autoExtract($, url)
 
-    return { success: true, url, title, items, duration: Date.now() - start }
+    return { success: true, url, title, items, html, duration: Date.now() - start }
   } catch {
     return scrapeUrl(url, rules)
   }
