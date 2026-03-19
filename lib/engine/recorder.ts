@@ -175,7 +175,8 @@ export async function executeRecorderSession(
   )
 
   if (!response.ok) {
-    throw new Error(`Browserless error: ${response.status}`)
+    const errorText = await response.text().catch(() => "Unknown error")
+    throw new Error(`Browserless error (${response.status}): ${errorText.slice(0, 200)}`)
   }
 
   return response.json()

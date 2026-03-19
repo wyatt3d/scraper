@@ -7,7 +7,10 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import {
-  MousePointer, Save, ArrowLeft, Trash2,
+  Dialog, DialogContent, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog"
+import {
+  MousePointer, Save, ArrowLeft, Trash2, Eye, Loader2,
 } from "lucide-react"
 import { RecorderPanel } from "@/components/recorder/recorder-panel"
 import { useRecorder } from "@/components/recorder/use-recorder"
@@ -18,6 +21,8 @@ export default function RecorderPage() {
   const recorder = useRecorder()
   const [flowName, setFlowName] = useState("")
   const [steps, setSteps] = useState<FlowStep[]>([])
+  const [previewScreenshot, setPreviewScreenshot] = useState<string | null>(null)
+  const [previewLoading, setPreviewLoading] = useState(false)
 
   const handleAddStep = (step: Omit<FlowStep, "id">) => {
     const newStep: FlowStep = { ...step, id: `step-${Date.now()}` }
@@ -26,6 +31,42 @@ export default function RecorderPage() {
 
   const handleRemoveStep = (id: string) => {
     setSteps(prev => prev.filter(s => s.id !== id))
+  }
+
+  const handlePreview = async () => {
+    const url = recorder.currentUrl || steps[0]?.selector
+    if (!url) {
+      toast.error("No URL to preview")
+      return
+    }
+    if (steps.length === 0) {
+      toast.error("Record at least one step")
+      return
+    }
+
+    setPreviewLoading(true)
+    try {
+      const actions = steps
+        .filter(s => ["click", "fill", "scroll", "wait"].includes(s.type))
+        .map(s => ({
+          type: s.type as "click" | "fill" | "scroll" | "wait",
+          selector: s.selector || "",
+          value: s.value,
+        }))
+
+      const res = await fetch("/api/recorder/preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url, actions }),
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setPreviewScreenshot(data.screenshot)
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Preview failed")
+    } finally {
+      setPreviewLoading(false)
+    }
   }
 
   const handleSaveFlow = async () => {
@@ -78,6 +119,15 @@ export default function RecorderPage() {
             placeholder="Flow name..."
             className="w-56 h-9"
           />
+          <Button
+            variant="outline"
+            onClick={handlePreview}
+            disabled={steps.length === 0 || previewLoading}
+            className="gap-1.5"
+          >
+            {previewLoading ? <Loader2 className="size-4 animate-spin" /> : <Eye className="size-4" />}
+            Preview
+          </Button>
           <Button onClick={handleSaveFlow} disabled={steps.length === 0} className="gap-1.5">
             <Save className="size-4" />
             Save Flow
@@ -150,6 +200,23 @@ export default function RecorderPage() {
           )}
         </div>
       </div>
+
+      <Dialog open={!!previewScreenshot} onOpenChange={() => setPreviewScreenshot(null)}>
+        <DialogContent className="max-w-4xl">
+          <DialogHeader>
+            <DialogTitle>Flow Preview</DialogTitle>
+          </DialogHeader>
+          {previewScreenshot && (
+            <div className="rounded-lg overflow-hidden border border-border">
+              <img
+                src={previewScreenshot}
+                alt="Preview of recorded flow result"
+                className="w-full h-auto"
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

@@ -17,7 +17,7 @@ function isUrlSafe(urlStr: string): boolean {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { url, rules, mode } = body
+    const { url, rules, mode, summarize } = body
 
     if (!url) {
       return NextResponse.json({ error: "url is required" }, { status: 400 })
@@ -41,6 +41,30 @@ export async function POST(request: Request) {
       }, { status: 422 })
     }
 
+    let summary: string | undefined
+
+    if (summarize === true && result.items.length > 0) {
+      try {
+        const Anthropic = (await import("@anthropic-ai/sdk")).default
+        const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
+
+        const content = JSON.stringify(result.items.slice(0, 20))
+        const message = await anthropic.messages.create({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 500,
+          messages: [{
+            role: "user",
+            content: `Summarize this extracted web data in 2-3 concise bullet points. Focus on key patterns, trends, or notable items:\n\n${content}`
+          }]
+        })
+
+        const summaryText = message.content[0]
+        if (summaryText.type === "text") {
+          summary = summaryText.text
+        }
+      } catch {}
+    }
+
     return NextResponse.json({
       success: true,
       url: result.url,
@@ -48,6 +72,7 @@ export async function POST(request: Request) {
       items: result.items,
       itemCount: result.items.length,
       duration: result.duration,
+      ...(summary ? { summary } : {}),
     })
   } catch (err) {
     const message = err instanceof Error ? err.message : "Extraction failed"

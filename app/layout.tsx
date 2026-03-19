@@ -57,7 +57,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${crimsonText.variable} ${inter.variable} font-sans antialiased`}>
         <Suspense fallback={null}>{children}</Suspense>
         <ChatWidget />
