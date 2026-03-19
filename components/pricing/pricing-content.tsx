@@ -16,6 +16,7 @@ import { Fragment } from "react"
 import { Slider } from "@/components/ui/slider"
 import { Check, X, ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { Logo } from "@/components/brand/logo"
 
 const tiers = [
   {
@@ -189,6 +190,36 @@ export function PricingContent() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Navigation */}
+      <nav className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <Logo size="lg" href="/" />
+            <div className="hidden md:flex items-center space-x-8">
+              <Link href="/#features" className="text-muted-foreground hover:text-foreground transition-colors">
+                Features
+              </Link>
+              <Link href="/pricing" className="text-foreground font-medium transition-colors">
+                Pricing
+              </Link>
+              <Link href="/docs" className="text-muted-foreground hover:text-foreground transition-colors">
+                Docs
+              </Link>
+              <Link href="/sign-in">
+                <Button variant="outline" size="sm">
+                  Sign In
+                </Button>
+              </Link>
+              <Link href="/sign-up">
+                <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+                  Get Started Free
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </nav>
+
       {/* Header */}
       <section className="pt-24 pb-16 bg-gradient-to-b from-background to-muted/20">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">

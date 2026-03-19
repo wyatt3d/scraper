@@ -30,6 +30,9 @@ import {
   Webhook,
   X,
   Zap,
+  AlertCircle,
+  BarChart3,
+  Gauge,
 } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
@@ -77,6 +80,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
+import { Slider } from "@/components/ui/slider"
 import { toast } from "sonner"
 import { mockUser } from "@/lib/mock-data"
 
@@ -781,6 +785,193 @@ export default function SettingsPage() {
                   ))}
                 </TableBody>
               </Table>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="size-5" />
+                Per-Flow Cost Breakdown
+              </CardTitle>
+              <CardDescription>
+                Usage and cost attribution for the current billing period.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Flow</TableHead>
+                    <TableHead className="text-right">Runs (30d)</TableHead>
+                    <TableHead className="text-right">Avg Duration</TableHead>
+                    <TableHead className="text-right">Data Points</TableHead>
+                    <TableHead className="text-right">Cost</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="font-medium">Amazon Product Monitor</TableCell>
+                    <TableCell className="text-right">120</TableCell>
+                    <TableCell className="text-right">12.4s</TableCell>
+                    <TableCell className="text-right">17,640</TableCell>
+                    <TableCell className="text-right">$1.44</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Indeed Job Scraper</TableCell>
+                    <TableCell className="text-right">60</TableCell>
+                    <TableCell className="text-right">28.6s</TableCell>
+                    <TableCell className="text-right">5,340</TableCell>
+                    <TableCell className="text-right">$2.16</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Zillow Property Monitor</TableCell>
+                    <TableCell className="text-right">30</TableCell>
+                    <TableCell className="text-right">8.2s</TableCell>
+                    <TableCell className="text-right">1,020</TableCell>
+                    <TableCell className="text-right">$0.36</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">Hacker News Scraper</TableCell>
+                    <TableCell className="text-right">240</TableCell>
+                    <TableCell className="text-right">3.2s</TableCell>
+                    <TableCell className="text-right">7,200</TableCell>
+                    <TableCell className="text-right">$0.72</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">GitHub Trending</TableCell>
+                    <TableCell className="text-right">120</TableCell>
+                    <TableCell className="text-right">4.5s</TableCell>
+                    <TableCell className="text-right">3,600</TableCell>
+                    <TableCell className="text-right">$0.54</TableCell>
+                  </TableRow>
+                  <TableRow className="font-bold border-t-2">
+                    <TableCell>Total</TableCell>
+                    <TableCell className="text-right">570</TableCell>
+                    <TableCell className="text-right"></TableCell>
+                    <TableCell className="text-right">34,800</TableCell>
+                    <TableCell className="text-right">$5.22</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <AlertCircle className="size-5" />
+                Budget Alerts
+              </CardTitle>
+              <CardDescription>
+                Set spending thresholds and get notified before overages.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <div className="space-y-2">
+                <Label className="text-sm">Monthly Budget</Label>
+                <div className="flex items-center gap-2">
+                  <DollarSign className="size-4 text-muted-foreground" />
+                  <Input defaultValue="25.00" className="h-8 text-sm w-32" type="number" step="0.01" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm">Alert Threshold</Label>
+                <div className="flex items-center gap-3">
+                  <Slider defaultValue={[75]} min={50} max={100} step={5} className="flex-1" />
+                  <span className="text-sm font-mono w-10 text-right">75%</span>
+                </div>
+                <p className="text-xs text-muted-foreground">Alert when spending reaches this percentage of budget</p>
+              </div>
+
+              <div className="space-y-3">
+                <Label className="text-sm">Notification Method</Label>
+                <div className="flex flex-col gap-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Email</span>
+                    <Switch defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Slack</span>
+                    <Switch />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm">Dashboard</span>
+                    <Switch defaultChecked />
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label className="text-sm">Hard Cap</Label>
+                  <p className="text-xs text-muted-foreground">Stop all runs when budget is exceeded</p>
+                </div>
+                <Switch />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm">Current Spend vs Budget</Label>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">$5.22 / $25.00</span>
+                  <span className="text-muted-foreground">20.9%</span>
+                </div>
+                <Progress value={20.9} />
+              </div>
+
+              <div className="flex justify-end">
+                <Button size="sm" onClick={() => toast.success("Budget alerts saved")}>Save Budget Settings</Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Gauge className="size-5" />
+                Spending Caps
+              </CardTitle>
+              <CardDescription>
+                Set hard limits on daily and per-flow spending.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <div className="space-y-2">
+                <Label className="text-sm">Daily Spend Limit</Label>
+                <div className="flex items-center gap-2">
+                  <DollarSign className="size-4 text-muted-foreground" />
+                  <Input defaultValue="5.00" className="h-8 text-sm w-32" type="number" step="0.01" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm">Per-Flow Spend Limit</Label>
+                <div className="flex items-center gap-2">
+                  <DollarSign className="size-4 text-muted-foreground" />
+                  <Input defaultValue="2.00" className="h-8 text-sm w-32" type="number" step="0.01" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm">Action When Exceeded</Label>
+                <Select defaultValue="pause">
+                  <SelectTrigger className="h-8 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pause">Pause flow</SelectItem>
+                    <SelectItem value="queue">Queue runs</SelectItem>
+                    <SelectItem value="notify">Notify only</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex justify-end">
+                <Button size="sm" onClick={() => toast.success("Spending caps saved")}>Save Spending Caps</Button>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

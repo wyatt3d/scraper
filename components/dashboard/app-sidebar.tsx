@@ -28,6 +28,8 @@ import {
   Workflow,
 } from "lucide-react"
 
+import { signOut } from "@/lib/auth"
+import { toast } from "sonner"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   DropdownMenu,
@@ -186,7 +188,15 @@ export function AppSidebar() {
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => router.push("/")}>
+                <DropdownMenuItem onClick={async () => {
+                  try {
+                    await signOut()
+                    toast.success("Signed out")
+                    router.push("/")
+                  } catch {
+                    router.push("/")
+                  }
+                }}>
                   <LogOut />
                   Sign out
                 </DropdownMenuItem>

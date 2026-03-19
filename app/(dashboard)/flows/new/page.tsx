@@ -76,15 +76,17 @@ export default function NewFlowPage() {
 
   function handleGenerate() {
     setGenerating(true)
+    const newId = `flow-${crypto.randomUUID().slice(0, 8)}`
     setTimeout(() => {
-      router.push("/flows/flow-1")
+      router.push(`/flows/${newId}`)
     }, 2500)
   }
 
   function handleTemplateSelect(templateId: string) {
     setGenerating(true)
+    const newId = `flow-${crypto.randomUUID().slice(0, 8)}`
     setTimeout(() => {
-      router.push("/flows/flow-1")
+      router.push(`/flows/${newId}`)
     }, 1500)
   }
 

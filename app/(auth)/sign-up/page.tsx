@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -11,6 +12,8 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
+import { signUp } from "@/lib/auth"
+import { Loader2 } from "lucide-react"
 
 const signUpSchema = z
   .object({
@@ -31,6 +34,7 @@ type SignUpValues = z.infer<typeof signUpSchema>
 
 export default function SignUpPage() {
   const router = useRouter()
+  const [loading, setLoading] = useState(false)
   const {
     register,
     handleSubmit,
@@ -44,8 +48,18 @@ export default function SignUpPage() {
 
   const termsValue = watch("terms")
 
-  async function onSubmit(_data: SignUpValues) {
-    router.push("/dashboard")
+  async function onSubmit(data: SignUpValues) {
+    setLoading(true)
+    try {
+      await signUp(data.email, data.password, data.name)
+      toast.success("Account created! Check your email to confirm.")
+      router.push("/sign-in")
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Sign up failed"
+      toast.error(message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   function handleOAuth(provider: string) {
@@ -139,8 +153,9 @@ export default function SignUpPage() {
           <Button
             type="submit"
             className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-            disabled={isSubmitting}
+            disabled={isSubmitting || loading}
           >
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Create Account
           </Button>
         </form>

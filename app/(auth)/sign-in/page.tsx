@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -19,6 +19,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { toast } from "sonner"
+import { signIn, resetPassword } from "@/lib/auth"
+import { Loader2 } from "lucide-react"
 
 const signInSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -29,8 +31,10 @@ type SignInValues = z.infer<typeof signInSchema>
 
 export default function SignInPage() {
   const router = useRouter()
+  const [loading, setLoading] = useState(false)
   const [forgotOpen, setForgotOpen] = useState(false)
   const [resetEmail, setResetEmail] = useState("")
+  const [resettingPassword, setResettingPassword] = useState(false)
   const {
     register,
     handleSubmit,
@@ -39,9 +43,34 @@ export default function SignInPage() {
     resolver: zodResolver(signInSchema),
   })
 
-  async function onSubmit(_data: SignInValues) {
-    router.push("/dashboard")
+  async function onSubmit(data: SignInValues) {
+    setLoading(true)
+    try {
+      await signIn(data.email, data.password)
+      toast.success("Signed in successfully")
+      router.push("/dashboard")
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Sign in failed"
+      toast.error(message)
+    } finally {
+      setLoading(false)
+    }
   }
+
+  const handleResetPassword = useCallback(async () => {
+    setResettingPassword(true)
+    try {
+      await resetPassword(resetEmail)
+      toast.success("Password reset email sent")
+      setForgotOpen(false)
+      setResetEmail("")
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to send reset email"
+      toast.error(message)
+    } finally {
+      setResettingPassword(false)
+    }
+  }, [resetEmail])
 
   function handleOAuth(provider: string) {
     toast.info(`${provider} OAuth coming soon — use email sign in`)
@@ -95,8 +124,9 @@ export default function SignInPage() {
           <Button
             type="submit"
             className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-            disabled={isSubmitting}
+            disabled={isSubmitting || loading}
           >
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Sign In
           </Button>
         </form>
@@ -169,13 +199,10 @@ export default function SignInPage() {
           </div>
           <DialogFooter>
             <Button
-              onClick={() => {
-                toast.success("Password reset email sent")
-                setForgotOpen(false)
-                setResetEmail("")
-              }}
-              disabled={!resetEmail}
+              onClick={handleResetPassword}
+              disabled={!resetEmail || resettingPassword}
             >
+              {resettingPassword && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Send Reset Link
             </Button>
           </DialogFooter>

@@ -116,7 +116,8 @@ const items: DefenseItem[] = [
     id: "RT-015",
     title: "Runs page 'Last 7 Days' date picker button does nothing",
     severity: "LOW",
-    status: "ACKNOWLEDGED",
+    status: "FIXED",
+    resolution: "Replaced static button with a functional Select dropdown offering 'Last 24 Hours', 'Last 7 Days', 'Last 30 Days', and 'All Time' options. Runs are filtered by startedAt date based on selection.",
   },
   {
     id: "RT-016",
@@ -198,7 +199,8 @@ const items: DefenseItem[] = [
     id: "RT-028",
     title: "New flow wizard always redirects to flow-1",
     severity: "MEDIUM",
-    status: "ACKNOWLEDGED",
+    status: "FIXED",
+    resolution: "handleGenerate and handleTemplateSelect now generate a unique ID via crypto.randomUUID() and redirect to /flows/${newId} instead of hardcoded /flows/flow-1.",
   },
   {
     id: "RT-029",
@@ -221,9 +223,10 @@ const items: DefenseItem[] = [
   },
   {
     id: "RT-032",
-    title: "API docs link points to /docs/api which may not exist",
+    title: "API docs endpoint URLs don't match actual routes",
     severity: "LOW",
-    status: "ACKNOWLEDGED",
+    status: "FIXED",
+    resolution: "Changed API docs base URL from https://api.scraper.dev/v1 to https://scraper.bot/api. Updated all curl examples to use the correct base URL matching the actual /api/ routes.",
   },
   {
     id: "RT-033",
@@ -235,7 +238,8 @@ const items: DefenseItem[] = [
     id: "RT-034",
     title: "Pricing page has no navigation bar",
     severity: "MEDIUM",
-    status: "ACKNOWLEDGED",
+    status: "FIXED",
+    resolution: "Added a sticky nav bar to PricingContent with Logo, Features, Pricing, Docs links, and Sign In / Get Started Free buttons, matching the landing page nav pattern.",
   },
   {
     id: "RT-035",

@@ -45,6 +45,11 @@ import {
   History,
   RotateCcw,
   GitCompare,
+  Shield,
+  Fingerprint,
+  Timer,
+  Layers,
+  Ban,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -106,6 +111,8 @@ import {
 } from "@/components/ui/resizable"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { downloadJSON } from "@/lib/export"
@@ -1089,7 +1096,7 @@ function SettingsTab({ flow }: { flow: typeof mockFlows[0] }) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Calendar className="h-4 w-4" />
-              Schedule
+              Timezone-Aware Scheduling
             </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
@@ -1126,13 +1133,29 @@ function SettingsTab({ flow }: { flow: typeof mockFlows[0] }) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="UTC">UTC</SelectItem>
                   <SelectItem value="America/New_York">America/New_York (EST)</SelectItem>
                   <SelectItem value="America/Chicago">America/Chicago (CST)</SelectItem>
                   <SelectItem value="America/Denver">America/Denver (MST)</SelectItem>
                   <SelectItem value="America/Los_Angeles">America/Los_Angeles (PST)</SelectItem>
-                  <SelectItem value="UTC">UTC</SelectItem>
+                  <SelectItem value="Europe/London">Europe/London (GMT)</SelectItem>
+                  <SelectItem value="Europe/Berlin">Europe/Berlin (CET)</SelectItem>
+                  <SelectItem value="Asia/Tokyo">Asia/Tokyo (JST)</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+            <Separator />
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs">Next 5 Runs</Label>
+              <div className="rounded-md border bg-muted/50 p-3">
+                <div className="flex flex-col gap-1.5 text-xs font-mono text-muted-foreground">
+                  <span>1. Mar 19, 2026 at 12:00 PM EST</span>
+                  <span>2. Mar 19, 2026 at 6:00 PM EST</span>
+                  <span>3. Mar 20, 2026 at 12:00 AM EST</span>
+                  <span>4. Mar 20, 2026 at 6:00 AM EST</span>
+                  <span>5. Mar 20, 2026 at 12:00 PM EST</span>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -1179,24 +1202,14 @@ function SettingsTab({ flow }: { flow: typeof mockFlows[0] }) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <RefreshCw className="h-4 w-4" />
-              Retry Configuration
+              Retry Policy
             </CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-4">
             <div className="flex flex-col gap-2">
               <Label className="text-xs">Max Retries</Label>
-              <Select defaultValue="3">
-                <SelectTrigger className="h-8 text-sm">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0">No retries</SelectItem>
-                  <SelectItem value="1">1 retry</SelectItem>
-                  <SelectItem value="2">2 retries</SelectItem>
-                  <SelectItem value="3">3 retries</SelectItem>
-                  <SelectItem value="5">5 retries</SelectItem>
-                </SelectContent>
-              </Select>
+              <Input defaultValue="3" min={1} max={10} className="h-8 text-sm" type="number" />
+              <p className="text-muted-foreground text-[10px]">Between 1 and 10 retries</p>
             </div>
             <div className="flex flex-col gap-2">
               <Label className="text-xs">Backoff Strategy</Label>
@@ -1205,15 +1218,190 @@ function SettingsTab({ flow }: { flow: typeof mockFlows[0] }) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
                   <SelectItem value="linear">Linear</SelectItem>
                   <SelectItem value="exponential">Exponential</SelectItem>
-                  <SelectItem value="fixed">Fixed delay</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="flex flex-col gap-2">
+                <Label className="text-xs">Initial Delay (seconds)</Label>
+                <Input defaultValue="5" className="h-8 text-sm" type="number" />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label className="text-xs">Max Delay (seconds)</Label>
+                <Input defaultValue="60" className="h-8 text-sm" type="number" />
+              </div>
+            </div>
+            <Separator />
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs">Retry On</Label>
+              <div className="flex flex-col gap-2.5">
+                <div className="flex items-center gap-2">
+                  <Checkbox id="retry-network" defaultChecked />
+                  <label htmlFor="retry-network" className="text-sm">Network error</label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox id="retry-ratelimit" defaultChecked />
+                  <label htmlFor="retry-ratelimit" className="text-sm">Rate limit (429)</label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox id="retry-server" defaultChecked />
+                  <label htmlFor="retry-server" className="text-sm">Server error (5xx)</label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox id="retry-timeout" defaultChecked />
+                  <label htmlFor="retry-timeout" className="text-sm">Timeout</label>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Layers className="h-4 w-4" />
+              Concurrency
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs">Concurrent Run Limit</Label>
+              <div className="flex items-center gap-3">
+                <Slider defaultValue={[1]} min={1} max={10} step={1} className="flex-1" />
+                <span className="text-sm font-mono w-6 text-right">1</span>
+              </div>
+              <p className="text-muted-foreground text-[10px]">Maximum parallel runs (1-10)</p>
+            </div>
+            <div className="flex flex-col gap-2">
+              <Label className="text-xs">Queue Behavior</Label>
+              <Select defaultValue="queue">
+                <SelectTrigger className="h-8 text-sm">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="queue">Queue excess</SelectItem>
+                  <SelectItem value="skip">Skip if running</SelectItem>
+                  <SelectItem value="cancel">Cancel previous</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="flex flex-col gap-2">
               <Label className="text-xs">Timeout (seconds)</Label>
-              <Input defaultValue="120" className="h-8 text-sm" type="number" />
+              <Input defaultValue="300" className="h-8 text-sm" type="number" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Shield className="h-4 w-4" />
+              CAPTCHA &amp; Anti-Bot
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>CAPTCHA Solving</Label>
+                <p className="text-muted-foreground text-xs mt-0.5">
+                  Automatically solve CAPTCHAs during flow execution
+                </p>
+              </div>
+              <Switch id="captcha-solving" />
+            </div>
+            <div className="flex flex-col gap-3 rounded-md border bg-muted/30 p-3">
+              <div className="flex flex-col gap-2">
+                <Label className="text-xs">Provider</Label>
+                <Select defaultValue="auto">
+                  <SelectTrigger className="h-8 text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="auto">Auto (recommended)</SelectItem>
+                    <SelectItem value="2captcha">2Captcha</SelectItem>
+                    <SelectItem value="anticaptcha">Anti-Captcha</SelectItem>
+                    <SelectItem value="hcaptcha">hCaptcha Solver</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label className="text-xs">Supported CAPTCHA Types</Label>
+                <div className="flex flex-col gap-2.5">
+                  <div className="flex items-center gap-2">
+                    <Checkbox id="captcha-recaptchav2" defaultChecked />
+                    <label htmlFor="captcha-recaptchav2" className="text-sm">reCAPTCHA v2</label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Checkbox id="captcha-recaptchav3" defaultChecked />
+                    <label htmlFor="captcha-recaptchav3" className="text-sm">reCAPTCHA v3</label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Checkbox id="captcha-hcaptcha" defaultChecked />
+                    <label htmlFor="captcha-hcaptcha" className="text-sm">hCaptcha</label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Checkbox id="captcha-turnstile" defaultChecked />
+                    <label htmlFor="captcha-turnstile" className="text-sm">Cloudflare Turnstile</label>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Label className="text-xs">API Key (external provider)</Label>
+                <Input placeholder="Enter provider API key" className="h-8 text-sm font-mono" type="password" />
+              </div>
+              <Button variant="outline" size="sm" className="w-fit" onClick={() => toast.success("CAPTCHA solving test passed")}>
+                Test CAPTCHA Solving
+              </Button>
+            </div>
+
+            <Separator />
+
+            <div>
+              <Label className="text-sm font-semibold">Anti-Bot Protection</Label>
+              <p className="text-muted-foreground text-xs mt-0.5 mb-3">
+                Evade bot detection systems with human-like behavior
+              </p>
+              <div className="flex flex-col gap-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-sm">Browser fingerprint randomization</Label>
+                    <p className="text-muted-foreground text-[10px]">Rotate canvas, WebGL, and navigator fingerprints</p>
+                  </div>
+                  <Switch defaultChecked />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-sm">Human-like delays</Label>
+                    <p className="text-muted-foreground text-[10px]">Add random delays between actions</p>
+                  </div>
+                  <Switch defaultChecked />
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label className="text-xs">Delay Range</Label>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-muted-foreground w-12">500ms</span>
+                    <Slider defaultValue={[800, 2500]} min={500} max={5000} step={100} className="flex-1" />
+                    <span className="text-xs text-muted-foreground w-14 text-right">5000ms</span>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-sm">Request header rotation</Label>
+                    <p className="text-muted-foreground text-[10px]">Randomize User-Agent and Accept headers</p>
+                  </div>
+                  <Switch defaultChecked />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-sm">Cookie persistence</Label>
+                    <p className="text-muted-foreground text-[10px]">Maintain cookies across requests</p>
+                  </div>
+                  <Switch defaultChecked />
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>

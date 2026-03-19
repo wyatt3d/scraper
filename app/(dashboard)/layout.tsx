@@ -7,6 +7,7 @@ import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
 import { DashboardShortcuts } from "@/components/dashboard/dashboard-shortcuts"
 import { Toaster } from "@/components/ui/sonner"
+import { AuthProvider } from "@/components/auth/auth-provider"
 
 export default async function DashboardLayout({
   children,

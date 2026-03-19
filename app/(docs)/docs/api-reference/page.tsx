@@ -28,7 +28,7 @@ export default function ApiReferencePage() {
 
       <section className="mb-12">
         <h2 className="font-serif text-2xl font-semibold mb-4">Base URL</h2>
-        <CodeBlock title="" code="https://api.scraper.dev/v1" />
+        <CodeBlock title="" code="https://scraper.bot/api" />
       </section>
 
       <div className="space-y-16">
@@ -55,7 +55,7 @@ export default function ApiReferencePage() {
   ],
   "total": 6
 }`}
-          curlExample={`curl https://api.scraper.dev/v1/flows?status=active \\
+          curlExample={`curl https://scraper.bot/api/flows?status=active \\
   -H "X-API-Key: scr_live_your_key_here"`}
           jsExample={`const res = await fetch("/api/flows?status=active", {
   headers: { "X-API-Key": "scr_live_your_key_here" },
@@ -86,7 +86,7 @@ const { data } = await res.json();`}
     "createdAt": "2026-03-18T12:00:00Z"
   }
 }`}
-          curlExample={`curl -X POST https://api.scraper.dev/v1/flows \\
+          curlExample={`curl -X POST https://scraper.bot/api/flows \\
   -H "X-API-Key: scr_live_your_key_here" \\
   -H "Content-Type: application/json" \\
   -d '{"name":"My New Flow","url":"https://example.com","mode":"extract"}'`}
@@ -123,7 +123,7 @@ const { data } = await res.json();`}
     "totalRuns": 248
   }
 }`}
-          curlExample={`curl https://api.scraper.dev/v1/flows/flow-1 \\
+          curlExample={`curl https://scraper.bot/api/flows/flow-1 \\
   -H "X-API-Key: scr_live_your_key_here"`}
           jsExample={`const res = await fetch("/api/flows/flow-1", {
   headers: { "X-API-Key": "scr_live_your_key_here" },
@@ -147,7 +147,7 @@ const { data } = await res.json();`}
     "updatedAt": "2026-03-18T12:00:00Z"
   }
 }`}
-          curlExample={`curl -X PUT https://api.scraper.dev/v1/flows/flow-1 \\
+          curlExample={`curl -X PUT https://scraper.bot/api/flows/flow-1 \\
   -H "X-API-Key: scr_live_your_key_here" \\
   -H "Content-Type: application/json" \\
   -d '{"name":"Updated Flow Name","status":"active"}'`}
@@ -168,7 +168,7 @@ const { data } = await res.json();`}
           responseExample={`{
   "message": "Flow flow-1 deleted successfully"
 }`}
-          curlExample={`curl -X DELETE https://api.scraper.dev/v1/flows/flow-1 \\
+          curlExample={`curl -X DELETE https://scraper.bot/api/flows/flow-1 \\
   -H "X-API-Key: scr_live_your_key_here"`}
           jsExample={`await fetch("/api/flows/flow-1", {
   method: "DELETE",
@@ -199,7 +199,7 @@ const { data } = await res.json();`}
   ],
   "total": 5
 }`}
-          curlExample={`curl https://api.scraper.dev/v1/runs?flowId=flow-1&status=completed \\
+          curlExample={`curl https://scraper.bot/api/runs?flowId=flow-1&status=completed \\
   -H "X-API-Key: scr_live_your_key_here"`}
           jsExample={`const res = await fetch("/api/runs?flowId=flow-1", {
   headers: { "X-API-Key": "scr_live_your_key_here" },
@@ -224,7 +224,7 @@ const { data } = await res.json();`}
     "cost": 0
   }
 }`}
-          curlExample={`curl -X POST https://api.scraper.dev/v1/runs \\
+          curlExample={`curl -X POST https://scraper.bot/api/runs \\
   -H "X-API-Key: scr_live_your_key_here" \\
   -H "Content-Type: application/json" \\
   -d '{"flowId":"flow-1"}'`}
@@ -256,7 +256,7 @@ const { data } = await res.json();`}
     "outputPreview": [...]
   }
 }`}
-          curlExample={`curl https://api.scraper.dev/v1/runs/run-1 \\
+          curlExample={`curl https://scraper.bot/api/runs/run-1 \\
   -H "X-API-Key: scr_live_your_key_here"`}
           jsExample={`const res = await fetch("/api/runs/run-1", {
   headers: { "X-API-Key": "scr_live_your_key_here" },
@@ -289,7 +289,7 @@ console.log(data.logs);`}
     ]
   }
 }`}
-          curlExample={`curl -X POST https://api.scraper.dev/v1/extract \\
+          curlExample={`curl -X POST https://scraper.bot/api/extract \\
   -H "X-API-Key: scr_live_your_key_here" \\
   -H "Content-Type: application/json" \\
   -d '{"url":"https://example-store.com/products","instructions":"Extract all product names and prices"}'`}
@@ -325,7 +325,7 @@ console.log(data.items);`}
   ],
   "total": 3
 }`}
-          curlExample={`curl https://api.scraper.dev/v1/keys \\
+          curlExample={`curl https://scraper.bot/api/keys \\
   -H "X-API-Key: scr_live_your_key_here"`}
           jsExample={`const res = await fetch("/api/keys", {
   headers: { "X-API-Key": "scr_live_your_key_here" },
@@ -350,7 +350,7 @@ const { data } = await res.json();`}
     "scopes": ["flows:read", "runs:read", "runs:write"]
   }
 }`}
-          curlExample={`curl -X POST https://api.scraper.dev/v1/keys \\
+          curlExample={`curl -X POST https://scraper.bot/api/keys \\
   -H "X-API-Key: scr_live_your_key_here" \\
   -H "Content-Type: application/json" \\
   -d '{"name":"My New Key","scopes":["flows:read","runs:read"]}'`}
