@@ -104,7 +104,7 @@ export default function ToolsPage() {
               <Card className="h-full transition-all hover:shadow-md hover:border-blue-600/40">
                 <CardContent className="p-6 flex flex-col h-full">
                   <div className="w-10 h-10 rounded-lg bg-blue-600/10 flex items-center justify-center mb-4">
-                    <tool.icon className="w-5 h-5 text-blue-600" />
+                    <tool.icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   </div>
                   <h2 className="font-serif text-lg font-semibold mb-2">
                     {tool.title}
@@ -128,7 +128,7 @@ export default function ToolsPage() {
 
         <div className="text-center mt-16 pt-8 border-t border-border">
           <p className="text-sm text-muted-foreground mb-4">
-            Powered by <span className="font-serif font-semibold">Scraper<span className="text-blue-600">.bot</span></span>
+            Powered by <span className="font-serif font-semibold">Scraper<span className="text-blue-600 dark:text-blue-400">.bot</span></span>
           </p>
           <Link href="/pricing">
             <Button variant="default" size="lg">

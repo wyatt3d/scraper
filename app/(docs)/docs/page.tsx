@@ -67,7 +67,7 @@ export default function DocsOverview() {
         <div className="space-y-4">
           {concepts.map((concept) => (
             <div key={concept.title} className="flex gap-4 items-start">
-              <Activity className="h-5 w-5 text-blue-600 mt-0.5 shrink-0" />
+              <Activity className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 shrink-0" />
               <div>
                 <h3 className="font-semibold">{concept.title}</h3>
                 <p className="text-sm text-muted-foreground">{concept.description}</p>

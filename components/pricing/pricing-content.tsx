@@ -331,7 +331,7 @@ export function PricingContent() {
                   <ul className="space-y-3 mb-8 flex-1">
                     {tier.features.map((f) => (
                       <li key={f} className="flex items-center space-x-3">
-                        <Check className="w-5 h-5 text-blue-600 shrink-0" />
+                        <Check className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0" />
                         <span className="text-sm">{f}</span>
                       </li>
                     ))}
@@ -390,7 +390,7 @@ export function PricingContent() {
                   <th className="py-4 px-4 text-center text-sm font-semibold w-[20%]">
                     Free
                   </th>
-                  <th className="py-4 px-4 text-center text-sm font-semibold text-blue-600 w-[20%]">
+                  <th className="py-4 px-4 text-center text-sm font-semibold text-blue-600 dark:text-blue-400 w-[20%]">
                     Pro
                   </th>
                   <th className="py-4 px-4 text-center text-sm font-semibold w-[20%]">
@@ -453,7 +453,7 @@ export function PricingContent() {
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <label className="text-sm font-medium text-foreground">Monthly Runs</label>
-                  <span className="text-sm font-semibold text-blue-600">{monthlyRuns.toLocaleString()}</span>
+                  <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">{monthlyRuns.toLocaleString()}</span>
                 </div>
                 <Slider
                   value={[monthlyRuns]}
@@ -471,7 +471,7 @@ export function PricingContent() {
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <label className="text-sm font-medium text-foreground">Average Pages per Run</label>
-                  <span className="text-sm font-semibold text-blue-600">{pagesPerRun}</span>
+                  <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">{pagesPerRun}</span>
                 </div>
                 <Slider
                   value={[pagesPerRun]}
@@ -489,7 +489,7 @@ export function PricingContent() {
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <label className="text-sm font-medium text-foreground">Team Members</label>
-                  <span className="text-sm font-semibold text-blue-600">{teamMembers}</span>
+                  <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">{teamMembers}</span>
                 </div>
                 <Slider
                   value={[teamMembers]}
@@ -508,7 +508,7 @@ export function PricingContent() {
             <Card className="border-blue-600/30 shadow-lg">
               <CardHeader>
                 <CardDescription className="text-sm">Recommended Plan</CardDescription>
-                <CardTitle className="font-serif font-black text-3xl text-blue-600">
+                <CardTitle className="font-serif font-black text-3xl text-blue-600 dark:text-blue-400">
                   {recommendedPlan}
                 </CardTitle>
               </CardHeader>
@@ -585,7 +585,7 @@ export function PricingContent() {
           <Link href="/contact">
             <Button
               size="lg"
-              className="bg-white text-blue-600 hover:bg-white/90 text-lg px-8 py-6 font-semibold"
+              className="bg-white text-blue-600 dark:text-blue-400 hover:bg-white/90 text-lg px-8 py-6 font-semibold"
             >
               Talk to Sales
               <ArrowRight className="ml-2 w-5 h-5" />

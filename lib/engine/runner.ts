@@ -177,14 +177,12 @@ function buildPlaywrightScript(flow: Flow): string {
                   if (text && text.toLowerCase().includes(textToFind.toLowerCase().split(' ').pop())) {
                     await el.click();
                     clicked_${i} = true;
-                    console.log('Found element by text match: ' + text.trim());
                     break;
                   }
                 }
               } catch {}
             }
             if (!clicked_${i}) {
-              console.log('All selectors failed for step ${i + 1}');
               const failShot = await page.screenshot({ type: 'png', encoding: 'base64' }).catch(() => null);
               if (failShot) screenshots.push({ step: 's${i + 1}_fail', label: ${JSON.stringify("Failed: " + step.label)}, url: page.url(), image: 'data:image/png;base64,' + failShot });
             }
@@ -192,7 +190,7 @@ function buildPlaywrightScript(flow: Flow): string {
             { const shot = await page.screenshot({ type: 'png', encoding: 'base64' }).catch(() => null);
               if (shot) screenshots.push({ step: 's${i + 1}', label: ${JSON.stringify(step.label)}, url: page.url(), image: 'data:image/png;base64,' + shot }); }
           } catch (e) {
-            console.log('Click failed for step ${i + 1}:', e.message);
+            // click failed, continue
           }
         `
           break
@@ -204,7 +202,7 @@ function buildPlaywrightScript(flow: Flow): string {
             await page.type(${JSON.stringify(step.selector || "")}, ${JSON.stringify(step.value || "")});
             await page.waitForTimeout(500);
           } catch (e) {
-            console.log('Fill failed for step ${i + 1}:', e.message);
+            // fill failed, continue
           }
         `
           break

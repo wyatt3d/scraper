@@ -125,7 +125,7 @@ export function ChatWidget() {
                   <button
                     key={reply}
                     onClick={() => handleQuickReply(reply)}
-                    className="rounded-full border border-blue-600 text-blue-600 px-3 py-1 text-xs hover:bg-blue-600 hover:text-white transition-colors"
+                    className="rounded-full border border-blue-600 dark:border-blue-400 text-blue-600 dark:text-blue-400 px-3 py-1 text-xs hover:bg-blue-600 hover:text-white transition-colors"
                   >
                     {reply}
                   </button>
@@ -151,7 +151,7 @@ export function ChatWidget() {
             />
             <button
               type="submit"
-              className="text-blue-600 hover:text-blue-700 transition-colors disabled:opacity-40"
+              className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors disabled:opacity-40"
               disabled={!input.trim()}
               aria-label="Send message"
             >

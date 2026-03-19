@@ -496,7 +496,7 @@ export default async function LandingPage() {
             Replace fragile scrapers with reliable, AI-generated APIs. Get started in minutes.
           </p>
           <Link href="/sign-up">
-            <Button size="lg" className="bg-white text-blue-600 hover:bg-white/90 text-lg px-8 py-6 font-semibold">
+            <Button size="lg" className="bg-white text-blue-600 dark:text-blue-400 hover:bg-white/90 text-lg px-8 py-6 font-semibold">
               Get Started Free
               <ArrowRight className="ml-2 w-5 h-5" />
             </Button>

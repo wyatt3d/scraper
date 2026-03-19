@@ -536,14 +536,14 @@ export default function DashboardPage() {
                       <Play className="size-3" />
                       Run
                     </Button>
-                    <Button variant="ghost" size="icon" className="size-8" onClick={() => handleTogglePause(flow.id)}>
+                    <Button variant="ghost" size="icon" className="size-8" aria-label={flow.status === "active" ? "Pause flow" : "Resume flow"} onClick={() => handleTogglePause(flow.id)}>
                       {flow.status === "paused" ? (
                         <Play className="size-3.5" />
                       ) : (
                         <Pause className="size-3.5" />
                       )}
                     </Button>
-                    <Button variant="ghost" size="icon" className="size-8" asChild>
+                    <Button variant="ghost" size="icon" className="size-8" aria-label="View flow details" asChild>
                       <Link href={`/flows/${flow.id}`}>
                         <Edit className="size-3.5" />
                       </Link>

@@ -65,7 +65,7 @@ export default function ExtensionPage() {
           <div className="text-center max-w-4xl mx-auto">
             <h1 className="font-serif font-black text-4xl md:text-6xl lg:text-7xl text-balance mb-6 text-foreground">
               Scraper.bot{" "}
-              <span className="text-blue-600">Chrome Extension</span>
+              <span className="text-blue-600 dark:text-blue-400">Chrome Extension</span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground text-balance mb-10 leading-relaxed max-w-3xl mx-auto">
               Point. Click. Extract. Turn any webpage into structured data without leaving your browser.
@@ -181,7 +181,7 @@ export default function ExtensionPage() {
                 </div>
                 <CardHeader>
                   <div className="flex justify-center mb-4">
-                    <item.icon className="w-8 h-8 text-blue-600" />
+                    <item.icon className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                   </div>
                   <CardTitle className="font-serif font-bold text-xl">{item.title}</CardTitle>
                   <CardDescription className="text-base">{item.description}</CardDescription>

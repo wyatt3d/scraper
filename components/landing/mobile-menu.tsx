@@ -23,9 +23,8 @@ export function MobileMenu({ isSignedIn }: MobileMenuProps) {
     <div className="md:hidden">
       <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
         <SheetTrigger asChild>
-          <Button variant="ghost" size="icon">
+          <Button variant="ghost" size="icon" aria-label="Toggle menu">
             <Menu className="size-5" />
-            <span className="sr-only">Open menu</span>
           </Button>
         </SheetTrigger>
         <SheetContent side="right" className="w-72">

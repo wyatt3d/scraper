@@ -26,7 +26,7 @@ export default function NotFound() {
         </div>
         <p className="mt-6 text-sm text-muted-foreground">
           Need help?{" "}
-          <Link href="/docs" className="text-blue-600 hover:underline">
+          <Link href="/docs" className="text-blue-600 dark:text-blue-400 hover:underline">
             View documentation
           </Link>
         </p>

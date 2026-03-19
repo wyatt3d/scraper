@@ -390,7 +390,7 @@ export default function BlueTeamPage() {
         <Card className="py-4 border-l-4 border-l-blue-600">
           <CardContent>
             <p className="text-sm text-muted-foreground">Defense Score</p>
-            <p className="text-4xl font-black text-blue-600">{score}%</p>
+            <p className="text-4xl font-black text-blue-600 dark:text-blue-400">{score}%</p>
             <p className="text-xs text-muted-foreground mt-1">{fixed} of {total} findings resolved</p>
           </CardContent>
         </Card>

@@ -24,7 +24,7 @@ export function Logo({ size = "md", href = "/", className, showDot = true }: Log
   const content = (
     <span className={cn("inline-flex items-baseline gap-0", sizeClasses[size], className)}>
       <span className="font-serif font-bold tracking-tight">Scraper</span>
-      <span className="font-serif font-bold tracking-tight text-blue-600">.bot</span>
+      <span className="font-serif font-bold tracking-tight text-blue-600 dark:text-blue-400">.bot</span>
     </span>
   )
 

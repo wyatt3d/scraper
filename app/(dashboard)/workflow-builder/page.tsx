@@ -185,7 +185,7 @@ function NodeConfigPanel({
           </div>
           <span className="text-sm font-semibold">{nodeType.label}</span>
         </div>
-        <Button variant="ghost" size="icon" className="size-7" onClick={onClose}>
+        <Button variant="ghost" size="icon" className="size-7" aria-label="Close" onClick={onClose}>
           <X className="size-4" />
         </Button>
       </div>
@@ -718,7 +718,7 @@ export default function WorkflowBuilderPage() {
           <TooltipProvider delayDuration={300}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="size-8" onClick={() => toast("Undo/Redo coming soon")}>
+                <Button variant="ghost" size="icon" className="size-8" aria-label="Undo" onClick={() => toast("Undo/Redo coming soon")}>
                   <Undo2 className="size-4" />
                 </Button>
               </TooltipTrigger>
@@ -726,7 +726,7 @@ export default function WorkflowBuilderPage() {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="size-8" onClick={() => toast("Undo/Redo coming soon")}>
+                <Button variant="ghost" size="icon" className="size-8" aria-label="Redo" onClick={() => toast("Undo/Redo coming soon")}>
                   <Redo2 className="size-4" />
                 </Button>
               </TooltipTrigger>
@@ -737,16 +737,16 @@ export default function WorkflowBuilderPage() {
           <Separator orientation="vertical" className="mx-1 h-5" />
 
           <div className="flex items-center gap-0.5 rounded-md border px-1">
-            <Button variant="ghost" size="icon" className="size-7" onClick={handleZoomOut}>
+            <Button variant="ghost" size="icon" className="size-7" aria-label="Zoom out" onClick={handleZoomOut}>
               <Minus className="size-3" />
             </Button>
             <span className="w-10 text-center text-[11px] tabular-nums text-muted-foreground">
               {Math.round(zoom * 100)}%
             </span>
-            <Button variant="ghost" size="icon" className="size-7" onClick={handleZoomIn}>
+            <Button variant="ghost" size="icon" className="size-7" aria-label="Zoom in" onClick={handleZoomIn}>
               <Plus className="size-3" />
             </Button>
-            <Button variant="ghost" size="icon" className="size-7" onClick={handleZoomFit}>
+            <Button variant="ghost" size="icon" className="size-7" aria-label="Fit to screen" onClick={handleZoomFit}>
               <Maximize className="size-3" />
             </Button>
           </div>
@@ -859,7 +859,7 @@ export default function WorkflowBuilderPage() {
           <div className="fixed inset-x-0 bottom-0 z-30 max-h-[60vh] overflow-y-auto rounded-t-xl border-t bg-background p-4 shadow-xl">
             <div className="mb-3 flex items-center justify-between">
               <span className="text-sm font-semibold">Add Node</span>
-              <Button variant="ghost" size="icon" className="size-7" onClick={() => setMobilePaletteOpen(false)}>
+              <Button variant="ghost" size="icon" className="size-7" aria-label="Close palette" onClick={() => setMobilePaletteOpen(false)}>
                 <X className="size-4" />
               </Button>
             </div>

@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     const { data, error } = await supabase
       .from("tickets")
-      .select("*")
+      .select("id, type, severity, title, description, status, email, created_at, updated_at")
       .order("created_at", { ascending: false })
       .limit(limit)
       .range(offset, offset + limit - 1)

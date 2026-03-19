@@ -21,7 +21,7 @@ export async function GET(request: Request) {
   try {
     let query = supabase
       .from("audit_log")
-      .select("*")
+      .select("id, actor, action, resource_type, resource_name, details, created_at")
       .order("created_at", { ascending: false })
       .limit(limit)
       .range(offset, offset + limit - 1)

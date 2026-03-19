@@ -117,7 +117,7 @@ export default function PrivacyPage() {
             </ul>
             <p className="mt-3">
               To exercise any of these rights, contact us at{" "}
-              <a href="mailto:privacy@scraper.bot" className="text-blue-600 hover:text-blue-700 underline">
+              <a href="mailto:privacy@scraper.bot" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline">
                 privacy@scraper.bot
               </a>
               .
@@ -157,7 +157,7 @@ export default function PrivacyPage() {
             </h2>
             <p>
               If you have any questions about this Privacy Policy, please contact us at{" "}
-              <a href="mailto:privacy@scraper.bot" className="text-blue-600 hover:text-blue-700 underline">
+              <a href="mailto:privacy@scraper.bot" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline">
                 privacy@scraper.bot
               </a>
               .

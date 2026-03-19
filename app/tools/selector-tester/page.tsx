@@ -284,7 +284,7 @@ export default function SelectorTesterPage() {
           <p className="text-sm text-muted-foreground mb-4">
             Powered by{" "}
             <span className="font-serif font-semibold">
-              Scraper<span className="text-blue-600">.bot</span>
+              Scraper<span className="text-blue-600 dark:text-blue-400">.bot</span>
             </span>
           </p>
           <Link href="/pricing">

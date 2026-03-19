@@ -658,7 +658,7 @@ export default function CronBuilderPage() {
           <p className="text-sm text-muted-foreground mb-4">
             Schedule your scrapers with{" "}
             <span className="font-serif font-semibold">
-              Scraper<span className="text-blue-600">.bot</span>
+              Scraper<span className="text-blue-600 dark:text-blue-400">.bot</span>
             </span>
           </p>
           <Link href="/pricing">

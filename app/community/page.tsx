@@ -205,7 +205,7 @@ function PostCard({ post }: { post: Post }) {
                 {post.category}
               </span>
             </div>
-            <h3 className="font-serif text-base font-semibold leading-snug mb-1 group-hover:text-blue-600">
+            <h3 className="font-serif text-base font-semibold leading-snug mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400">
               {post.title}
             </h3>
             <p className="text-sm text-muted-foreground line-clamp-1 mb-2">

@@ -13,7 +13,7 @@ export function ExtensionButtons({ variant }: { variant: "hero" | "cta" }) {
     return (
       <Button
         size="lg"
-        className="bg-white text-blue-600 hover:bg-white/90 text-lg px-8 py-6 font-semibold"
+        className="bg-white text-blue-600 dark:text-blue-400 hover:bg-white/90 text-lg px-8 py-6 font-semibold"
         onClick={handleAddToChrome}
       >
         <Chrome className="mr-2 w-5 h-5" />

@@ -288,7 +288,7 @@ export default function HeadersPage() {
                             className="border-b border-border last:border-0"
                           >
                             <td className="py-2 pr-4">
-                              <code className="font-mono text-xs text-blue-600">
+                              <code className="font-mono text-xs text-blue-600 dark:text-blue-400">
                                 {h.name}
                               </code>
                             </td>
@@ -354,7 +354,7 @@ export default function HeadersPage() {
           <p className="text-sm text-muted-foreground mb-4">
             Powered by{" "}
             <span className="font-serif font-semibold">
-              Scraper<span className="text-blue-600">.bot</span>
+              Scraper<span className="text-blue-600 dark:text-blue-400">.bot</span>
             </span>
           </p>
           <Link href="/pricing">

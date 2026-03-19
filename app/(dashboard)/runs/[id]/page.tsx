@@ -275,7 +275,7 @@ export default function RunDetailPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/runs">
-            <Button variant="ghost" size="icon" className="size-8">
+            <Button variant="ghost" size="icon" className="size-8" aria-label="Back to runs">
               <ArrowLeft className="size-4" />
             </Button>
           </Link>

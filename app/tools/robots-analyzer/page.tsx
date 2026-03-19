@@ -363,7 +363,7 @@ export default function RobotsAnalyzerPage() {
               {result.sitemaps.length > 0 && (
                 <Card>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-sm font-medium text-blue-600 flex items-center gap-2">
+                    <CardTitle className="text-sm font-medium text-blue-600 dark:text-blue-400 flex items-center gap-2">
                       <ExternalLink className="w-4 h-4" />
                       Sitemaps
                     </CardTitle>
@@ -372,7 +372,7 @@ export default function RobotsAnalyzerPage() {
                     <ul className="space-y-1">
                       {result.sitemaps.map((s, i) => (
                         <li key={i}>
-                          <code className="font-mono text-xs text-blue-600">
+                          <code className="font-mono text-xs text-blue-600 dark:text-blue-400">
                             {s}
                           </code>
                         </li>
@@ -389,7 +389,7 @@ export default function RobotsAnalyzerPage() {
           <p className="text-sm text-muted-foreground mb-4">
             Powered by{" "}
             <span className="font-serif font-semibold">
-              Scraper<span className="text-blue-600">.bot</span>
+              Scraper<span className="text-blue-600 dark:text-blue-400">.bot</span>
             </span>
           </p>
           <Link href="/pricing">

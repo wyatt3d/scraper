@@ -94,7 +94,7 @@ export default function TermsPage() {
             </h2>
             <p>
               You retain ownership of all data you extract using the Service. We do not sell, share, or monetize your extracted data. Our handling of your personal information is governed by our{" "}
-              <Link href="/privacy" className="text-blue-600 hover:text-blue-700 underline">
+              <Link href="/privacy" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline">
                 Privacy Policy
               </Link>
               , which is incorporated into these Terms by reference.
@@ -152,7 +152,7 @@ export default function TermsPage() {
             </h2>
             <p>
               If you have any questions about these Terms, please contact us at{" "}
-              <a href="mailto:legal@scraper.bot" className="text-blue-600 hover:text-blue-700 underline">
+              <a href="mailto:legal@scraper.bot" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 underline">
                 legal@scraper.bot
               </a>
               .

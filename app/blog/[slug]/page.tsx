@@ -371,7 +371,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
                   >
                     <div>
                       <p className="text-sm text-muted-foreground mb-1">{related.date}</p>
-                      <p className="font-serif font-semibold group-hover:text-blue-600 transition-colors">
+                      <p className="font-serif font-semibold group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                         {related.title}
                       </p>
                     </div>

@@ -113,7 +113,7 @@ export default function BlogPage() {
                     {article.readingTime}
                   </span>
                 </div>
-                <h2 className="font-serif text-2xl font-bold mb-3 group-hover:text-blue-600 transition-colors">
+                <h2 className="font-serif text-2xl font-bold mb-3 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                   {article.title}
                 </h2>
                 <p className="text-muted-foreground leading-relaxed mb-4">{article.summary}</p>
@@ -125,7 +125,7 @@ export default function BlogPage() {
                       </Badge>
                     ))}
                   </div>
-                  <span className="text-sm font-medium text-blue-600 flex items-center gap-1 group-hover:gap-2 transition-all">
+                  <span className="text-sm font-medium text-blue-600 dark:text-blue-400 flex items-center gap-1 group-hover:gap-2 transition-all">
                     Read more
                     <ArrowRight className="h-4 w-4" />
                   </span>
