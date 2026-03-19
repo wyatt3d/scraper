@@ -265,12 +265,12 @@ export default function ConceptsPage() {
           </p>
           <pre className="bg-muted rounded-lg p-4 text-sm font-mono overflow-x-auto text-foreground">
 {`# Trigger a flow run
-curl -X POST https://api.scraper.bot/v1/flows/f_3kx9m2/run \\
+curl -X POST https://scraper.bot/api/flows/f_3kx9m2/run \\
   -H "Authorization: Bearer scr_live_..." \\
   -H "Content-Type: application/json"
 
 # Get run results
-curl https://api.scraper.bot/v1/runs/r_8jx2k1 \\
+curl https://scraper.bot/api/runs/r_8jx2k1 \\
   -H "Authorization: Bearer scr_live_..."`}
           </pre>
           <p>

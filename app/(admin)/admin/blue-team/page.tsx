@@ -229,7 +229,7 @@ const items: DefenseItem[] = [
     title: "API docs endpoint URLs don't match actual routes",
     severity: "LOW",
     status: "FIXED",
-    resolution: "Changed API docs base URL from https://api.scraper.dev/v1 to https://scraper.bot/api. Updated all curl examples to use the correct base URL matching the actual /api/ routes.",
+    resolution: "Changed API docs base URL from https://scraper.bot/api to https://scraper.bot/api. Updated all curl examples to use the correct base URL matching the actual /api/ routes.",
   },
   {
     id: "RT-033",

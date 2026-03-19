@@ -876,7 +876,7 @@ function RunsTab({ runs, flowId, flowName, onRunComplete }: { runs: Run[]; flowI
 }
 
 function ApiTab({ flowId, flowName }: { flowId: string; flowName: string }) {
-  const endpoint = `https://api.scraper.dev/v1/flows/${flowId}/run`
+  const endpoint = `https://scraper.bot/api/flows/${flowId}/run`
   const curlExample = `curl -X POST "${endpoint}" \\
   -H "Authorization: Bearer scr_live_your_api_key" \\
   -H "Content-Type: application/json" \\

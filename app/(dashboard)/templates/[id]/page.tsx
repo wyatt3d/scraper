@@ -82,7 +82,7 @@ export default function TemplateDetailPage({ params }: { params: Promise<{ id: s
   const useCount = templateUseCounts[template.id] || 0
   const exampleFields = exampleData.length > 0 ? Object.keys(exampleData[0]) : []
 
-  const curlCommand = `curl -X POST https://api.scraper.bot/v1/flows \\
+  const curlCommand = `curl -X POST https://scraper.bot/api/flows \\
   -H "Authorization: Bearer scr_live_YOUR_API_KEY" \\
   -H "Content-Type: application/json" \\
   -d '{

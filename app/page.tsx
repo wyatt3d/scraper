@@ -152,7 +152,7 @@ export default function LandingPage() {
                 <span className="ml-3 text-zinc-400 text-sm font-mono">Terminal</span>
               </div>
               <div className="bg-zinc-950 p-6 text-left font-mono text-sm leading-relaxed">
-                <p className="text-zinc-400">$ curl -X POST https://api.scraper.dev/v1/extract \</p>
+                <p className="text-zinc-400">$ curl -X POST https://scraper.bot/api/extract \</p>
                 <p className="text-zinc-400 pl-4">-H &quot;Authorization: Bearer scr_live_...&quot; \</p>
                 <p className="text-zinc-400 pl-4">-d &apos;&#123;&quot;url&quot;: &quot;https://example.com/products&quot;,</p>
                 <p className="text-zinc-400 pl-8">&quot;prompt&quot;: &quot;Extract all product names and prices&quot;&#125;&apos;</p>

@@ -302,7 +302,7 @@ function syntaxHighlight(json: string) {
 export default function ApiPlaygroundPage() {
   const [method, setMethod] = useState<HttpMethod>("GET")
   const [selectedPath, setSelectedPath] = useState("/flows")
-  const [url, setUrl] = useState("https://api.scraper.bot/v1/flows")
+  const [url, setUrl] = useState("https://scraper.bot/api/flows")
   const [apiKey, setApiKey] = useState("scr_live_your_key_here")
   const [body, setBody] = useState("")
   const [headersOpen, setHeadersOpen] = useState(false)
@@ -312,7 +312,7 @@ export default function ApiPlaygroundPage() {
 
   function handlePathChange(path: string) {
     setSelectedPath(path)
-    setUrl(`https://api.scraper.bot/v1${path}`)
+    setUrl(`https://scraper.bot/api${path}`)
     const endpoint = ENDPOINTS.find((e) => e.path === path)
     if (endpoint) {
       const validMethods = endpoint.methods as readonly string[]

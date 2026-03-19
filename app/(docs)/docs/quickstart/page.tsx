@@ -16,7 +16,7 @@ export default function QuickstartPage() {
       <div className="space-y-12">
         <Step number={1} title="Create your account">
           <p className="text-muted-foreground mb-4">
-            Sign up at <code className="bg-muted px-1.5 py-0.5 rounded text-sm">scraper.dev/sign-up</code> to
+            Sign up at <code className="bg-muted px-1.5 py-0.5 rounded text-sm">scraper.bot/sign-up</code> to
             get access to the dashboard. Free tier includes 500 runs per month.
           </p>
         </Step>
@@ -46,7 +46,7 @@ export default function QuickstartPage() {
           </p>
           <CodeBlock
             title="Your flow endpoint"
-            code="https://api.scraper.dev/v1/flows/flow-abc123/run"
+            code="https://scraper.bot/api/flows/flow-abc123/run"
           />
         </Step>
 
@@ -58,7 +58,7 @@ export default function QuickstartPage() {
           <div className="space-y-4">
             <CodeBlock
               title="curl"
-              code={`curl -X POST https://api.scraper.dev/v1/flows/flow-abc123/run \\
+              code={`curl -X POST https://scraper.bot/api/flows/flow-abc123/run \\
   -H "X-API-Key: scr_live_your_key_here" \\
   -H "Content-Type: application/json"`}
             />
@@ -66,7 +66,7 @@ export default function QuickstartPage() {
             <CodeBlock
               title="JavaScript (fetch)"
               code={`const response = await fetch(
-  "https://api.scraper.dev/v1/flows/flow-abc123/run",
+  "https://scraper.bot/api/flows/flow-abc123/run",
   {
     method: "POST",
     headers: {
@@ -85,7 +85,7 @@ console.log(data.id); // run-xyz789`}
               code={`import requests
 
 response = requests.post(
-    "https://api.scraper.dev/v1/flows/flow-abc123/run",
+    "https://scraper.bot/api/flows/flow-abc123/run",
     headers={
         "X-API-Key": "scr_live_your_key_here",
         "Content-Type": "application/json",

@@ -305,7 +305,7 @@ export const mockApiKeys: ApiKey[] = [
 
 export const mockUser: UserSettings = {
   name: "Wyatt",
-  email: "wyatt@scraper.dev",
+  email: "wyatt@scraper.bot",
   plan: "professional",
   usage: {
     runsUsed: 1885,
