@@ -77,6 +77,7 @@ export async function POST(request: Request) {
       status: result.status,
       itemsExtracted: result.items.length,
       duration: result.duration,
+      screenshots: result.screenshots || [],
     })
   } catch (err) {
     const message = err instanceof Error ? err.message : "Trigger failed"

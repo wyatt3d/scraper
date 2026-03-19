@@ -8,6 +8,7 @@ interface RunResult {
   logs: RunLog[]
   duration: number
   error?: string
+  screenshots?: { step: string; label?: string; url: string; image: string }[]
 }
 
 export async function executeFlow(flow: Flow): Promise<RunResult> {
@@ -124,8 +125,8 @@ async function executeInteractiveFlow(
       log("info", `Extracted ${items.length} items from final page`)
     }
 
-    log("info", `Flow completed. ${items.length} items extracted.`)
-    return { status: "completed", items, logs, duration: Date.now() - start }
+    log("info", `Flow completed. ${items.length} items extracted. ${result.screenshots?.length || 0} screenshots captured.`)
+    return { status: "completed", items, logs, duration: Date.now() - start, screenshots: result.screenshots }
   } catch (err) {
     const error =
       err instanceof Error ? err.message : "Interactive flow failed"
@@ -143,6 +144,8 @@ function buildPlaywrightScript(flow: Flow): string {
           return `
           // Step ${i + 1}: ${step.label}
           await page.goto(context.url, { waitUntil: 'networkidle2', timeout: 30000 });
+          { const shot = await page.screenshot({ type: 'png', encoding: 'base64' }).catch(() => null);
+            if (shot) screenshots.push({ step: 's${i + 1}', label: '${step.label.replace(/'/g, "\\'")}', url: page.url(), image: 'data:image/png;base64,' + shot }); }
         `
         case "wait":
           return `
@@ -167,6 +170,8 @@ function buildPlaywrightScript(flow: Flow): string {
               console.log('Could not find clickable element for step ${i + 1}');
             }
             await page.waitForTimeout(2000);
+            { const shot = await page.screenshot({ type: 'png', encoding: 'base64' }).catch(() => null);
+              if (shot) screenshots.push({ step: 's${i + 1}', label: '${step.label.replace(/'/g, "\\'")}', url: page.url(), image: 'data:image/png;base64,' + shot }); }
           } catch (e) {
             console.log('Click failed for step ${i + 1}:', e.message);
           }
@@ -212,15 +217,18 @@ function buildPlaywrightScript(flow: Flow): string {
   return `
     module.exports = async ({ page, context }) => {
       const results = [];
+      const screenshots = [];
       try {
         ${stepCode}
 
-        // Also capture final page state
+        // Capture final page state
         const html = await page.content();
         const url = page.url();
-        return { html, url, results, success: true };
+        const finalShot = await page.screenshot({ type: 'png', encoding: 'base64' }).catch(() => null);
+        if (finalShot) screenshots.push({ step: 'final', url, image: 'data:image/png;base64,' + finalShot });
+        return { html, url, results, screenshots, success: true };
       } catch (error) {
-        return { error: error.message, results, success: false };
+        return { error: error.message, results, screenshots, success: false };
       }
     };
   `
