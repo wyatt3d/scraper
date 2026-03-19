@@ -69,7 +69,18 @@ Use real CSS selectors that would work on the target website.`
     }
 
     return NextResponse.json({ flow: flowDef })
-  } catch (err) {
+  } catch (err: unknown) {
+    // Handle Anthropic-specific errors with user-friendly messages
+    const error = err as { status?: number; message?: string; error?: { message?: string } }
+    if (error.status === 400 && error.error?.message?.includes("credit balance")) {
+      return NextResponse.json({
+        error: "AI service temporarily unavailable. Your flow will be created with default settings instead.",
+        fallback: true
+      }, { status: 503 })
+    }
+    if (error.status === 401) {
+      return NextResponse.json({ error: "AI service configuration error. Please contact support." }, { status: 503 })
+    }
     const message = err instanceof Error ? err.message : "AI generation failed"
     return NextResponse.json({ error: message }, { status: 500 })
   }

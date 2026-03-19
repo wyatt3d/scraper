@@ -166,6 +166,29 @@ export default function GenerateFlowPage() {
       const data = await res.json()
 
       if (data.error) {
+        if (data.fallback) {
+          // AI unavailable — create a basic flow directly
+          toast.info("AI is temporarily unavailable. Creating flow with default settings.")
+          const fallbackFlow = {
+            name: description.slice(0, 60),
+            description,
+            url: targetUrl || "https://example.com",
+            mode: "extract",
+            steps: [
+              { id: "s1", type: "navigate", label: "Go to target page" },
+              { id: "s2", type: "wait", label: "Wait for page to load" },
+              { id: "s3", type: "extract", label: "Extract data", extractionRules: [] },
+            ],
+            outputSchema: {},
+          }
+          completeAllSteps()
+          setTimeout(() => {
+            setGeneratedFlow(fallbackFlow)
+            setFlowName(fallbackFlow.name)
+            setStep("review")
+          }, 400)
+          return
+        }
         toast.error(data.error)
         clearTimers()
         setStep("describe")
