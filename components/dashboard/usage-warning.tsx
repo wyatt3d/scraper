@@ -4,16 +4,19 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Button } from "@/components/ui/button"
 import { AlertTriangle, TrendingUp } from "lucide-react"
 import Link from "next/link"
-import { mockUser } from "@/lib/mock-data"
 
-export function UsageWarning() {
-  const { usage } = mockUser
-  const runsPercent = (usage.runsUsed / usage.runsLimit) * 100
-  const apiPercent = (usage.apiCallsUsed / usage.apiCallsLimit) * 100
+interface UsageWarningProps {
+  usage?: { runs: number; limit: number }
+}
 
-  if (runsPercent < 75 && apiPercent < 75) return null
+export function UsageWarning({ usage }: UsageWarningProps) {
+  if (!usage) return null
 
-  const isNearLimit = runsPercent >= 90 || apiPercent >= 90
+  const runsPercent = (usage.runs / usage.limit) * 100
+
+  if (runsPercent < 75) return null
+
+  const isNearLimit = runsPercent >= 90
 
   return (
     <Alert className={isNearLimit ? "border-red-500/50 bg-red-500/5" : "border-yellow-500/50 bg-yellow-500/5"}>

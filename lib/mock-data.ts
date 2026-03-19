@@ -1,4 +1,4 @@
-import type { Flow, Run, ApiKey, UserSettings, MonitorAlert, FlowTemplate } from "./types"
+import type { Flow, Run, FlowTemplate } from "./types"
 
 export const mockFlows: Flow[] = [
   {
@@ -270,91 +270,6 @@ export const mockRuns: Run[] = [
       { timestamp: "2026-03-18T18:00:03Z", level: "info", message: "Page loaded, beginning extraction", step: "s2" },
     ],
     cost: 0.001,
-  },
-]
-
-export const mockApiKeys: ApiKey[] = [
-  {
-    id: "key-1",
-    name: "Production API Key",
-    key: "scr_live_xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-    prefix: "scr_live_",
-    createdAt: "2026-01-15T10:00:00Z",
-    lastUsedAt: "2026-03-18T17:45:00Z",
-    scopes: ["flows:read", "flows:write", "runs:read", "runs:write", "extract:execute"],
-  },
-  {
-    id: "key-2",
-    name: "Development Key",
-    key: "scr_test_yyyyyyyyyyyyyyyyyyyyyyyyyyyy",
-    prefix: "scr_test_",
-    createdAt: "2026-02-20T14:00:00Z",
-    lastUsedAt: "2026-03-18T12:00:00Z",
-    scopes: ["flows:read", "runs:read"],
-  },
-  {
-    id: "key-3",
-    name: "CI/CD Pipeline",
-    key: "scr_live_zzzzzzzzzzzzzzzzzzzzzzzzzzzz",
-    prefix: "scr_live_",
-    createdAt: "2026-03-01T09:00:00Z",
-    lastUsedAt: "2026-03-18T06:00:00Z",
-    scopes: ["flows:read", "runs:read", "runs:write"],
-  },
-]
-
-export const mockUser: UserSettings = {
-  name: "Wyatt",
-  email: "wyatt@scraper.bot",
-  plan: "professional",
-  usage: {
-    runsUsed: 1885,
-    runsLimit: 5000,
-    apiCallsUsed: 12450,
-    apiCallsLimit: 50000,
-  },
-}
-
-export const mockAlerts: MonitorAlert[] = [
-  {
-    id: "alert-1",
-    flowId: "flow-1",
-    flowName: "Product Price Monitor",
-    type: "change_detected",
-    message: "12 price changes detected: 8 decreases, 4 increases. Largest drop: Wireless Headphones Pro (-$11.50)",
-    severity: "info",
-    createdAt: "2026-03-18T12:00:12Z",
-    acknowledged: false,
-  },
-  {
-    id: "alert-2",
-    flowId: "flow-5",
-    flowName: "Craigslist Cars Aggregator",
-    type: "error",
-    message: "Run failed due to rate limiting. Auto-retry scheduled in 30 minutes.",
-    severity: "warning",
-    createdAt: "2026-03-18T10:00:45Z",
-    acknowledged: false,
-  },
-  {
-    id: "alert-3",
-    flowId: "flow-3",
-    flowName: "Real Estate Auction Monitor",
-    type: "change_detected",
-    message: "5 new auction listings detected in Austin, TX area.",
-    severity: "info",
-    createdAt: "2026-03-18T08:00:08Z",
-    acknowledged: true,
-  },
-  {
-    id: "alert-4",
-    flowId: "flow-4",
-    flowName: "Contact Form Submitter",
-    type: "schedule_missed",
-    message: "Flow is paused but has an active schedule. 3 scheduled runs were skipped.",
-    severity: "warning",
-    createdAt: "2026-03-17T12:00:00Z",
-    acknowledged: false,
   },
 ]
 
