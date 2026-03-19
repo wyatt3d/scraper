@@ -188,10 +188,10 @@ export default function OpsPage() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
             {[
-              { category: "Security", items: ["Proper RLS policies with user_id columns on all tables", "Real API key DB validation in route handlers", "CSRF token validation on state-changing routes", "Rate limiting via Upstash Redis (current in-memory is dead on serverless)"] },
-              { category: "Architecture", items: ["Convert ~15 static admin pages from client to server components", "Convert landing page to server component with client islands", "Shared data cache layer (SWR/React Query) for cross-page invalidation", "Replace O(N*M) analytics with SQL GROUP BY"] },
-              { category: "Frontend", items: ["Replace remaining mock data with real Supabase calls (templates, activity, settings billing)", "Wire mutations to actual API calls (pause flow, acknowledge alert, save settings)", "Add error.tsx boundaries to (admin), (docs), (auth) route groups", "Add ThemeProvider to root layout for global dark mode"] },
-              { category: "Quality", items: ["Enable TypeScript strict mode (remove ignoreBuildErrors)", "Enable ESLint during builds (remove ignoreDuringBuilds)", "Standardize API response envelope format across all routes", "Generate Supabase types with supabase gen types typescript"] },
+              { category: "Security", items: ["Rate limiting via Upstash Redis (requires external service)", "Browserless HTTPS + token via Authorization header"] },
+              { category: "Architecture", items: ["Convert remaining dashboard pages to server components (all have heavy interactivity)"] },
+              { category: "Frontend", items: ["Multi-page navigation recording in recorder", "Recording playback/preview"] },
+              { category: "Quality", items: ["Enable TypeScript strict mode", "Enable ESLint during builds", "Generate Supabase types with supabase gen types"] },
             ].map((group) => (
               <div key={group.category} className="space-y-2">
                 <h3 className="font-semibold text-sm">{group.category}</h3>
