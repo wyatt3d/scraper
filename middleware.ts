@@ -62,6 +62,27 @@ export function middleware(request: NextRequest) {
     }
   }
 
+  // Dashboard routes require authentication
+  const dashboardPaths = ["/dashboard", "/flows", "/runs", "/monitoring", "/api-keys",
+    "/settings", "/playground", "/templates", "/workflow-builder", "/marketplace",
+    "/analytics", "/usage", "/webhooks", "/integrations", "/mcp", "/proxies",
+    "/secrets", "/sessions", "/api-versions", "/sso", "/api-logs", "/audit-log",
+    "/pipelines", "/reports", "/graphql", "/api-playground"]
+
+  const isDashboardPath = dashboardPaths.some(p => pathname.startsWith(p))
+
+  if (isDashboardPath) {
+    const authCookie = request.cookies.get("sb-usyfgavadcruunblhegi-auth-token")
+      || request.cookies.get("sb-usyfgavadcruunblhegi-auth-token.0")
+
+    if (!authCookie) {
+      const signInUrl = request.nextUrl.clone()
+      signInUrl.pathname = "/sign-in"
+      signInUrl.searchParams.set("redirect", pathname)
+      return NextResponse.redirect(signInUrl)
+    }
+  }
+
   // API routes require API key validation (except public endpoints)
   const publicApiPaths = ["/api/auth", "/api/tickets", "/api/health", "/api/extract", "/api/generate", "/api/checkout", "/api/email"]
   const isPublicApi = publicApiPaths.some(p => pathname.startsWith(p))

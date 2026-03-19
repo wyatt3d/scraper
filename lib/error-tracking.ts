@@ -2,35 +2,45 @@ interface ErrorContext {
   component?: string
   action?: string
   userId?: string
+  url?: string
   metadata?: Record<string, unknown>
 }
 
 class ErrorTracker {
-  private isProduction = process.env.NODE_ENV === "production"
-
   captureException(error: Error, context?: ErrorContext): void {
-    if (this.isProduction) {
-      console.error("[ErrorTracker]", {
-        message: error.message,
-        stack: error.stack,
-        ...context,
-        timestamp: new Date().toISOString(),
-      })
+    const entry = {
+      level: "error" as const,
+      message: error.message,
+      stack: error.stack?.split("\n").slice(0, 5).join("\n"),
+      ...context,
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV,
+    }
+    console.error("[ErrorTracker]", JSON.stringify(entry))
+
+    if (process.env.NODE_ENV === "production") {
+      this.persistError(entry).catch(() => {})
     }
   }
 
-  captureMessage(message: string, level: "info" | "warning" | "error" = "info", context?: ErrorContext): void {
-    if (this.isProduction) {
-      console.error(`[ErrorTracker:${level}]`, {
-        message,
-        ...context,
-        timestamp: new Date().toISOString(),
-      })
-    }
+  captureMessage(message: string, level: "info" | "warning" | "error" = "info"): void {
+    console.error(`[ErrorTracker:${level}]`, message)
   }
 
-  setUser(userId: string, email?: string): void {
-    // Will be used when Sentry is integrated
+  private async persistError(entry: Record<string, unknown>): Promise<void> {
+    try {
+      await fetch("/api/audit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          actor: "system",
+          action: "error",
+          resourceType: "system",
+          resourceName: entry.component || "unknown",
+          details: entry,
+        }),
+      })
+    } catch {}
   }
 }
 

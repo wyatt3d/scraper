@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, Suspense } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -30,7 +30,16 @@ const signInSchema = z.object({
 type SignInValues = z.infer<typeof signInSchema>
 
 export default function SignInPage() {
+  return (
+    <Suspense>
+      <SignInForm />
+    </Suspense>
+  )
+}
+
+function SignInForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [forgotOpen, setForgotOpen] = useState(false)
   const [resetEmail, setResetEmail] = useState("")
@@ -48,7 +57,8 @@ export default function SignInPage() {
     try {
       await signIn(data.email, data.password)
       toast.success("Signed in successfully")
-      router.push("/dashboard")
+      const redirect = searchParams.get("redirect")
+      router.push(redirect || "/dashboard")
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Sign in failed"
       toast.error(message)

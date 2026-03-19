@@ -167,7 +167,24 @@ function buildPlaywrightScript(flow: Flow): string {
               } catch {}
             }
             if (!clicked_${i}) {
-              console.log('Could not find clickable element for step ${i + 1}');
+              const textToFind = '${step.label.replace(/'/g, "\\'")}';
+              try {
+                const elements = await page.$$('a, button, [role="button"]');
+                for (const el of elements) {
+                  const text = await el.textContent();
+                  if (text && text.toLowerCase().includes(textToFind.toLowerCase().split(' ').pop())) {
+                    await el.click();
+                    clicked_${i} = true;
+                    console.log('Found element by text match: ' + text.trim());
+                    break;
+                  }
+                }
+              } catch {}
+            }
+            if (!clicked_${i}) {
+              console.log('All selectors failed for step ${i + 1}');
+              const failShot = await page.screenshot({ type: 'png', encoding: 'base64' }).catch(() => null);
+              if (failShot) screenshots.push({ step: 's${i + 1}_fail', label: 'Failed: ${step.label.replace(/'/g, "\\'")}', url: page.url(), image: 'data:image/png;base64,' + failShot });
             }
             await page.waitForTimeout(2000);
             { const shot = await page.screenshot({ type: 'png', encoding: 'base64' }).catch(() => null);
