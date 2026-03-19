@@ -119,20 +119,9 @@ export async function takeScreenshot(url: string): Promise<{ success: boolean; d
       body: JSON.stringify({
         url,
         options: { fullPage: false, type: "png" },
-        bestAttempt: true,
-        gotoOptions: { waitUntil: "networkidle2", timeout: 30000 },
-        addScriptTag: [
-          {
-            content: `
-              Object.defineProperty(navigator, 'webdriver', { get: () => false });
-              Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
-              window.chrome = { runtime: {} };
-            `
-          }
-        ],
-        waitForTimeout: 3000,
+        gotoOptions: { waitUntil: "networkidle2", timeout: 20000 },
       }),
-      signal: AbortSignal.timeout(40000),
+      signal: AbortSignal.timeout(25000),
     })
 
     if (!response.ok) return { success: false, error: `HTTP ${response.status}` }

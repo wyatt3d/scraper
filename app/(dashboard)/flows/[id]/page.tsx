@@ -240,9 +240,12 @@ export default function FlowDetailPage() {
     }
   }
 
+  const [previewAttempted, setPreviewAttempted] = useState(false)
+
   useEffect(() => {
-    if (flow?.url && !previewImage && !previewLoading) {
-      const timer = setTimeout(() => handleLoadPreview(), 1000)
+    if (flow?.url && !previewImage && !previewLoading && !previewAttempted) {
+      setPreviewAttempted(true)
+      const timer = setTimeout(() => handleLoadPreview(), 1500)
       return () => clearTimeout(timer)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
