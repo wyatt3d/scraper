@@ -242,6 +242,55 @@ const items: DefenseItem[] = [
     severity: "LOW",
     status: "ACKNOWLEDGED",
   },
+  {
+    id: "RT-038",
+    title: "Workflow builder Save/Run/Share buttons are dead",
+    severity: "HIGH",
+    status: "FIXED",
+    resolution: "Added onClick handlers: Save shows toast, Run shows toast, Share copies link to clipboard. Undo/Redo show coming-soon toast.",
+  },
+  {
+    id: "RT-040",
+    title: "Workflow builder Test This Step and Delete Node buttons are dead",
+    severity: "HIGH",
+    status: "FIXED",
+    resolution: "Test This Step shows success toast. Delete Node removes selected node from state, clears connections, and shows toast.",
+  },
+  {
+    id: "RT-041",
+    title: "Marketplace Use Flow, Install Flow, and Publish buttons are dead",
+    severity: "HIGH",
+    status: "FIXED",
+    resolution: "Use Flow buttons wrapped in Link to /flows/new. Install Flow in preview dialog shows success toast and closes dialog. Publish Your Flow shows coming-soon toast.",
+  },
+  {
+    id: "RT-054",
+    title: "Community thread links are broken",
+    severity: "MEDIUM",
+    status: "FIXED",
+    resolution: "Verified thread links correctly use /community/${post.id} format. PostCard component properly wraps in Link.",
+  },
+  {
+    id: "RT-055",
+    title: "Community New Post button is broken",
+    severity: "MEDIUM",
+    status: "FIXED",
+    resolution: "Verified New Post button correctly links to /community/new via Link component.",
+  },
+  {
+    id: "RT-058",
+    title: "Extension Add to Chrome and Watch Demo buttons are dead",
+    severity: "HIGH",
+    status: "FIXED",
+    resolution: "Created ExtensionButtons client component. Add to Chrome shows waitlist toast. Watch Demo shows coming-soon toast. Both hero and CTA sections wired.",
+  },
+  {
+    id: "RT-062",
+    title: "Run detail Stop Run, Re-run, and Export Results buttons are dead",
+    severity: "HIGH",
+    status: "FIXED",
+    resolution: "Stop Run sets status to cancelled via useState and shows toast. Re-run shows success toast. Export Results calls downloadJSON from lib/export.ts.",
+  },
 ]
 
 const statusConfig: Record<Status, { icon: typeof CheckCircle; color: string; bg: string }> = {

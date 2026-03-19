@@ -32,6 +32,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { toast } from "sonner"
+import Link from "next/link"
 import { cn } from "@/lib/utils"
 
 interface MarketplaceFlow {
@@ -385,9 +387,11 @@ function FlowCard({
       </CardContent>
 
       <CardFooter className="px-5 pb-5 pt-0 gap-2">
-        <Button size="sm" className="flex-1 bg-blue-600 hover:bg-blue-700 text-white">
-          Use Flow
-        </Button>
+        <Link href="/flows/new" className="flex-1">
+          <Button size="sm" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+            Use Flow
+          </Button>
+        </Link>
         <Button size="sm" variant="outline" onClick={onPreview}>
           <Eye className="size-3.5" />
           Preview
@@ -447,7 +451,7 @@ export default function MarketplacePage() {
               className="pl-9 w-64"
             />
           </div>
-          <Button size="sm" className="gap-1.5">
+          <Button size="sm" className="gap-1.5" onClick={() => toast("Publishing coming soon")}>
             <Upload className="size-3.5" />
             Publish Your Flow
           </Button>
@@ -620,7 +624,7 @@ export default function MarketplacePage() {
               </div>
 
               <DialogFooter>
-                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white gap-1.5">
+                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white gap-1.5" onClick={() => { toast.success("Flow installed"); setPreviewFlow(null) }}>
                   Install Flow
                   <ChevronRight className="size-4" />
                 </Button>

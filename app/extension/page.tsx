@@ -15,6 +15,7 @@ import {
   LayoutDashboard,
   Monitor,
 } from "lucide-react"
+import { ExtensionButtons } from "./extension-buttons"
 
 export const metadata: Metadata = {
   title: "Chrome Extension | Scraper.bot",
@@ -69,15 +70,7 @@ export default function ExtensionPage() {
             <p className="text-xl md:text-2xl text-muted-foreground text-balance mb-10 leading-relaxed max-w-3xl mx-auto">
               Point. Click. Extract. Turn any webpage into structured data without leaving your browser.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-10">
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white text-lg px-8 py-6">
-                <Chrome className="mr-2 w-5 h-5" />
-                Add to Chrome — It&apos;s Free
-              </Button>
-              <Button variant="outline" size="lg" className="text-lg px-8 py-6 bg-transparent">
-                Watch Demo
-              </Button>
-            </div>
+            <ExtensionButtons variant="hero" />
 
             {/* Chrome Web Store badge placeholder */}
             <div className="flex justify-center mb-12">
@@ -307,11 +300,7 @@ export default function ExtensionPage() {
           <p className="text-xl text-blue-100 text-balance max-w-2xl mx-auto mb-10">
             Install the Scraper.bot extension and start extracting structured data in seconds.
           </p>
-          <Button size="lg" className="bg-white text-blue-600 hover:bg-white/90 text-lg px-8 py-6 font-semibold">
-            <Chrome className="mr-2 w-5 h-5" />
-            Add to Chrome — It&apos;s Free
-            <ArrowRight className="ml-2 w-5 h-5" />
-          </Button>
+          <ExtensionButtons variant="cta" />
         </div>
       </section>
 

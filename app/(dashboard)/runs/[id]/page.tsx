@@ -21,7 +21,9 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { toast } from "sonner"
 import { cn } from "@/lib/utils"
+import { downloadJSON } from "@/lib/export"
 import { mockRuns, mockFlows } from "@/lib/mock-data"
 import { DataViewer } from "@/components/dashboard/data-viewer"
 import type { RunLog } from "@/lib/types"
@@ -137,7 +139,8 @@ export default function RunDetailPage() {
 
   const baseRun = mockRuns.find((r) => r.id === runId) || mockRuns.find((r) => r.status === "running") || mockRuns[4]
   const flow = mockFlows.find((f) => f.id === baseRun.flowId)
-  const isRunning = baseRun.status === "running"
+  const [runStatus, setRunStatus] = useState(baseRun.status)
+  const isRunning = runStatus === "running"
 
   const [logs, setLogs] = useState<RunLog[]>([...baseRun.logs])
   const [autoScroll, setAutoScroll] = useState(true)
@@ -216,7 +219,7 @@ export default function RunDetailPage() {
               <h1 className="font-serif text-2xl font-bold tracking-tight">
                 {baseRun.flowName}
               </h1>
-              <StatusBadge status={baseRun.status} />
+              <StatusBadge status={runStatus} />
             </div>
             <p className="text-muted-foreground text-sm mt-0.5">
               Run {runId} &middot; Started{" "}
@@ -329,8 +332,8 @@ export default function RunDetailPage() {
               {steps.map((step, i) => {
                 const isCompleted = i < currentStepIndex
                 const isCurrent = i === currentStepIndex && isRunning
-                const isPending = i > currentStepIndex || (!isRunning && i >= currentStepIndex && baseRun.status !== "completed")
-                const isAllDone = !isRunning && baseRun.status === "completed"
+                const isPending = i > currentStepIndex || (!isRunning && i >= currentStepIndex && runStatus !== "completed")
+                const isAllDone = !isRunning && runStatus === "completed"
 
                 return (
                   <div
@@ -368,7 +371,7 @@ export default function RunDetailPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-center">
-                <StatusBadge status={baseRun.status} large />
+                <StatusBadge status={runStatus} large />
               </div>
 
               <div className="space-y-3">
@@ -402,16 +405,16 @@ export default function RunDetailPage() {
 
           <div className="space-y-2">
             {isRunning && (
-              <Button variant="destructive" className="w-full gap-1.5">
+              <Button variant="destructive" className="w-full gap-1.5" onClick={() => { setRunStatus("cancelled"); toast.success("Run cancelled") }}>
                 <Square className="size-3.5" />
                 Stop Run
               </Button>
             )}
-            <Button variant="outline" className="w-full gap-1.5">
+            <Button variant="outline" className="w-full gap-1.5" onClick={() => toast.success("Flow re-run triggered")}>
               <RotateCcw className="size-3.5" />
               Re-run
             </Button>
-            <Button variant="outline" className="w-full gap-1.5">
+            <Button variant="outline" className="w-full gap-1.5" onClick={() => { downloadJSON(baseRun.outputPreview || [], `run-${runId}-results.json`); toast.success("Results exported") }}>
               <Download className="size-3.5" />
               Export Results
             </Button>
@@ -420,7 +423,7 @@ export default function RunDetailPage() {
       </div>
 
       {/* Bottom - Results preview */}
-      {baseRun.status === "completed" && baseRun.outputPreview && baseRun.outputPreview.length > 0 && (
+      {runStatus === "completed" && baseRun.outputPreview && baseRun.outputPreview.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle className="font-serif text-lg">Results Preview</CardTitle>

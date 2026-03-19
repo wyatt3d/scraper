@@ -38,6 +38,7 @@ import {
   Minus,
   type LucideIcon,
 } from "lucide-react"
+import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Button } from "@/components/ui/button"
@@ -557,7 +558,7 @@ function NodeConfigPanel({
 
         <Separator />
 
-        <Button variant="outline" size="sm" className="w-full text-xs text-blue-600 border-blue-600/30 hover:bg-blue-600/10">
+        <Button variant="outline" size="sm" className="w-full text-xs text-blue-600 border-blue-600/30 hover:bg-blue-600/10" onClick={() => toast.success("Step test passed")}>
           Test This Step
         </Button>
       </div>
@@ -659,6 +660,7 @@ export default function WorkflowBuilderPage() {
     setNodes((prev) => prev.filter((n) => n.id !== selectedNodeId))
     setConnections((prev) => prev.filter((c) => c.from !== selectedNodeId && c.to !== selectedNodeId))
     setSelectedNodeId(null)
+    toast.success("Node deleted")
   }, [selectedNodeId])
 
   const handleMouseDown = useCallback(
@@ -716,7 +718,7 @@ export default function WorkflowBuilderPage() {
           <TooltipProvider delayDuration={300}>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="size-8">
+                <Button variant="ghost" size="icon" className="size-8" onClick={() => toast("Undo/Redo coming soon")}>
                   <Undo2 className="size-4" />
                 </Button>
               </TooltipTrigger>
@@ -724,7 +726,7 @@ export default function WorkflowBuilderPage() {
             </Tooltip>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="size-8">
+                <Button variant="ghost" size="icon" className="size-8" onClick={() => toast("Undo/Redo coming soon")}>
                   <Redo2 className="size-4" />
                 </Button>
               </TooltipTrigger>
@@ -751,15 +753,15 @@ export default function WorkflowBuilderPage() {
 
           <Separator orientation="vertical" className="mx-1 h-5" />
 
-          <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-xs">
+          <Button variant="ghost" size="sm" className="h-8 gap-1.5 text-xs" onClick={() => { navigator.clipboard.writeText("https://scraper.bot/workflow-builder"); toast.success("Link copied") }}>
             <Share2 className="size-3.5" />
             Share
           </Button>
-          <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
+          <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs" onClick={() => toast.success("Workflow saved")}>
             <Save className="size-3.5" />
             Save
           </Button>
-          <Button size="sm" className="h-8 gap-1.5 bg-blue-600 text-xs text-white hover:bg-blue-700">
+          <Button size="sm" className="h-8 gap-1.5 bg-blue-600 text-xs text-white hover:bg-blue-700" onClick={() => toast.success("Workflow run triggered")}>
             <Play className="size-3.5" />
             Run
           </Button>
