@@ -9,9 +9,12 @@ export function buildRecorderScript(actions: RecorderAction[]): string {
           // Replay action ${i + 1}: click
           try {
             await page.waitForSelector(${JSON.stringify(action.selector)}, { timeout: 5000 });
-            await page.click(${JSON.stringify(action.selector)});
-            await page.waitForTimeout(1000);
-          } catch {}
+            await Promise.all([
+              page.click(${JSON.stringify(action.selector)}),
+              page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 5000 }).catch(() => {}),
+            ]);
+          } catch(e) {}
+          await page.waitForTimeout(1000);
         `
         case "fill":
           return `

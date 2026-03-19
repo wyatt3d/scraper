@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -35,6 +35,12 @@ export function RecorderPanel({
   const [hoveredElement, setHoveredElement] = useState<ElementInfo | null>(null)
   const [fillValue, setFillValue] = useState("")
   const imgRef = useRef<HTMLImageElement>(null)
+
+  useEffect(() => {
+    if (currentUrl && currentUrl !== inputUrl) {
+      setInputUrl(currentUrl)
+    }
+  }, [currentUrl])
 
   const handleNavigate = () => {
     if (inputUrl) onStart(inputUrl)
