@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useMemo, useRef } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useParams } from "next/navigation"
 import Link from "next/link"
 import {
@@ -25,41 +25,19 @@ import {
   Settings,
   Activity,
   Calendar,
-  Bell,
   RefreshCw,
-  ChevronRight,
-  ExternalLink,
-  CheckCircle2,
-  XCircle,
   Loader2,
   AlertCircle,
   Lock,
-  Unlock,
   Eye,
-  Search,
-  ArrowUpDown,
-  Hash,
-  Braces,
-  Download,
-  Upload,
-  History,
-  RotateCcw,
-  GitCompare,
-  Shield,
-  Fingerprint,
-  Timer,
-  Layers,
-  Ban,
   Sparkles,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Switch } from "@/components/ui/switch"
 import {
   Select,
   SelectContent,
@@ -88,37 +66,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
-import {
   ResizablePanelGroup,
   ResizablePanel,
   ResizableHandle,
 } from "@/components/ui/resizable"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Slider } from "@/components/ui/slider"
 import { cn } from "@/lib/utils"
 import { useIsMobile } from "@/hooks/use-mobile"
-import { downloadJSON } from "@/lib/export"
 import { toast } from "sonner"
-import { formatDuration, timeAgo } from "@/lib/format"
+import { formatDuration } from "@/lib/format"
+import { RunsTab } from "@/components/flows/runs-tab"
+import { ApiTab } from "@/components/flows/api-tab"
+import { SettingsTab } from "@/components/flows/settings-tab"
 import type { Flow, FlowStep, StepType, Run } from "@/lib/types"
 
 const stepTypeConfig: Record<StepType, { label: string; icon: typeof Globe; color: string }> = {
