@@ -282,7 +282,7 @@ export default function FlowsPage() {
               </DropdownMenuContent>
             </DropdownMenu>
             <Button asChild className="bg-blue-600 hover:bg-blue-700">
-              <Link href="/flows/new">
+              <Link href="/recorder">
                 <Plus className="mr-2 h-4 w-4" />
                 Create Flow
               </Link>

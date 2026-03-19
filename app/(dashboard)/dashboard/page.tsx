@@ -10,6 +10,7 @@ import {
   ArrowUp,
   Bell,
   CheckCircle2,
+  CircleDot,
   Clock,
   Database,
   Edit,
@@ -17,6 +18,7 @@ import {
   Pause,
   Play,
   TrendingUp,
+  Video,
   XCircle,
   Zap,
 } from "lucide-react"
@@ -343,6 +345,26 @@ export default function DashboardPage() {
           Overview of your scraping flows, runs, and monitoring alerts.
         </p>
       </div>
+
+      <Card className="border-blue-600/30 dark:border-blue-400/30 bg-gradient-to-r from-blue-600/5 to-purple-600/5">
+        <CardContent className="flex items-center justify-between p-6">
+          <div className="flex items-center gap-4">
+            <div className="size-12 rounded-xl bg-blue-600/10 flex items-center justify-center">
+              <Video className="size-6 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-lg">Record a New Flow</h3>
+              <p className="text-sm text-muted-foreground">Point and click on any website to build your scraping flow visually</p>
+            </div>
+          </div>
+          <Link href="/recorder">
+            <Button className="gap-1.5">
+              <CircleDot className="size-4" />
+              Start Recording
+            </Button>
+          </Link>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" data-tour="stats">
         {stats.map((stat, i) => (
