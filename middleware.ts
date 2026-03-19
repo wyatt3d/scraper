@@ -3,16 +3,51 @@ import type { NextRequest } from "next/server"
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const hostname = request.headers.get("host") || ""
+
+  // Subdomain routing: admin.scraper.bot -> /admin
+  if (hostname.startsWith("admin.")) {
+    if (!pathname.startsWith("/admin")) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/admin${pathname === "/" ? "" : pathname}`
+      return NextResponse.rewrite(url)
+    }
+  }
+
+  // Subdomain routing: docs.scraper.bot -> /docs
+  if (hostname.startsWith("docs.")) {
+    if (!pathname.startsWith("/docs")) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/docs${pathname === "/" ? "" : pathname}`
+      return NextResponse.rewrite(url)
+    }
+  }
+
+  // Subdomain routing: status.scraper.bot -> /status
+  if (hostname.startsWith("status.")) {
+    if (!pathname.startsWith("/status")) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/status${pathname}`
+      return NextResponse.rewrite(url)
+    }
+  }
+
+  // Subdomain routing: blog.scraper.bot -> /blog
+  if (hostname.startsWith("blog.")) {
+    if (!pathname.startsWith("/blog")) {
+      const url = request.nextUrl.clone()
+      url.pathname = `/blog${pathname === "/" ? "" : pathname}`
+      return NextResponse.rewrite(url)
+    }
+  }
 
   // API routes require API key validation
   if (pathname.startsWith("/api/") && !pathname.startsWith("/api/auth")) {
     const apiKey = request.headers.get("x-api-key") || request.headers.get("authorization")?.replace("Bearer ", "")
     if (!apiKey) {
-      // Allow requests from the app itself (same origin)
       const referer = request.headers.get("referer")
       const origin = request.headers.get("origin")
-      const host = request.headers.get("host")
-      if (referer?.includes(host || "") || origin?.includes(host || "")) {
+      if (referer?.includes(hostname) || origin?.includes(hostname)) {
         return NextResponse.next()
       }
       return NextResponse.json(
@@ -20,8 +55,6 @@ export function middleware(request: NextRequest) {
         { status: 401 }
       )
     }
-    // In production, validate the key against the database
-    // For now, accept any key with the scr_ prefix
     if (!apiKey.startsWith("scr_")) {
       return NextResponse.json(
         { error: "Invalid API key format. Keys start with scr_live_ or scr_test_." },
@@ -30,26 +63,9 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Dashboard routes - check for auth cookie (placeholder)
-  if (pathname.startsWith("/dashboard") || pathname.startsWith("/flows") ||
-      pathname.startsWith("/runs") || pathname.startsWith("/monitoring") ||
-      pathname.startsWith("/api-keys") || pathname.startsWith("/settings") ||
-      pathname.startsWith("/playground") || pathname.startsWith("/templates")) {
-    // In production, check for session cookie
-    // For now, allow all access for demo
-  }
-
-  // Admin routes - check for admin role (placeholder)
-  if (pathname.startsWith("/admin")) {
-    // In production, verify admin role from session
-    // For now, allow all access for demo
-  }
-
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ["/api/:path*", "/dashboard/:path*", "/flows/:path*", "/runs/:path*",
-            "/monitoring/:path*", "/api-keys/:path*", "/settings/:path*", "/admin/:path*",
-            "/playground/:path*", "/templates/:path*"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|images/).*)"],
 }
