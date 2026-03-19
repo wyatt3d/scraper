@@ -3,8 +3,9 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTheme } from "next-themes"
-import { Bell, Moon, Plus, Sun } from "lucide-react"
+import { Moon, Plus, Sun } from "lucide-react"
 
+import { NotificationCenter } from "@/components/dashboard/notification-center"
 import { Button } from "@/components/ui/button"
 import {
   Breadcrumb,
@@ -23,6 +24,7 @@ const routeLabels: Record<string, string> = {
   runs: "Runs",
   monitoring: "Monitoring",
   "api-keys": "API Keys",
+  webhooks: "Webhooks",
   settings: "Settings",
 }
 
@@ -72,12 +74,7 @@ export function DashboardHeader() {
           <Moon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
         </Button>
 
-        <Button variant="ghost" size="icon" className="relative" aria-label="Notifications">
-          <Bell className="size-4" />
-          <span className="bg-accent text-accent-foreground absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full text-[10px] font-medium">
-            3
-          </span>
-        </Button>
+        <NotificationCenter />
 
         <Button asChild size="sm" className="bg-accent hover:bg-accent/90 text-accent-foreground">
           <Link href="/flows/new">

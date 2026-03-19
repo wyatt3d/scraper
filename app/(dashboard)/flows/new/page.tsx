@@ -24,6 +24,13 @@ import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 import { mockTemplates } from "@/lib/mock-data"
 import type { FlowMode } from "@/lib/types"
+import { HelpTooltip } from "@/components/dashboard/help-tooltip"
+
+const modeTooltips: Record<string, string> = {
+  extract: "Pull structured data from web pages into JSON format",
+  interact: "Automate browser actions like clicking, filling forms, and navigating",
+  monitor: "Watch pages for changes and get notified when something updates",
+}
 
 const modeOptions = [
   {
@@ -155,8 +162,9 @@ export default function NewFlowPage() {
                       <Icon className={cn("h-6 w-6", isSelected ? opt.iconColor : "text-muted-foreground")} />
                     </div>
                     <div>
-                      <h3 className="font-[family-name:var(--font-crimson-text)] text-lg font-semibold">
+                      <h3 className="font-[family-name:var(--font-crimson-text)] text-lg font-semibold flex items-center">
                         {opt.label}
+                        <HelpTooltip content={modeTooltips[opt.mode]} side="right" />
                       </h3>
                       <p className="text-muted-foreground mt-1 text-sm leading-relaxed">
                         {opt.description}

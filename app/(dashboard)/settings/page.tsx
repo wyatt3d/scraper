@@ -4,18 +4,26 @@ import { useState } from "react"
 import dynamic from "next/dynamic"
 import {
   Bell,
+  Check,
+  Copy,
   CreditCard,
+  DollarSign,
   Download,
+  Gift,
   Link2,
+  Linkedin,
   Mail,
   MessageSquare,
   Plus,
+  Send,
   Settings,
   Shield,
   Trash2,
+  Twitter,
   Upload,
   User,
   Users,
+  UserPlus,
   Webhook,
   Zap,
 } from "lucide-react"
@@ -197,6 +205,10 @@ export default function SettingsPage() {
           <TabsTrigger value="integrations" className="gap-1.5">
             <Zap className="size-3.5" />
             Integrations
+          </TabsTrigger>
+          <TabsTrigger value="referrals" className="gap-1.5">
+            <Gift className="size-3.5" />
+            Referrals
           </TabsTrigger>
         </TabsList>
 
@@ -612,6 +624,251 @@ export default function SettingsPage() {
                   </div>
                 )
               })}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="referrals" className="mt-6 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Your Referral Code</CardTitle>
+              <CardDescription>
+                Share your unique referral link and earn credits.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-3">
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Referral Code</Label>
+                  <div className="flex items-center gap-2">
+                    <Input value="WYATT-SCR-2026" readOnly className="font-mono" />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="shrink-0"
+                      onClick={() => {
+                        navigator.clipboard.writeText("WYATT-SCR-2026")
+                        toast.success("Referral code copied to clipboard")
+                      }}
+                    >
+                      <Copy className="size-4" />
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label className="text-xs text-muted-foreground">Referral Link</Label>
+                  <div className="flex items-center gap-2">
+                    <Input value="https://scraper.bot/ref/WYATT-SCR-2026" readOnly className="font-mono text-sm" />
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      className="shrink-0"
+                      onClick={() => {
+                        navigator.clipboard.writeText("https://scraper.bot/ref/WYATT-SCR-2026")
+                        toast.success("Referral link copied to clipboard")
+                      }}
+                    >
+                      <Copy className="size-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 pt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={() => {
+                    window.open(
+                      `https://twitter.com/intent/tweet?text=${encodeURIComponent("Check out Scraper - the best web automation platform! Use my referral link: https://scraper.bot/ref/WYATT-SCR-2026")}`,
+                      "_blank"
+                    )
+                  }}
+                >
+                  <Twitter className="size-3.5" />
+                  Twitter
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={() => {
+                    window.open(
+                      `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent("https://scraper.bot/ref/WYATT-SCR-2026")}`,
+                      "_blank"
+                    )
+                  }}
+                >
+                  <Linkedin className="size-3.5" />
+                  LinkedIn
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-1.5"
+                  onClick={() => {
+                    window.open(
+                      `mailto:?subject=${encodeURIComponent("Try Scraper - Web Automation Platform")}&body=${encodeURIComponent("Hey! Check out Scraper and get 1 month free on the Pro plan: https://scraper.bot/ref/WYATT-SCR-2026")}`,
+                      "_blank"
+                    )
+                  }}
+                >
+                  <Mail className="size-3.5" />
+                  Email
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Referrals Sent
+                </CardTitle>
+                <Send className="size-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">12</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Referrals Converted
+                </CardTitle>
+                <UserPlus className="size-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">5</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Credits Earned
+                </CardTitle>
+                <DollarSign className="size-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">$50.00</div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>How It Works</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 sm:grid-cols-3">
+                <div className="flex gap-3">
+                  <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-blue-500/15 text-sm font-bold text-blue-600 dark:text-blue-400">
+                    1
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Share your link</p>
+                    <p className="text-xs text-muted-foreground">
+                      Send your referral link to friends and colleagues.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-blue-500/15 text-sm font-bold text-blue-600 dark:text-blue-400">
+                    2
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">They get 1 month free</p>
+                    <p className="text-xs text-muted-foreground">
+                      Your referral gets 1 month free on the Pro plan.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-blue-500/15 text-sm font-bold text-blue-600 dark:text-blue-400">
+                    3
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">You earn $10 credit</p>
+                    <p className="text-xs text-muted-foreground">
+                      Get $10 credit for each successful signup.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Referral History</CardTitle>
+              <CardDescription>
+                Track the status of your referrals.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Date</TableHead>
+                    <TableHead className="text-right">Reward</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="font-medium">j***@gmail.com</TableCell>
+                    <TableCell>
+                      <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-500/25 dark:text-emerald-400">
+                        Converted
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">Mar 15, 2026</TableCell>
+                    <TableCell className="text-right">$10.00</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">m***@company.com</TableCell>
+                    <TableCell>
+                      <Badge className="bg-yellow-500/15 text-yellow-600 border-yellow-500/25 dark:text-yellow-400">
+                        Pending
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">Mar 12, 2026</TableCell>
+                    <TableCell className="text-right">-</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">s***@startup.io</TableCell>
+                    <TableCell>
+                      <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-500/25 dark:text-emerald-400">
+                        Converted
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">Mar 8, 2026</TableCell>
+                    <TableCell className="text-right">$10.00</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">a***@dev.com</TableCell>
+                    <TableCell>
+                      <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-500/25 dark:text-emerald-400">
+                        Converted
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">Feb 28, 2026</TableCell>
+                    <TableCell className="text-right">$10.00</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className="font-medium">t***@agency.co</TableCell>
+                    <TableCell>
+                      <Badge className="bg-gray-500/15 text-gray-600 border-gray-500/25 dark:text-gray-400">
+                        Expired
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">Feb 15, 2026</TableCell>
+                    <TableCell className="text-right">-</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
         </TabsContent>

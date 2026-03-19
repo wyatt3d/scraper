@@ -7,6 +7,7 @@ import { ArrowRight, Clock } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Blog",
+  description: "Insights on web scraping, automation, and data extraction from the Scraper.bot team.",
 }
 
 const articles = [

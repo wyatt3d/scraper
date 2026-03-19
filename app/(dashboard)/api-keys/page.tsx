@@ -55,6 +55,7 @@ import {
 import { toast } from "sonner"
 import { mockApiKeys } from "@/lib/mock-data"
 import type { ApiKey } from "@/lib/types"
+import { HelpTooltip } from "@/components/dashboard/help-tooltip"
 
 const ALL_SCOPES = [
   "flows:read",
@@ -164,8 +165,9 @@ export default function ApiKeysPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-serif text-3xl font-bold tracking-tight">
+          <h1 className="font-serif text-3xl font-bold tracking-tight flex items-center">
             API Keys
+            <HelpTooltip content="API keys authenticate your requests to the Scraper.bot API. Keep them secret." />
           </h1>
           <p className="text-muted-foreground mt-1">
             Use API keys to authenticate requests to the Scraper API.

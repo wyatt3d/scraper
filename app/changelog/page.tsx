@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 
 export const metadata: Metadata = {
   title: "Changelog",
+  description: "See what's new in Scraper.bot. Product updates, new features, and improvements.",
 }
 
 const entries = [

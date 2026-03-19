@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils"
 
 export const metadata: Metadata = {
   title: "Status",
+  description: "Scraper.bot system status. Check the health of our API, scraping engine, and platform services.",
 }
 
 type ServiceStatus = "operational" | "degraded" | "outage"

@@ -48,6 +48,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { mockRuns, mockFlows } from "@/lib/mock-data"
 import { downloadCSV, downloadJSON } from "@/lib/export"
+import { DataViewer } from "@/components/dashboard/data-viewer"
 import type { Run, RunLog } from "@/lib/types"
 
 const additionalRuns: Run[] = [
@@ -466,17 +467,7 @@ export default function RunsPage() {
                             <h4 className="mb-2 text-sm font-semibold">
                               Output Preview
                             </h4>
-                            {run.outputPreview && run.outputPreview.length > 0 ? (
-                              <pre className="overflow-auto rounded-md border bg-background p-3 text-xs leading-relaxed">
-                                <code>
-                                  {JSON.stringify(run.outputPreview, null, 2)}
-                                </code>
-                              </pre>
-                            ) : (
-                              <div className="flex items-center justify-center rounded-md border bg-background p-8 text-sm text-muted-foreground">
-                                No output data available
-                              </div>
-                            )}
+                            <DataViewer data={run.outputPreview || []} />
                           </div>
                         </div>
                       </TableCell>

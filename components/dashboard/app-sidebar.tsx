@@ -3,15 +3,18 @@
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import {
+  BarChart3,
   Bell,
   ChevronsUpDown,
   CreditCard,
   GitBranch,
+  Globe,
   Key,
   LayoutDashboard,
   LayoutTemplate,
   LogOut,
   Play,
+  Plug,
   Settings,
   Sparkles,
   Store,
@@ -46,6 +49,7 @@ import {
 
 const navItems = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { title: "Analytics", href: "/analytics", icon: BarChart3 },
   { title: "Playground", href: "/playground", icon: Sparkles },
   { title: "Flows", href: "/flows", icon: Workflow },
   { title: "Templates", href: "/templates", icon: LayoutTemplate },
@@ -55,6 +59,8 @@ const navItems = [
   { title: "API Playground", href: "/api-playground", icon: Terminal },
   { title: "Marketplace", href: "/marketplace", icon: Store },
   { title: "API Keys", href: "/api-keys", icon: Key },
+  { title: "Webhooks", href: "/webhooks", icon: Globe },
+  { title: "Integrations", href: "/integrations", icon: Plug },
   { title: "Settings", href: "/settings", icon: Settings },
 ]
 

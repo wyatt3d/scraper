@@ -38,6 +38,7 @@ import {
 import { mockFlows, mockRuns, mockAlerts } from "@/lib/mock-data"
 import { UsageWarning } from "@/components/dashboard/usage-warning"
 import { OnboardingWizard } from "@/components/dashboard/onboarding-wizard"
+import { HelpTooltip } from "@/components/dashboard/help-tooltip"
 
 const UsageChart = dynamic(
   () => import("@/components/dashboard/usage-chart").then((mod) => ({ default: mod.UsageChart })),
@@ -229,8 +230,11 @@ export default function DashboardPage() {
           <Card key={stat.title} className="py-4">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardDescription className="text-sm font-medium">
+                <CardDescription className="text-sm font-medium flex items-center">
                   {stat.title}
+                  {stat.title === "Success Rate" && (
+                    <HelpTooltip content="Percentage of runs that completed without errors in the last 30 days" />
+                  )}
                 </CardDescription>
                 <stat.icon className="size-4 text-muted-foreground" />
               </div>

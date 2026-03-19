@@ -225,9 +225,14 @@ export function generateStaticParams() {
   return allSlugs.map((slug) => ({ slug }))
 }
 
-export function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Metadata {
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params
+  const post = posts[slug]
   return {
-    title: "Blog",
+    title: post?.title || "Blog Post",
+    description: post
+      ? `${post.title} - ${post.readingTime} by ${post.author}`
+      : "Read this article on Scraper.bot blog.",
   }
 }
 
