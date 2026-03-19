@@ -24,7 +24,7 @@ interface Phase {
 const statusBadge: Record<PhaseStatus, string> = {
   COMPLETE: "bg-emerald-600 text-white border-emerald-600",
   "IN PROGRESS": "bg-blue-600 text-white border-blue-600",
-  PLANNED: "bg-gray-500 text-white border-gray-500",
+  PLANNED: "bg-muted text-muted-foreground border-border",
 }
 
 const phases: Phase[] = [

@@ -134,7 +134,7 @@ function alertTypeBadge(type: MonitorAlert["type"]) {
       )
     case "schedule_missed":
       return (
-        <Badge className="bg-gray-500/15 text-gray-600 border-gray-500/25 dark:text-gray-400">
+        <Badge className="bg-muted text-muted-foreground border-border">
           Schedule Missed
         </Badge>
       )

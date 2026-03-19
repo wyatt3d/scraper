@@ -82,7 +82,7 @@ function statusBadge(status: string) {
       )
     case "queued":
       return (
-        <Badge className="bg-gray-500/15 text-gray-600 border-gray-500/25 dark:text-gray-400">
+        <Badge className="bg-muted text-muted-foreground border-border">
           <Clock className="size-3" />
           Queued
         </Badge>
@@ -108,7 +108,7 @@ function flowStatusBadge(status: string) {
       )
     case "draft":
       return (
-        <Badge className="bg-gray-500/15 text-gray-600 border-gray-500/25 dark:text-gray-400">
+        <Badge className="bg-muted text-muted-foreground border-border">
           Draft
         </Badge>
       )

@@ -72,7 +72,7 @@ function LogLevelIcon({ level }: { level: RunLog["level"] }) {
     case "error":
       return <XCircle className="size-3.5 text-red-500 shrink-0" />
     case "debug":
-      return <Bug className="size-3.5 text-gray-400 shrink-0" />
+      return <Bug className="size-3.5 text-muted-foreground shrink-0" />
   }
 }
 
@@ -85,7 +85,7 @@ function logLevelColor(level: RunLog["level"]) {
     case "error":
       return "text-red-500"
     case "debug":
-      return "text-gray-400"
+      return "text-muted-foreground"
   }
 }
 
@@ -118,14 +118,14 @@ function StatusBadge({ status, large }: { status: string; large?: boolean }) {
       )
     case "cancelled":
       return (
-        <Badge className={cn("bg-gray-500/15 text-gray-600 border-gray-500/25 dark:text-gray-400", base)}>
+        <Badge className={cn("bg-muted text-muted-foreground border-border", base)}>
           <XCircle className="size-3" />
           Cancelled
         </Badge>
       )
     default:
       return (
-        <Badge className={cn("bg-gray-500/15 text-gray-600 border-gray-500/25 dark:text-gray-400", base)}>
+        <Badge className={cn("bg-muted text-muted-foreground border-border", base)}>
           <Clock className="size-3" />
           {status}
         </Badge>
@@ -340,7 +340,7 @@ export default function RunDetailPage() {
             >
               {logs.map((log, i) => (
                 <div key={i} className="flex items-start gap-2 py-0.5">
-                  <span className="text-gray-500 shrink-0">
+                  <span className="text-muted-foreground shrink-0">
                     {formatTimestamp(log.timestamp)}
                   </span>
                   <LogLevelIcon level={log.level} />
@@ -373,26 +373,26 @@ export default function RunDetailPage() {
           <CardContent className="flex-1 pt-0">
             {/* Mock browser frame */}
             <div className="rounded-lg border overflow-hidden mb-4">
-              <div className="bg-gray-900 px-3 py-2 flex items-center space-x-1.5">
+              <div className="bg-zinc-900 px-3 py-2 flex items-center space-x-1.5">
                 <div className="w-2 h-2 rounded-full bg-red-500" />
                 <div className="w-2 h-2 rounded-full bg-yellow-500" />
                 <div className="w-2 h-2 rounded-full bg-green-500" />
                 <div className="flex-1 mx-3">
-                  <div className="bg-gray-800 rounded px-2 py-0.5 text-gray-400 text-[10px] font-mono text-center truncate">
+                  <div className="bg-zinc-800 rounded px-2 py-0.5 text-zinc-400 text-[10px] font-mono text-center truncate">
                     {flowUrl || "https://example.com"}
                   </div>
                 </div>
               </div>
-              <div className="bg-gray-950 p-4 h-36 flex items-center justify-center">
+              <div className="bg-zinc-950 p-4 h-36 flex items-center justify-center">
                 {isRunning ? (
                   <div className="text-center space-y-2">
                     <Loader2 className="w-8 h-8 text-blue-500 animate-spin mx-auto" />
-                    <p className="text-xs text-gray-400">Extracting data...</p>
+                    <p className="text-xs text-zinc-400">Extracting data...</p>
                   </div>
                 ) : (
                   <div className="text-center space-y-2">
                     <CheckCircle2 className="w-8 h-8 text-emerald-500 mx-auto" />
-                    <p className="text-xs text-gray-400">Extraction complete</p>
+                    <p className="text-xs text-zinc-400">Extraction complete</p>
                   </div>
                 )}
               </div>

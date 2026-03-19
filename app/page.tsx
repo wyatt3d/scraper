@@ -145,17 +145,17 @@ export default function LandingPage() {
 
             {/* Terminal mockup */}
             <div className="max-w-2xl mx-auto rounded-xl overflow-hidden shadow-2xl border border-border" role="img" aria-label="Example API request and response in a terminal">
-              <div className="bg-gray-900 px-4 py-3 flex items-center space-x-2">
+              <div className="bg-zinc-900 px-4 py-3 flex items-center space-x-2">
                 <div className="w-3 h-3 rounded-full bg-red-500" />
                 <div className="w-3 h-3 rounded-full bg-yellow-500" />
                 <div className="w-3 h-3 rounded-full bg-green-500" />
-                <span className="ml-3 text-gray-400 text-sm font-mono">Terminal</span>
+                <span className="ml-3 text-zinc-400 text-sm font-mono">Terminal</span>
               </div>
-              <div className="bg-gray-950 p-6 text-left font-mono text-sm leading-relaxed">
-                <p className="text-gray-400">$ curl -X POST https://api.scraper.dev/v1/extract \</p>
-                <p className="text-gray-400 pl-4">-H &quot;Authorization: Bearer scr_live_...&quot; \</p>
-                <p className="text-gray-400 pl-4">-d &apos;&#123;&quot;url&quot;: &quot;https://example.com/products&quot;,</p>
-                <p className="text-gray-400 pl-8">&quot;prompt&quot;: &quot;Extract all product names and prices&quot;&#125;&apos;</p>
+              <div className="bg-zinc-950 p-6 text-left font-mono text-sm leading-relaxed">
+                <p className="text-zinc-400">$ curl -X POST https://api.scraper.dev/v1/extract \</p>
+                <p className="text-zinc-400 pl-4">-H &quot;Authorization: Bearer scr_live_...&quot; \</p>
+                <p className="text-zinc-400 pl-4">-d &apos;&#123;&quot;url&quot;: &quot;https://example.com/products&quot;,</p>
+                <p className="text-zinc-400 pl-8">&quot;prompt&quot;: &quot;Extract all product names and prices&quot;&#125;&apos;</p>
                 <p className="mt-4 text-green-400">&#123;</p>
                 <p className="text-green-400 pl-4">&quot;status&quot;: &quot;success&quot;,</p>
                 <p className="text-green-400 pl-4">&quot;data&quot;: [</p>
@@ -343,11 +343,11 @@ export default function LandingPage() {
 
             {showDemo && (
               <div className="rounded-xl overflow-hidden border border-border shadow-lg animate-in fade-in slide-in-from-top-2 duration-300">
-                <div className="bg-gray-900 px-4 py-3 flex items-center justify-between">
-                  <span className="text-gray-400 text-sm font-mono">Response - 200 OK - 1.2s</span>
+                <div className="bg-zinc-900 px-4 py-3 flex items-center justify-between">
+                  <span className="text-zinc-400 text-sm font-mono">Response - 200 OK - 1.2s</span>
                   <span className="text-xs text-green-400 font-mono">application/json</span>
                 </div>
-                <div className="bg-gray-950 p-6 font-mono text-sm leading-relaxed">
+                <div className="bg-zinc-950 p-6 font-mono text-sm leading-relaxed">
                   <p className="text-green-400">&#123;</p>
                   <p className="text-green-400 pl-4">&quot;data&quot;: [</p>
                   <p className="text-green-400 pl-8">&#123;</p>
@@ -360,7 +360,7 @@ export default function LandingPage() {
                   <p className="text-green-400 pl-12">&quot;url&quot;: &quot;https://blog.example.com/deterministic&quot;,</p>
                   <p className="text-green-400 pl-12">&quot;points&quot;: 287</p>
                   <p className="text-green-400 pl-8">&#125;,</p>
-                  <p className="text-gray-600 pl-8">// ... 3 more results</p>
+                  <p className="text-zinc-600 pl-8">// ... 3 more results</p>
                   <p className="text-green-400 pl-4">],</p>
                   <p className="text-green-400 pl-4">&quot;meta&quot;: &#123; &quot;total&quot;: 5, &quot;cached&quot;: false &#125;</p>
                   <p className="text-green-400">&#125;</p>
@@ -612,56 +612,56 @@ export default function LandingPage() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-gray-950 text-gray-300 py-16">
+      <footer className="bg-muted text-muted-foreground py-16">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8 mb-12">
             <div>
               <div className="mb-4">
                 <Logo size="md" href="/" />
               </div>
-              <p className="text-gray-400 text-sm">
+              <p className="text-muted-foreground text-sm">
                 AI-powered web scraping and structured API generation for modern data teams.
               </p>
             </div>
             <div>
-              <h4 className="font-serif font-bold text-white text-lg mb-4">Product</h4>
+              <h4 className="font-serif font-bold text-foreground text-lg mb-4">Product</h4>
               <ul className="space-y-2 text-sm">
-                <li><a href="/#features" className="hover:text-white transition-colors">Features</a></li>
-                <li><Link href="/pricing" className="hover:text-white transition-colors">Pricing</Link></li>
-                <li><Link href="/docs" className="hover:text-white transition-colors">Documentation</Link></li>
-                <li><Link href="/docs/api-reference" className="hover:text-white transition-colors">API Reference</Link></li>
-                <li><Link href="/changelog" className="hover:text-white transition-colors">Changelog</Link></li>
+                <li><a href="/#features" className="hover:text-foreground transition-colors">Features</a></li>
+                <li><Link href="/pricing" className="hover:text-foreground transition-colors">Pricing</Link></li>
+                <li><Link href="/docs" className="hover:text-foreground transition-colors">Documentation</Link></li>
+                <li><Link href="/docs/api-reference" className="hover:text-foreground transition-colors">API Reference</Link></li>
+                <li><Link href="/changelog" className="hover:text-foreground transition-colors">Changelog</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-serif font-bold text-white text-lg mb-4">Company</h4>
+              <h4 className="font-serif font-bold text-foreground text-lg mb-4">Company</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link href="/changelog" className="hover:text-white transition-colors">About</Link></li>
-                <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
-                <li><Link href="/changelog" className="hover:text-white transition-colors">Careers</Link></li>
-                <li><a href="mailto:hello@scraper.bot" className="hover:text-white transition-colors">Contact</a></li>
+                <li><Link href="/changelog" className="hover:text-foreground transition-colors">About</Link></li>
+                <li><Link href="/blog" className="hover:text-foreground transition-colors">Blog</Link></li>
+                <li><Link href="/changelog" className="hover:text-foreground transition-colors">Careers</Link></li>
+                <li><a href="mailto:hello@scraper.bot" className="hover:text-foreground transition-colors">Contact</a></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-serif font-bold text-white text-lg mb-4">Support</h4>
+              <h4 className="font-serif font-bold text-foreground text-lg mb-4">Support</h4>
               <ul className="space-y-2 text-sm">
-                <li><Link href="/docs" className="hover:text-white transition-colors">Help Center</Link></li>
-                <li><Link href="/status" className="hover:text-white transition-colors">Status</Link></li>
-                <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
-                <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
+                <li><Link href="/docs" className="hover:text-foreground transition-colors">Help Center</Link></li>
+                <li><Link href="/status" className="hover:text-foreground transition-colors">Status</Link></li>
+                <li><Link href="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-500 text-sm mb-4 md:mb-0">&copy; 2026 Scraper. All rights reserved.</p>
+          <div className="border-t border-border pt-8 flex flex-col md:flex-row justify-between items-center">
+            <p className="text-muted-foreground text-sm mb-4 md:mb-0">&copy; 2026 Scraper. All rights reserved.</p>
             <div className="flex items-center space-x-4">
-              <a href="https://x.com/scraperbot" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors" aria-label="Twitter">
+              <a href="https://x.com/scraperbot" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors" aria-label="Twitter">
                 <Twitter className="w-5 h-5" />
               </a>
-              <a href="https://github.com/wyatt3d/scraper" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors" aria-label="GitHub">
+              <a href="https://github.com/wyatt3d/scraper" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors" aria-label="GitHub">
                 <Github className="w-5 h-5" />
               </a>
-              <a href="https://linkedin.com/company/scraperbot" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-white transition-colors" aria-label="LinkedIn">
+              <a href="https://linkedin.com/company/scraperbot" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors" aria-label="LinkedIn">
                 <Linkedin className="w-5 h-5" />
               </a>
             </div>

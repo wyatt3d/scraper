@@ -585,7 +585,7 @@ export function PricingContent() {
           <Link href="/contact">
             <Button
               size="lg"
-              className="bg-white text-blue-600 hover:bg-blue-50 text-lg px-8 py-6 font-semibold"
+              className="bg-white text-blue-600 hover:bg-white/90 text-lg px-8 py-6 font-semibold"
             >
               Talk to Sales
               <ArrowRight className="ml-2 w-5 h-5" />

@@ -489,7 +489,7 @@ export default function PipelinesPage() {
                         Active
                       </Badge>
                     ) : (
-                      <Badge className="bg-gray-500/15 text-gray-600 border-gray-500/25 dark:text-gray-400 shrink-0">
+                      <Badge className="bg-muted text-muted-foreground border-border shrink-0">
                         Paused
                       </Badge>
                     )}

@@ -181,7 +181,7 @@ function roleBadge(role: TeamRole) {
       )
     case "viewer":
       return (
-        <Badge className="bg-gray-500/15 text-gray-600 border-gray-500/25 dark:text-gray-400">
+        <Badge className="bg-muted text-muted-foreground border-border">
           Viewer
         </Badge>
       )
@@ -1387,7 +1387,7 @@ export default function SettingsPage() {
                   <TableRow>
                     <TableCell className="font-medium">t***@agency.co</TableCell>
                     <TableCell>
-                      <Badge className="bg-gray-500/15 text-gray-600 border-gray-500/25 dark:text-gray-400">
+                      <Badge className="bg-muted text-muted-foreground border-border">
                         Expired
                       </Badge>
                     </TableCell>

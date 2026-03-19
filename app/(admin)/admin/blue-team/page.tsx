@@ -347,7 +347,7 @@ const items: DefenseItem[] = [
 const statusConfig: Record<Status, { icon: typeof CheckCircle; color: string; bg: string }> = {
   FIXED: { icon: CheckCircle, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-600 text-white border-emerald-600" },
   "IN PROGRESS": { icon: Clock, color: "text-yellow-600 dark:text-yellow-400", bg: "bg-yellow-600 text-white border-yellow-600" },
-  ACKNOWLEDGED: { icon: Eye, color: "text-gray-500 dark:text-gray-400", bg: "bg-gray-500 text-white border-gray-500" },
+  ACKNOWLEDGED: { icon: Eye, color: "text-muted-foreground", bg: "bg-muted text-muted-foreground border-border" },
 }
 
 const severityBg: Record<Severity, string> = {
@@ -408,10 +408,10 @@ export default function BlueTeamPage() {
             <p className="text-3xl font-bold text-yellow-500">{inProgress}</p>
           </CardContent>
         </Card>
-        <Card className="py-4 border-l-4 border-l-gray-500">
+        <Card className="py-4 border-l-4 border-l-muted-foreground">
           <CardContent>
             <p className="text-sm text-muted-foreground">Acknowledged</p>
-            <p className="text-3xl font-bold text-gray-500">{acknowledged}</p>
+            <p className="text-3xl font-bold text-muted-foreground">{acknowledged}</p>
           </CardContent>
         </Card>
       </div>

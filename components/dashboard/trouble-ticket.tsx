@@ -327,7 +327,7 @@ export function FloatingHelpButton() {
 
   return (
     <>
-      <div className="fixed left-6 bottom-6 z-50">
+      <div className="fixed right-6 bottom-6 z-50">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button

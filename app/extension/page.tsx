@@ -82,17 +82,17 @@ export default function ExtensionPage() {
 
             {/* Browser mockup */}
             <div className="max-w-3xl mx-auto rounded-xl overflow-hidden shadow-2xl border border-border">
-              <div className="bg-gray-900 px-4 py-3 flex items-center space-x-2">
+              <div className="bg-zinc-900 px-4 py-3 flex items-center space-x-2">
                 <div className="w-3 h-3 rounded-full bg-red-500" />
                 <div className="w-3 h-3 rounded-full bg-yellow-500" />
                 <div className="w-3 h-3 rounded-full bg-green-500" />
                 <div className="flex-1 mx-4">
-                  <div className="bg-gray-800 rounded-md px-3 py-1 text-gray-400 text-sm font-mono text-center">
+                  <div className="bg-zinc-800 rounded-md px-3 py-1 text-zinc-400 text-sm font-mono text-center">
                     https://example-store.com/products
                   </div>
                 </div>
               </div>
-              <div className="bg-gray-950 p-8 relative">
+              <div className="bg-zinc-950 p-8 relative">
                 <div className="grid grid-cols-3 gap-4">
                   {["Product A", "Product B", "Product C"].map((name, i) => (
                     <div
@@ -100,11 +100,11 @@ export default function ExtensionPage() {
                       className={`rounded-lg border p-4 text-left ${
                         i === 1
                           ? "border-blue-500 bg-blue-500/10 ring-2 ring-blue-500/30"
-                          : "border-gray-700 bg-gray-800/50"
+                          : "border-zinc-700 bg-zinc-800/50"
                       }`}
                     >
-                      <div className="h-16 rounded bg-gray-700 mb-3" />
-                      <p className="text-gray-300 text-sm font-medium">{name}</p>
+                      <div className="h-16 rounded bg-zinc-700 mb-3" />
+                      <p className="text-zinc-300 text-sm font-medium">{name}</p>
                       <p className="text-blue-400 text-sm font-mono mt-1">$29.99</p>
                     </div>
                   ))}

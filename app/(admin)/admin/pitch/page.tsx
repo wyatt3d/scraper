@@ -722,12 +722,12 @@ export default function PitchDeckPage() {
               <p className="text-sm font-medium text-blue-300 mt-1">
                 {item.label}
               </p>
-              <p className="text-xs text-gray-400 mt-1">{item.detail}</p>
+              <p className="text-xs text-zinc-400 mt-1">{item.detail}</p>
             </div>
           ))}
         </div>
         <div className="text-center">
-          <div className="inline-flex items-center gap-2 text-gray-400">
+          <div className="inline-flex items-center gap-2 text-zinc-400">
             <Mail className="size-4" />
             <span className="text-sm">hello@scraper.bot</span>
           </div>

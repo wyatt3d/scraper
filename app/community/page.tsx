@@ -28,7 +28,7 @@ interface Post {
 }
 
 const categoryStyles: Record<Category, string> = {
-  "General": "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
+  "General": "bg-muted text-muted-foreground",
   "Help & Support": "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300",
   "Show & Tell": "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300",
   "Feature Requests": "bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300",

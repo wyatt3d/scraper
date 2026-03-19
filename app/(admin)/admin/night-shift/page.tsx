@@ -21,7 +21,7 @@ interface TeamReport {
 const statusBadge: Record<TeamStatus, { className: string }> = {
   COMPLETE: { className: "bg-emerald-600 text-white border-emerald-600" },
   "IN PROGRESS": { className: "bg-blue-600 text-white border-blue-600" },
-  PLANNED: { className: "bg-gray-500 text-white border-gray-500" },
+  PLANNED: { className: "bg-muted text-muted-foreground border-border" },
 }
 
 const reports: TeamReport[] = [

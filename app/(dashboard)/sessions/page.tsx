@@ -193,7 +193,7 @@ const initialSessions: Session[] = [
 const statusConfig = {
   active: { label: "Active", variant: "default" as const, className: "bg-emerald-500/15 text-emerald-600 border-emerald-500/25 dark:text-emerald-400" },
   paused: { label: "Paused", variant: "default" as const, className: "bg-yellow-500/15 text-yellow-600 border-yellow-500/25 dark:text-yellow-400" },
-  idle: { label: "Idle", variant: "default" as const, className: "bg-gray-500/15 text-gray-500 border-gray-500/25" },
+  idle: { label: "Idle", variant: "default" as const, className: "bg-muted text-muted-foreground border-border" },
 }
 
 function maskValue(value: string) {

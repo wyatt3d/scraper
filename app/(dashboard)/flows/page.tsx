@@ -118,7 +118,7 @@ const modeConfig: Record<FlowMode, { label: string; icon: typeof FileText; color
 const statusConfig: Record<FlowStatus, { label: string; icon: typeof CheckCircle2; color: string }> = {
   active: { label: "Active", icon: CheckCircle2, color: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300" },
   paused: { label: "Paused", icon: Pause, color: "bg-yellow-100 text-yellow-700 dark:bg-yellow-950 dark:text-yellow-300" },
-  draft: { label: "Draft", icon: FileText, color: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300" },
+  draft: { label: "Draft", icon: FileText, color: "bg-muted text-muted-foreground" },
   error: { label: "Error", icon: AlertCircle, color: "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300" },
 }
 

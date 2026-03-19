@@ -96,7 +96,7 @@ function median(nums: number[]): number {
 
 function TypeBadge({ type }: { type: string }) {
   const styles: Record<string, string> = {
-    text: "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300",
+    text: "bg-muted text-muted-foreground",
     number: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300",
     date: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300",
     url: "bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300",

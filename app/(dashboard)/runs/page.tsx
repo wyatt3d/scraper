@@ -114,14 +114,14 @@ function statusBadge(status: string) {
       )
     case "cancelled":
       return (
-        <Badge className="bg-gray-500/15 text-gray-600 border-gray-500/25 dark:text-gray-400">
+        <Badge className="bg-muted text-muted-foreground border-border">
           <XCircle className="size-3" />
           Cancelled
         </Badge>
       )
     case "queued":
       return (
-        <Badge className="bg-gray-500/15 text-gray-600 border-gray-500/25 dark:text-gray-400">
+        <Badge className="bg-muted text-muted-foreground border-border">
           <Clock className="size-3" />
           Queued
         </Badge>
@@ -140,7 +140,7 @@ function logLevelColor(level: RunLog["level"]) {
     case "error":
       return "text-red-500"
     case "debug":
-      return "text-gray-400"
+      return "text-muted-foreground"
   }
 }
 
