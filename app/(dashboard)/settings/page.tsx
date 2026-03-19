@@ -197,6 +197,326 @@ function roleBadge(role: TeamRole) {
   }
 }
 
+function ChangeRoleDialog({ member, onRoleChange }: { member: TeamMember; onRoleChange: (id: string, role: TeamRole) => void }) {
+  const [open, setOpen] = useState(false)
+  const [selectedRole, setSelectedRole] = useState<TeamRole>(member.role)
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="sm" className="h-7 text-xs">
+          Change Role
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-sm">
+        <DialogHeader>
+          <DialogTitle>Change Role</DialogTitle>
+          <DialogDescription>
+            Update the role for {member.name}.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-2 py-2">
+          <Label>Role</Label>
+          <Select value={selectedRole} onValueChange={(v) => setSelectedRole(v as TeamRole)}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="owner">Owner</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
+              <SelectItem value="editor">Editor</SelectItem>
+              <SelectItem value="viewer">Viewer</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button onClick={() => {
+            onRoleChange(member.id, selectedRole)
+            setOpen(false)
+          }}>Save</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function InviteMemberDialog({ onInvite }: { onInvite: (email: string, role: TeamRole) => void }) {
+  const [open, setOpen] = useState(false)
+  const [email, setEmail] = useState("")
+  const [role, setRole] = useState<TeamRole>("editor")
+  const [message, setMessage] = useState("")
+
+  function handleInvite() {
+    if (!email.trim()) {
+      toast.error("Email is required")
+      return
+    }
+    onInvite(email, role)
+    toast.success(`Invitation sent to ${email}`)
+    setOpen(false)
+    setEmail("")
+    setRole("editor")
+    setMessage("")
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button size="sm" className="gap-1.5">
+          <UserPlus className="size-3.5" />
+          Invite Member
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Invite Team Member</DialogTitle>
+          <DialogDescription>
+            Send an invitation to join your workspace.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4 py-2">
+          <div className="space-y-1.5">
+            <Label>Email</Label>
+            <Input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="colleague@company.com"
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Role</Label>
+            <Select value={role} onValueChange={(v) => setRole(v as TeamRole)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="editor">Editor</SelectItem>
+                <SelectItem value="viewer">Viewer</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Personal Message (optional)</Label>
+            <Textarea
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Hey, join our scraping workspace!"
+              rows={3}
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button onClick={handleInvite} className="gap-1.5">
+            <Send className="size-3.5" />
+            Send Invite
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function TeamSection() {
+  const [members, setMembers] = useState(initialTeamMembers)
+  const [pendingInvites, setPendingInvites] = useState(initialPendingInvites)
+
+  function handleRoleChange(id: string, newRole: TeamRole) {
+    setMembers((prev) =>
+      prev.map((m) => {
+        if (m.id !== id) return m
+        toast.success(`${m.name}'s role changed to ${newRole}`)
+        return { ...m, role: newRole }
+      })
+    )
+  }
+
+  function removeMember(id: string) {
+    const member = members.find((m) => m.id === id)
+    setMembers((prev) => prev.filter((m) => m.id !== id))
+    toast.success(`${member?.name} removed from team`)
+  }
+
+  function handleInvite(email: string, role: TeamRole) {
+    setPendingInvites((prev) => [
+      ...prev,
+      { id: `inv-${Date.now()}`, email, role, sent: "Just now", status: "pending" },
+    ])
+  }
+
+  function cancelInvite(id: string) {
+    setPendingInvites((prev) => prev.filter((i) => i.id !== id))
+    toast.success("Invitation cancelled")
+  }
+
+  function resendInvite(email: string) {
+    toast.success(`Invitation resent to ${email}`)
+  }
+
+  return (
+    <>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Team Members</CardTitle>
+              <CardDescription className="mt-1">
+                Manage who has access to your workspace.
+              </CardDescription>
+            </div>
+            <InviteMemberDialog onInvite={handleInvite} />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Member</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Role</TableHead>
+                <TableHead>Last Active</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {members.map((member) => (
+                <TableRow key={member.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Avatar className="size-7">
+                        <AvatarFallback className="text-xs">
+                          {member.name.split(" ").map((n) => n[0]).join("").toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="font-medium text-sm">
+                        {member.name}
+                        {member.isYou && <span className="text-muted-foreground ml-1">(You)</span>}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-muted-foreground text-sm">{member.email}</TableCell>
+                  <TableCell>{roleBadge(member.role)}</TableCell>
+                  <TableCell className="text-muted-foreground text-sm">{member.lastActive}</TableCell>
+                  <TableCell className="text-right">
+                    {!member.isYou && (
+                      <div className="flex items-center justify-end gap-1">
+                        <ChangeRoleDialog member={member} onRoleChange={handleRoleChange} />
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="size-7 text-red-500 hover:text-red-600"
+                          onClick={() => removeMember(member.id)}
+                        >
+                          <Trash2 className="size-3.5" />
+                        </Button>
+                      </div>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="size-4" />
+            Role Descriptions
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {(Object.entries(roleDescriptions) as [TeamRole, string][]).map(([role, desc]) => (
+            <div key={role} className="flex items-start gap-3">
+              <div className="pt-0.5 shrink-0">{roleBadge(role)}</div>
+              <p className="text-sm text-muted-foreground">{desc}</p>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
+
+      {pendingInvites.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Pending Invitations</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Role</TableHead>
+                  <TableHead>Sent</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {pendingInvites.map((invite) => (
+                  <TableRow key={invite.id}>
+                    <TableCell className="font-medium text-sm">{invite.email}</TableCell>
+                    <TableCell>{roleBadge(invite.role)}</TableCell>
+                    <TableCell className="text-muted-foreground text-sm">{invite.sent}</TableCell>
+                    <TableCell>
+                      <Badge className="bg-yellow-500/15 text-yellow-600 border-yellow-500/25 dark:text-yellow-400">
+                        Pending
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 text-xs gap-1"
+                          onClick={() => resendInvite(invite.email)}
+                        >
+                          <RefreshCw className="size-3" />
+                          Resend
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 text-xs text-red-500 hover:text-red-600"
+                          onClick={() => cancelInvite(invite.id)}
+                        >
+                          <X className="size-3" />
+                          Cancel
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <History className="size-4" />
+            Activity Log
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {activityLog.map((entry) => (
+              <div key={entry.id} className="flex items-start justify-between gap-4 text-sm">
+                <p className="text-muted-foreground">{entry.description}</p>
+                <span className="text-xs text-muted-foreground/70 shrink-0 flex items-center gap-1">
+                  <Clock className="size-3" />
+                  {entry.time}
+                </span>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </>
+  )
+}
+
 export default function SettingsPage() {
   const [name, setName] = useState(mockUser.name)
   const [email, setEmail] = useState(mockUser.email)

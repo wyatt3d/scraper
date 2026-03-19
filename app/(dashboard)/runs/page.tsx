@@ -239,12 +239,24 @@ function formatTimestamp(ts: string) {
 export default function RunsPage() {
   const [flowFilter, setFlowFilter] = useState<string>("all")
   const [statusFilter, setStatusFilter] = useState<string>("all")
+  const [dateRange, setDateRange] = useState<string>("7d")
   const [expandedRun, setExpandedRun] = useState<string | null>(null)
   const [page, setPage] = useState(1)
+
+  const now = new Date("2026-03-18T18:30:00Z")
 
   const filtered = allRuns.filter((run) => {
     if (flowFilter !== "all" && run.flowId !== flowFilter) return false
     if (statusFilter !== "all" && run.status !== statusFilter) return false
+    if (dateRange !== "all") {
+      const runDate = new Date(run.startedAt)
+      const msMap: Record<string, number> = {
+        "24h": 24 * 60 * 60 * 1000,
+        "7d": 7 * 24 * 60 * 60 * 1000,
+        "30d": 30 * 24 * 60 * 60 * 1000,
+      }
+      if (now.getTime() - runDate.getTime() > msMap[dateRange]) return false
+    }
     return true
   })
 
@@ -266,10 +278,18 @@ export default function RunsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="gap-1.5">
-            <Calendar className="size-3.5" />
-            Last 7 Days
-          </Button>
+          <Select value={dateRange} onValueChange={(v) => { setDateRange(v); setPage(1) }}>
+            <SelectTrigger className="w-[160px] h-8 text-sm">
+              <Calendar className="size-3.5 mr-1.5" />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="24h">Last 24 Hours</SelectItem>
+              <SelectItem value="7d">Last 7 Days</SelectItem>
+              <SelectItem value="30d">Last 30 Days</SelectItem>
+              <SelectItem value="all">All Time</SelectItem>
+            </SelectContent>
+          </Select>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="gap-1.5">
