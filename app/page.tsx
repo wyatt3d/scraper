@@ -678,8 +678,8 @@ export default function LandingPage() {
               <ul className="space-y-2 text-sm">
                 <li><Link href="/docs" className="hover:text-white transition-colors">Help Center</Link></li>
                 <li><Link href="/status" className="hover:text-white transition-colors">Status</Link></li>
-                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
+                <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
               </ul>
             </div>
           </div>
