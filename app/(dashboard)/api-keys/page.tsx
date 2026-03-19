@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   Check,
   Copy,
@@ -53,7 +53,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { toast } from "sonner"
-import { mockApiKeys } from "@/lib/mock-data"
+import { TableSkeleton } from "@/components/dashboard/skeletons"
+import { EmptyApiKeys } from "@/components/dashboard/empty-states"
 import type { ApiKey } from "@/lib/types"
 import { HelpTooltip } from "@/components/dashboard/help-tooltip"
 
@@ -100,7 +101,23 @@ function maskKey(key: string, prefix: string) {
 }
 
 export default function ApiKeysPage() {
-  const [keys, setKeys] = useState<ApiKey[]>(mockApiKeys)
+  const [keys, setKeys] = useState<ApiKey[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const res = await fetch("/api/keys")
+        const json = await res.json()
+        setKeys(Array.isArray(json.data) ? json.data : [])
+      } catch {
+        // API failed, data stays empty
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
+  }, [])
   const [createDialogOpen, setCreateDialogOpen] = useState(false)
   const [newKeyName, setNewKeyName] = useState("")
   const [newKeyScopes, setNewKeyScopes] = useState<string[]>([])
@@ -159,6 +176,18 @@ export default function ApiKeysPage() {
     setNewKeyName("")
     setNewKeyScopes([])
     setGeneratedKey(null)
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="font-serif text-3xl font-bold tracking-tight">API Keys</h1>
+          <p className="text-muted-foreground mt-1">Use API keys to authenticate requests to the Scraper API.</p>
+        </div>
+        <TableSkeleton rows={3} />
+      </div>
+    )
   }
 
   return (

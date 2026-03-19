@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useRef } from "react"
+import { useState, useEffect, useMemo, useRef } from "react"
 import Link from "next/link"
 import {
   Plus,
@@ -73,8 +73,9 @@ import {
 } from "@/components/ui/tooltip"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
-import { mockFlows } from "@/lib/mock-data"
 import { downloadCSV, downloadJSON } from "@/lib/export"
+import { FlowGridSkeleton } from "@/components/dashboard/skeletons"
+import { EmptyFlows } from "@/components/dashboard/empty-states"
 import type { Flow, FlowMode, FlowStatus } from "@/lib/types"
 
 function timeAgo(dateStr: string): string {
@@ -118,10 +119,26 @@ export default function FlowsPage() {
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [view, setView] = useState<"grid" | "list">("grid")
   const [deleteTarget, setDeleteTarget] = useState<Flow | null>(null)
-  const [flows, setFlows] = useState(mockFlows)
+  const [flows, setFlows] = useState<Flow[]>([])
+  const [loading, setLoading] = useState(true)
   const [importPreview, setImportPreview] = useState<Record<string, unknown> | null>(null)
   const [importDialogOpen, setImportDialogOpen] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const res = await fetch("/api/flows")
+        const json = await res.json()
+        setFlows(Array.isArray(json.data) ? json.data : [])
+      } catch {
+        // API failed, data stays empty
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
+  }, [])
 
   function handleImportClick() {
     fileInputRef.current?.click()
@@ -311,26 +328,22 @@ export default function FlowsPage() {
           </div>
         </div>
 
-        {filtered.length === 0 ? (
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
-            <Activity className="text-muted-foreground mb-4 h-12 w-12" />
-            <h3 className="font-[family-name:var(--font-crimson-text)] text-lg font-semibold">
-              No flows found
-            </h3>
-            <p className="text-muted-foreground mt-1 text-sm">
-              {search || modeFilter !== "all" || statusFilter !== "all"
-                ? "Try adjusting your filters"
-                : "Create your first flow to get started"}
-            </p>
-            {!search && modeFilter === "all" && statusFilter === "all" && (
-              <Button asChild className="mt-4 bg-blue-600 hover:bg-blue-700">
-                <Link href="/flows/new">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Create Flow
-                </Link>
-              </Button>
-            )}
-          </div>
+        {loading ? (
+          <FlowGridSkeleton />
+        ) : filtered.length === 0 ? (
+          search || modeFilter !== "all" || statusFilter !== "all" ? (
+            <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16">
+              <Activity className="text-muted-foreground mb-4 h-12 w-12" />
+              <h3 className="font-[family-name:var(--font-crimson-text)] text-lg font-semibold">
+                No flows found
+              </h3>
+              <p className="text-muted-foreground mt-1 text-sm">
+                Try adjusting your filters
+              </p>
+            </div>
+          ) : (
+            <EmptyFlows />
+          )
         ) : view === "grid" ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {filtered.map((flow) => (

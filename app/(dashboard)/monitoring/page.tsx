@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import {
   AlertTriangle,
@@ -45,8 +45,9 @@ import {
 } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { toast } from "sonner"
-import { mockAlerts, mockFlows } from "@/lib/mock-data"
-import type { MonitorAlert } from "@/lib/types"
+import { StatsGridSkeleton, TableSkeleton } from "@/components/dashboard/skeletons"
+import { EmptyAlerts } from "@/components/dashboard/empty-states"
+import type { Flow, MonitorAlert } from "@/lib/types"
 
 interface MonitoringRule {
   id: string
@@ -174,13 +175,35 @@ function alertTypeBadge(type: MonitorAlert["type"]) {
 }
 
 export default function MonitoringPage() {
-  const [alerts, setAlerts] = useState(mockAlerts)
+  const [alerts, setAlerts] = useState<MonitorAlert[]>([])
+  const [flows, setFlows] = useState<Flow[]>([])
+  const [loading, setLoading] = useState(true)
   const [rules, setRules] = useState(initialRules)
   const [ruleDialogOpen, setRuleDialogOpen] = useState(false)
   const [editingRule, setEditingRule] = useState<MonitoringRule | null>(null)
   const [ruleFlow, setRuleFlow] = useState("")
   const [ruleCondition, setRuleCondition] = useState("")
   const [ruleChannel, setRuleChannel] = useState("")
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [alertsRes, flowsRes] = await Promise.all([
+          fetch("/api/alerts"),
+          fetch("/api/flows"),
+        ])
+        const alertsData = await alertsRes.json()
+        const flowsData = await flowsRes.json()
+        setAlerts(Array.isArray(alertsData.data) ? alertsData.data : [])
+        setFlows(Array.isArray(flowsData.data) ? flowsData.data : [])
+      } catch {
+        // API failed, data stays empty
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
+  }, [])
 
   const unacknowledgedCount = alerts.filter((a) => !a.acknowledged).length
   const alertsTodayCount = alerts.filter((a) => {
@@ -219,7 +242,7 @@ export default function MonitoringPage() {
             ? {
                 ...r,
                 flowId: ruleFlow,
-                flowName: mockFlows.find((f) => f.id === ruleFlow)?.name ?? r.flowName,
+                flowName: flows.find((f) => f.id === ruleFlow)?.name ?? r.flowName,
                 condition: ruleCondition,
                 channel: ruleChannel,
               }
@@ -227,7 +250,7 @@ export default function MonitoringPage() {
         )
       )
     } else {
-      const flow = mockFlows.find((f) => f.id === ruleFlow)
+      const flow = flows.find((f) => f.id === ruleFlow)
       setRules((prev) => [
         ...prev,
         {
@@ -254,6 +277,19 @@ export default function MonitoringPage() {
 
   function deleteRule(id: string) {
     setRules((prev) => prev.filter((r) => r.id !== id))
+  }
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="font-serif text-3xl font-bold tracking-tight">Monitoring</h1>
+          <p className="text-muted-foreground mt-1">Alerts and monitoring rules for your scraping flows.</p>
+        </div>
+        <StatsGridSkeleton />
+        <TableSkeleton rows={4} />
+      </div>
+    )
   }
 
   return (
@@ -326,7 +362,9 @@ export default function MonitoringPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
-          {alerts.map((alert) => (
+          {alerts.length === 0 ? (
+            <EmptyAlerts />
+          ) : alerts.map((alert) => (
             <div
               key={alert.id}
               className={`flex gap-3 rounded-lg border border-l-4 p-4 ${severityBorderColor(alert.severity)} ${severityBgColor(alert.severity)} ${alert.acknowledged ? "opacity-50" : ""}`}
@@ -375,6 +413,7 @@ export default function MonitoringPage() {
         </CardContent>
       </Card>
 
+
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -412,7 +451,7 @@ export default function MonitoringPage() {
                         <SelectValue placeholder="Select a flow" />
                       </SelectTrigger>
                       <SelectContent>
-                        {mockFlows.map((flow) => (
+                        {flows.map((flow) => (
                           <SelectItem key={flow.id} value={flow.id}>
                             {flow.name}
                           </SelectItem>

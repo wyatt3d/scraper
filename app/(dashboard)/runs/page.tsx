@@ -1,6 +1,6 @@
 "use client"
 
-import { Fragment, useState } from "react"
+import { Fragment, useState, useEffect } from "react"
 import Link from "next/link"
 import {
   Calendar,
@@ -46,104 +46,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { mockRuns, mockFlows } from "@/lib/mock-data"
 import { downloadCSV, downloadJSON } from "@/lib/export"
 import { DataViewer } from "@/components/dashboard/data-viewer"
-import type { Run, RunLog } from "@/lib/types"
-
-const additionalRuns: Run[] = [
-  {
-    id: "run-6",
-    flowId: "flow-2",
-    flowName: "Job Listings Scraper",
-    status: "completed",
-    startedAt: "2026-03-17T18:00:00Z",
-    completedAt: "2026-03-17T18:00:30Z",
-    duration: 30200,
-    itemsExtracted: 104,
-    outputPreview: [
-      { title: "Backend Engineer", company: "DataFlow Inc", location: "Austin, TX", salary: "$160k-$200k" },
-    ],
-    logs: [
-      { timestamp: "2026-03-17T18:00:00Z", level: "info", message: "Run started" },
-      { timestamp: "2026-03-17T18:00:28Z", level: "info", message: "Extracted 104 listings" },
-      { timestamp: "2026-03-17T18:00:30Z", level: "info", message: "Run completed successfully" },
-    ],
-    cost: 0.009,
-  },
-  {
-    id: "run-7",
-    flowId: "flow-1",
-    flowName: "Product Price Monitor",
-    status: "completed",
-    startedAt: "2026-03-17T12:00:00Z",
-    completedAt: "2026-03-17T12:00:13Z",
-    duration: 13100,
-    itemsExtracted: 145,
-    outputPreview: [
-      { name: "Wireless Headphones Pro", price: 91.49, url: "/products/headphones", change: 0 },
-    ],
-    logs: [
-      { timestamp: "2026-03-17T12:00:00Z", level: "info", message: "Run started" },
-      { timestamp: "2026-03-17T12:00:13Z", level: "info", message: "Run completed successfully" },
-    ],
-    cost: 0.003,
-  },
-  {
-    id: "run-8",
-    flowId: "flow-3",
-    flowName: "Real Estate Auction Monitor",
-    status: "completed",
-    startedAt: "2026-03-17T08:00:00Z",
-    completedAt: "2026-03-17T08:00:09Z",
-    duration: 8900,
-    itemsExtracted: 31,
-    outputPreview: [
-      { address: "789 Pine Dr, Houston TX", currentBid: 38000, endDate: "2026-03-24" },
-    ],
-    logs: [
-      { timestamp: "2026-03-17T08:00:00Z", level: "info", message: "Run started" },
-      { timestamp: "2026-03-17T08:00:09Z", level: "info", message: "Run completed successfully" },
-    ],
-    cost: 0.002,
-  },
-  {
-    id: "run-9",
-    flowId: "flow-5",
-    flowName: "Craigslist Cars Aggregator",
-    status: "cancelled",
-    startedAt: "2026-03-17T06:00:00Z",
-    completedAt: "2026-03-17T06:00:20Z",
-    duration: 20000,
-    itemsExtracted: 0,
-    logs: [
-      { timestamp: "2026-03-17T06:00:00Z", level: "info", message: "Run started" },
-      { timestamp: "2026-03-17T06:00:18Z", level: "warn", message: "Cancelled by user" },
-      { timestamp: "2026-03-17T06:00:20Z", level: "info", message: "Run cancelled" },
-    ],
-    cost: 0.005,
-  },
-  {
-    id: "run-10",
-    flowId: "flow-4",
-    flowName: "Contact Form Submitter",
-    status: "completed",
-    startedAt: "2026-03-16T14:00:00Z",
-    completedAt: "2026-03-16T14:00:06Z",
-    duration: 5800,
-    itemsExtracted: 1,
-    outputPreview: [{ confirmationId: "CF-29481", status: "submitted" }],
-    logs: [
-      { timestamp: "2026-03-16T14:00:00Z", level: "info", message: "Run started" },
-      { timestamp: "2026-03-16T14:00:06Z", level: "info", message: "Run completed successfully" },
-    ],
-    cost: 0.001,
-  },
-]
-
-const allRuns = [...mockRuns, ...additionalRuns].sort(
-  (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
-)
+import { TableSkeleton } from "@/components/dashboard/skeletons"
+import { EmptyRuns } from "@/components/dashboard/empty-states"
+import type { Flow, Run, RunLog } from "@/lib/types"
 
 const ITEMS_PER_PAGE = 5
 
@@ -237,15 +144,41 @@ function formatTimestamp(ts: string) {
 }
 
 export default function RunsPage() {
+  const [flows, setFlows] = useState<Flow[]>([])
+  const [runs, setRuns] = useState<Run[]>([])
+  const [loading, setLoading] = useState(true)
   const [flowFilter, setFlowFilter] = useState<string>("all")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [dateRange, setDateRange] = useState<string>("7d")
   const [expandedRun, setExpandedRun] = useState<string | null>(null)
   const [page, setPage] = useState(1)
 
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [runsRes, flowsRes] = await Promise.all([
+          fetch("/api/runs"),
+          fetch("/api/flows"),
+        ])
+        const runsData = await runsRes.json()
+        const flowsData = await flowsRes.json()
+        const runsArr = Array.isArray(runsData.data) ? runsData.data : []
+        setRuns(runsArr.sort(
+          (a: Run, b: Run) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
+        ))
+        setFlows(Array.isArray(flowsData.data) ? flowsData.data : [])
+      } catch {
+        // API failed, data stays empty
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
+  }, [])
+
   const now = new Date()
 
-  const filtered = allRuns.filter((run) => {
+  const filtered = runs.filter((run) => {
     if (flowFilter !== "all" && run.flowId !== flowFilter) return false
     if (statusFilter !== "all" && run.status !== statusFilter) return false
     if (dateRange !== "all") {
@@ -265,6 +198,30 @@ export default function RunsPage() {
     (page - 1) * ITEMS_PER_PAGE,
     page * ITEMS_PER_PAGE
   )
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="font-serif text-3xl font-bold tracking-tight">Run History</h1>
+          <p className="text-muted-foreground mt-1">View and manage all flow execution runs.</p>
+        </div>
+        <TableSkeleton rows={5} />
+      </div>
+    )
+  }
+
+  if (runs.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="font-serif text-3xl font-bold tracking-tight">Run History</h1>
+          <p className="text-muted-foreground mt-1">View and manage all flow execution runs.</p>
+        </div>
+        <EmptyRuns />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -345,7 +302,7 @@ export default function RunsPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Flows</SelectItem>
-            {mockFlows.map((flow) => (
+            {flows.map((flow) => (
               <SelectItem key={flow.id} value={flow.id}>
                 {flow.name}
               </SelectItem>
@@ -453,7 +410,7 @@ export default function RunsPage() {
                               Run Logs
                             </h4>
                             <div className="rounded-md border bg-background p-3 font-mono text-xs">
-                              {run.logs.map((log, i) => (
+                              {run.logs.map((log: RunLog, i: number) => (
                                 <div
                                   key={i}
                                   className="flex gap-2 py-0.5 leading-relaxed"

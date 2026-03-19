@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import dynamic from "next/dynamic"
 import Link from "next/link"
 import {
@@ -38,11 +38,13 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { toast } from "sonner"
-import { mockFlows, mockRuns, mockAlerts } from "@/lib/mock-data"
 import { UsageWarning } from "@/components/dashboard/usage-warning"
 import { OnboardingWizard } from "@/components/dashboard/onboarding-wizard"
 import { HelpTooltip } from "@/components/dashboard/help-tooltip"
 import { ProductTour } from "@/components/dashboard/product-tour"
+import { DashboardSkeleton } from "@/components/dashboard/skeletons"
+import { EmptyFlows, EmptyRuns, EmptyAlerts } from "@/components/dashboard/empty-states"
+import type { Flow, Run, MonitorAlert } from "@/lib/types"
 
 const UsageChart = dynamic(
   () => import("@/components/dashboard/usage-chart").then((mod) => ({ default: mod.UsageChart })),
@@ -51,43 +53,6 @@ const UsageChart = dynamic(
     ssr: false,
   }
 )
-
-const stats = [
-  {
-    title: "Total Flows",
-    value: mockFlows.length.toString(),
-    change: "+2",
-    trend: "up" as const,
-    description: "from last month",
-    icon: Layers,
-  },
-  {
-    title: "Runs (24h)",
-    value: mockRuns.length.toString(),
-    change: "+12%",
-    trend: "up" as const,
-    description: "vs. yesterday",
-    icon: Activity,
-  },
-  {
-    title: "Success Rate",
-    value: `${((mockRuns.filter((r) => r.status === "completed").length / mockRuns.filter((r) => r.status !== "running" && r.status !== "queued").length) * 100).toFixed(1)}%`,
-    change: "+2.1%",
-    trend: "up" as const,
-    description: "vs. last week",
-    icon: TrendingUp,
-  },
-  {
-    title: "Data Points",
-    value: mockRuns
-      .reduce((sum, r) => sum + r.itemsExtracted, 0)
-      .toLocaleString(),
-    change: "+293",
-    trend: "up" as const,
-    description: "extracted today",
-    icon: Database,
-  },
-]
 
 function statusBadge(status: string) {
   switch (status) {
@@ -206,17 +171,81 @@ function formatRelativeTime(dateString: string) {
   return `${diffDays}d ago`
 }
 
-const recentRuns = [...mockRuns]
-  .sort(
-    (a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime()
-  )
-  .slice(0, 5)
-
 export default function DashboardPage() {
-  const [flows, setFlows] = useState(
-    mockFlows.filter((f) => f.status === "active" || f.status === "paused")
-  )
-  const [alerts, setAlerts] = useState(mockAlerts)
+  const [flows, setFlows] = useState<Flow[]>([])
+  const [runs, setRuns] = useState<Run[]>([])
+  const [alerts, setAlerts] = useState<MonitorAlert[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [flowsRes, runsRes, alertsRes] = await Promise.all([
+          fetch("/api/flows"),
+          fetch("/api/runs"),
+          fetch("/api/alerts"),
+        ])
+        const flowsData = await flowsRes.json()
+        const runsData = await runsRes.json()
+        const alertsData = await alertsRes.json()
+        setFlows(Array.isArray(flowsData.data) ? flowsData.data : [])
+        setRuns(Array.isArray(runsData.data) ? runsData.data : [])
+        setAlerts(Array.isArray(alertsData.data) ? alertsData.data : [])
+      } catch {
+        // API failed, data stays empty
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadData()
+  }, [])
+
+  const activeFlows = flows.filter((f) => f.status === "active" || f.status === "paused")
+  const recentRuns = [...runs]
+    .sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime())
+    .slice(0, 5)
+
+  const completedRuns = runs.filter((r) => r.status === "completed")
+  const finishedRuns = runs.filter((r) => r.status !== "running" && r.status !== "queued")
+  const successRate = finishedRuns.length > 0
+    ? ((completedRuns.length / finishedRuns.length) * 100).toFixed(1)
+    : "0.0"
+  const totalDataPoints = runs.reduce((sum, r) => sum + r.itemsExtracted, 0)
+
+  const stats = [
+    {
+      title: "Total Flows",
+      value: flows.length.toString(),
+      change: "--",
+      trend: "up" as const,
+      description: "total",
+      icon: Layers,
+    },
+    {
+      title: "Runs (24h)",
+      value: runs.length.toString(),
+      change: "--",
+      trend: "up" as const,
+      description: "total",
+      icon: Activity,
+    },
+    {
+      title: "Success Rate",
+      value: `${successRate}%`,
+      change: "--",
+      trend: "up" as const,
+      description: "all time",
+      icon: TrendingUp,
+    },
+    {
+      title: "Data Points",
+      value: totalDataPoints.toLocaleString(),
+      change: "--",
+      trend: "up" as const,
+      description: "extracted",
+      icon: Database,
+    },
+  ]
 
   function handleRunFlow(flowName: string) {
     toast.success("Flow triggered successfully", { description: flowName })
@@ -228,7 +257,7 @@ export default function DashboardPage() {
         if (f.id !== flowId) return f
         const newStatus = f.status === "paused" ? "active" : "paused"
         toast(newStatus === "paused" ? "Flow paused" : "Flow resumed")
-        return { ...f, status: newStatus }
+        return { ...f, status: newStatus } as Flow
       })
     )
   }
@@ -238,6 +267,20 @@ export default function DashboardPage() {
       prev.map((a) => (a.id === alertId ? { ...a, acknowledged: true } : a))
     )
     toast.success("Alert acknowledged")
+  }
+
+  if (loading) {
+    return (
+      <div className="animate-fade-in space-y-6">
+        <div>
+          <h1 className="font-serif text-3xl font-bold tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground mt-1">
+            Overview of your scraping flows, runs, and monitoring alerts.
+          </p>
+        </div>
+        <DashboardSkeleton />
+      </div>
+    )
   }
 
   return (
@@ -311,34 +354,38 @@ export default function DashboardPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {alerts.map((alert) => (
-              <div
-                key={alert.id}
-                className={`flex gap-3 rounded-lg border p-3 ${severityClasses(alert.severity)} ${alert.acknowledged ? "opacity-50" : ""}`}
-              >
-                <div className="mt-0.5 shrink-0">
-                  {severityIcon(alert.severity)}
-                </div>
-                <div className="min-w-0 flex-1 space-y-1">
-                  <p className="text-sm font-medium leading-tight">
-                    {alert.flowName}
-                  </p>
-                  <p className="text-muted-foreground text-xs leading-snug">
-                    {alert.message}
-                  </p>
-                  <div className="flex items-center justify-between pt-1">
-                    <span className="text-muted-foreground text-xs">
-                      {formatRelativeTime(alert.createdAt)}
-                    </span>
-                    {!alert.acknowledged && (
-                      <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={() => handleAcknowledge(alert.id)}>
-                        Acknowledge
-                      </Button>
-                    )}
+            {alerts.length === 0 ? (
+              <p className="text-muted-foreground text-sm text-center py-4">No alerts</p>
+            ) : (
+              alerts.map((alert) => (
+                <div
+                  key={alert.id}
+                  className={`flex gap-3 rounded-lg border p-3 ${severityClasses(alert.severity)} ${alert.acknowledged ? "opacity-50" : ""}`}
+                >
+                  <div className="mt-0.5 shrink-0">
+                    {severityIcon(alert.severity)}
+                  </div>
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <p className="text-sm font-medium leading-tight">
+                      {alert.flowName}
+                    </p>
+                    <p className="text-muted-foreground text-xs leading-snug">
+                      {alert.message}
+                    </p>
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="text-muted-foreground text-xs">
+                        {formatRelativeTime(alert.createdAt)}
+                      </span>
+                      {!alert.acknowledged && (
+                        <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={() => handleAcknowledge(alert.id)}>
+                          Acknowledge
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </CardContent>
         </Card>
       </div>
@@ -351,42 +398,46 @@ export default function DashboardPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Flow</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Duration</TableHead>
-                <TableHead>Items</TableHead>
-                <TableHead>Cost</TableHead>
-                <TableHead>Started</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {recentRuns.map((run) => (
-                <TableRow key={run.id}>
-                  <TableCell className="font-medium">{run.flowName}</TableCell>
-                  <TableCell>{statusBadge(run.status)}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {formatDuration(run.duration ?? 0)}
-                  </TableCell>
-                  <TableCell>
-                    {run.itemsExtracted > 0 ? (
-                      run.itemsExtracted.toLocaleString()
-                    ) : (
-                      <span className="text-muted-foreground">--</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    ${run.cost.toFixed(3)}
-                  </TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {formatRelativeTime(run.startedAt)}
-                  </TableCell>
+          {recentRuns.length === 0 ? (
+            <EmptyRuns />
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Flow</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Duration</TableHead>
+                  <TableHead>Items</TableHead>
+                  <TableHead>Cost</TableHead>
+                  <TableHead>Started</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {recentRuns.map((run) => (
+                  <TableRow key={run.id}>
+                    <TableCell className="font-medium">{run.flowName}</TableCell>
+                    <TableCell>{statusBadge(run.status)}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {formatDuration(run.duration ?? 0)}
+                    </TableCell>
+                    <TableCell>
+                      {run.itemsExtracted > 0 ? (
+                        run.itemsExtracted.toLocaleString()
+                      ) : (
+                        <span className="text-muted-foreground">--</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      ${run.cost.toFixed(3)}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {formatRelativeTime(run.startedAt)}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 
@@ -398,59 +449,63 @@ export default function DashboardPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {flows.map((flow) => (
-              <div
-                key={flow.id}
-                className="flex items-center justify-between rounded-lg border p-4"
-              >
-                <div className="min-w-0 flex-1 space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{flow.name}</span>
-                    {flowStatusBadge(flow.status)}
-                  </div>
-                  <div className="text-muted-foreground flex flex-wrap items-center gap-3 text-xs">
-                    <span className="flex items-center gap-1">
-                      <Zap className="size-3" />
-                      {flow.totalRuns} runs
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <TrendingUp className="size-3" />
-                      {flow.successRate}% success
-                    </span>
-                    {flow.lastRunAt && (
+          {activeFlows.length === 0 ? (
+            <EmptyFlows />
+          ) : (
+            <div className="space-y-3">
+              {activeFlows.map((flow) => (
+                <div
+                  key={flow.id}
+                  className="flex items-center justify-between rounded-lg border p-4"
+                >
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{flow.name}</span>
+                      {flowStatusBadge(flow.status)}
+                    </div>
+                    <div className="text-muted-foreground flex flex-wrap items-center gap-3 text-xs">
                       <span className="flex items-center gap-1">
-                        <Clock className="size-3" />
-                        Last run {formatRelativeTime(flow.lastRunAt)}
+                        <Zap className="size-3" />
+                        {flow.totalRuns} runs
                       </span>
-                    )}
-                    <span className="flex items-center gap-1">
-                      <Activity className="size-3" />
-                      Avg {formatDuration(flow.avgDuration)}
-                    </span>
+                      <span className="flex items-center gap-1">
+                        <TrendingUp className="size-3" />
+                        {flow.successRate}% success
+                      </span>
+                      {flow.lastRunAt && (
+                        <span className="flex items-center gap-1">
+                          <Clock className="size-3" />
+                          Last run {formatRelativeTime(flow.lastRunAt)}
+                        </span>
+                      )}
+                      <span className="flex items-center gap-1">
+                        <Activity className="size-3" />
+                        Avg {formatDuration(flow.avgDuration)}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1 pl-4">
+                    <Button variant="outline" size="sm" className="h-8 gap-1" onClick={() => handleRunFlow(flow.name)}>
+                      <Play className="size-3" />
+                      Run
+                    </Button>
+                    <Button variant="ghost" size="icon" className="size-8" onClick={() => handleTogglePause(flow.id)}>
+                      {flow.status === "paused" ? (
+                        <Play className="size-3.5" />
+                      ) : (
+                        <Pause className="size-3.5" />
+                      )}
+                    </Button>
+                    <Button variant="ghost" size="icon" className="size-8" asChild>
+                      <Link href={`/flows/${flow.id}`}>
+                        <Edit className="size-3.5" />
+                      </Link>
+                    </Button>
                   </div>
                 </div>
-                <div className="flex items-center gap-1 pl-4">
-                  <Button variant="outline" size="sm" className="h-8 gap-1" onClick={() => handleRunFlow(flow.name)}>
-                    <Play className="size-3" />
-                    Run
-                  </Button>
-                  <Button variant="ghost" size="icon" className="size-8" onClick={() => handleTogglePause(flow.id)}>
-                    {flow.status === "paused" ? (
-                      <Play className="size-3.5" />
-                    ) : (
-                      <Pause className="size-3.5" />
-                    )}
-                  </Button>
-                  <Button variant="ghost" size="icon" className="size-8" asChild>
-                    <Link href={`/flows/${flow.id}`}>
-                      <Edit className="size-3.5" />
-                    </Link>
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
