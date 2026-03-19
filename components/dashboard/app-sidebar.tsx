@@ -9,6 +9,7 @@ import {
   Cpu,
   CreditCard,
   GitBranch,
+  GitMerge,
   Globe,
   Key,
   Layers,
@@ -16,6 +17,7 @@ import {
   LayoutTemplate,
   Lock,
   LogOut,
+  Monitor,
   Play,
   Plug,
   Settings,
@@ -58,6 +60,7 @@ const navItems = [
   { title: "Flows", href: "/flows", icon: Workflow },
   { title: "Templates", href: "/templates", icon: LayoutTemplate },
   { title: "Workflow Builder", href: "/workflow-builder", icon: GitBranch },
+  { title: "Pipelines", href: "/pipelines", icon: GitMerge },
   { title: "Runs", href: "/runs", icon: Play },
   { title: "Monitoring", href: "/monitoring", icon: Bell },
   { title: "API Playground", href: "/api-playground", icon: Terminal },
@@ -68,6 +71,8 @@ const navItems = [
   { title: "MCP Server", href: "/mcp", icon: Cpu },
   { title: "Proxies", href: "/proxies", icon: Shield },
   { title: "Secrets", href: "/secrets", icon: Lock },
+  { title: "Sessions", href: "/sessions", icon: Monitor },
+  { title: "API Versions", href: "/api-versions", icon: Layers },
   { title: "Settings", href: "/settings", icon: Settings },
 ]
 
