@@ -24,21 +24,23 @@ export default async function DashboardLayout({
       enableSystem
       disableTransitionOnChange
     >
-      <SidebarProvider defaultOpen={defaultOpen}>
-        <AppSidebar />
-        <SidebarInset>
-          <DashboardHeader />
-          <div className="bg-blue-600 text-white text-center text-sm py-2 px-4 flex items-center justify-center gap-2">
-            <span className="font-medium">Early Beta</span>
-            <span className="opacity-80">—</span>
-            <span className="opacity-90">You&apos;re using an early version of Scraper.bot.</span>
-            <a href="https://github.com/wyatt3d/scraper/issues" target="_blank" rel="noopener noreferrer" className="underline font-medium hover:opacity-80">Submit a trouble ticket</a>
-          </div>
-          <main className="flex-1 p-6">{children}</main>
-        </SidebarInset>
-        <DashboardShortcuts />
-        <Toaster />
-      </SidebarProvider>
+      <AuthProvider>
+        <SidebarProvider defaultOpen={defaultOpen}>
+          <AppSidebar />
+          <SidebarInset>
+            <DashboardHeader />
+            <div className="bg-blue-600 text-white text-center text-sm py-2 px-4 flex items-center justify-center gap-2">
+              <span className="font-medium">Early Beta</span>
+              <span className="opacity-80">—</span>
+              <span className="opacity-90">You&apos;re using an early version of Scraper.bot.</span>
+              <a href="https://github.com/wyatt3d/scraper/issues" target="_blank" rel="noopener noreferrer" className="underline font-medium hover:opacity-80">Submit a trouble ticket</a>
+            </div>
+            <main className="flex-1 p-6">{children}</main>
+          </SidebarInset>
+          <DashboardShortcuts />
+          <Toaster />
+        </SidebarProvider>
+      </AuthProvider>
     </ThemeProvider>
   )
 }

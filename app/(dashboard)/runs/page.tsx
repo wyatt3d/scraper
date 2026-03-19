@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { Fragment, useState } from "react"
 import Link from "next/link"
 import {
   Calendar,
@@ -158,7 +158,7 @@ function formatDuration(ms: number) {
 
 function formatRelativeTime(dateString: string) {
   const date = new Date(dateString)
-  const now = new Date("2026-03-18T18:30:00Z")
+  const now = new Date()
   const diffMs = now.getTime() - date.getTime()
   const diffMins = Math.floor(diffMs / 60000)
   if (diffMins < 1) return "just now"
@@ -243,7 +243,7 @@ export default function RunsPage() {
   const [expandedRun, setExpandedRun] = useState<string | null>(null)
   const [page, setPage] = useState(1)
 
-  const now = new Date("2026-03-18T18:30:00Z")
+  const now = new Date()
 
   const filtered = allRuns.filter((run) => {
     if (flowFilter !== "all" && run.flowId !== flowFilter) return false
@@ -389,9 +389,8 @@ export default function RunsPage() {
             </TableHeader>
             <TableBody>
               {paginated.map((run) => (
-                <>
+                <Fragment key={run.id}>
                   <TableRow
-                    key={run.id}
                     className="cursor-pointer"
                     onClick={() =>
                       setExpandedRun(expandedRun === run.id ? null : run.id)
@@ -493,7 +492,7 @@ export default function RunsPage() {
                       </TableCell>
                     </TableRow>
                   )}
-                </>
+                </Fragment>
               ))}
               {paginated.length === 0 && (
                 <TableRow>

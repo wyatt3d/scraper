@@ -58,10 +58,10 @@ import {
 const navItems = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { title: "Analytics", href: "/analytics", icon: BarChart3 },
-  { title: "Playground", href: "/playground", icon: Sparkles },
+  { title: "Playground", href: "/playground", icon: Sparkles, tourId: "playground" },
   { title: "Flows", href: "/flows", icon: Workflow },
-  { title: "Templates", href: "/templates", icon: LayoutTemplate },
-  { title: "Workflow Builder", href: "/workflow-builder", icon: GitBranch },
+  { title: "Templates", href: "/templates", icon: LayoutTemplate, tourId: "templates" },
+  { title: "Workflow Builder", href: "/workflow-builder", icon: GitBranch, tourId: "workflow-builder" },
   { title: "Pipelines", href: "/pipelines", icon: GitMerge },
   { title: "Runs", href: "/runs", icon: Play },
   { title: "Monitoring", href: "/monitoring", icon: Bell },
@@ -85,7 +85,7 @@ export function AppSidebar() {
   const isCollapsed = state === "collapsed"
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" data-tour="sidebar">
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -115,7 +115,7 @@ export function AppSidebar() {
                   pathname === item.href ||
                   (item.href !== "/dashboard" && pathname.startsWith(item.href))
                 return (
-                  <SidebarMenuItem key={item.href}>
+                  <SidebarMenuItem key={item.href} {...(item.tourId ? { "data-tour": item.tourId } : {})}>
                     <SidebarMenuButton
                       asChild
                       isActive={isActive}

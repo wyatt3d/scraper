@@ -76,7 +76,7 @@ export function DashboardHeader() {
 
         <NotificationCenter />
 
-        <Button asChild size="sm" className="bg-accent hover:bg-accent/90 text-accent-foreground">
+        <Button asChild size="sm" className="bg-accent hover:bg-accent/90 text-accent-foreground" data-tour="new-flow">
           <Link href="/flows/new">
             <Plus className="size-4" />
             New Flow

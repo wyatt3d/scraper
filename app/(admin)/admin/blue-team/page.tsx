@@ -213,7 +213,8 @@ const items: DefenseItem[] = [
     id: "RT-030",
     title: "Hardcoded dates throughout the codebase",
     severity: "LOW",
-    status: "ACKNOWLEDGED",
+    status: "FIXED",
+    resolution: "Replaced hardcoded new Date('2026-03-18T18:30:00Z') with new Date() in formatRelativeTime/timeAgo functions across dashboard, runs, flows, api-keys, and monitoring pages so relative timestamps are computed from actual current time.",
   },
   {
     id: "RT-031",
@@ -232,7 +233,8 @@ const items: DefenseItem[] = [
     id: "RT-033",
     title: "Runs page table rows lack React keys on fragments",
     severity: "LOW",
-    status: "ACKNOWLEDGED",
+    status: "FIXED",
+    resolution: "Replaced bare <> fragments with <Fragment key={run.id}> in the runs page table map to eliminate React key warnings.",
   },
   {
     id: "RT-034",

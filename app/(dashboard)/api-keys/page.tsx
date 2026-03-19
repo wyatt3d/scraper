@@ -75,7 +75,7 @@ function formatDate(dateString: string) {
 
 function formatRelativeTime(dateString: string) {
   const date = new Date(dateString)
-  const now = new Date("2026-03-18T18:30:00Z")
+  const now = new Date()
   const diffMs = now.getTime() - date.getTime()
   const diffMins = Math.floor(diffMs / 60000)
   if (diffMins < 1) return "just now"

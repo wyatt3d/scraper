@@ -78,7 +78,7 @@ import { downloadCSV, downloadJSON } from "@/lib/export"
 import type { Flow, FlowMode, FlowStatus } from "@/lib/types"
 
 function timeAgo(dateStr: string): string {
-  const now = new Date("2026-03-18T18:30:00Z")
+  const now = new Date()
   const date = new Date(dateStr)
   const seconds = Math.floor((now.getTime() - date.getTime()) / 1000)
   if (seconds < 60) return "just now"

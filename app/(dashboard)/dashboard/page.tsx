@@ -42,6 +42,7 @@ import { mockFlows, mockRuns, mockAlerts } from "@/lib/mock-data"
 import { UsageWarning } from "@/components/dashboard/usage-warning"
 import { OnboardingWizard } from "@/components/dashboard/onboarding-wizard"
 import { HelpTooltip } from "@/components/dashboard/help-tooltip"
+import { ProductTour } from "@/components/dashboard/product-tour"
 
 const UsageChart = dynamic(
   () => import("@/components/dashboard/usage-chart").then((mod) => ({ default: mod.UsageChart })),
@@ -194,7 +195,7 @@ function formatDuration(ms: number) {
 
 function formatRelativeTime(dateString: string) {
   const date = new Date(dateString)
-  const now = new Date("2026-03-18T18:30:00Z")
+  const now = new Date()
   const diffMs = now.getTime() - date.getTime()
   const diffMins = Math.floor(diffMs / 60000)
   if (diffMins < 1) return "just now"
@@ -240,7 +241,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="animate-fade-in space-y-6">
+    <div className="animate-fade-in space-y-6" data-tour="dashboard">
+      <ProductTour />
       <OnboardingWizard />
       <UsageWarning />
       <div>
@@ -252,7 +254,7 @@ export default function DashboardPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4" data-tour="stats">
         {stats.map((stat, i) => (
           <Card key={stat.title} className="animate-slide-up py-4" style={{ animationDelay: `${(i + 1) * 0.1}s`, animationFillMode: "both" }}>
             <CardHeader className="pb-2">
