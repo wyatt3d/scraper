@@ -181,12 +181,13 @@ function CaptureOverlay({
   }, [])
 
   useEffect(() => {
+    const elements = outlinedElementsRef.current
     return () => {
-      outlinedElementsRef.current.forEach((originalOutline, el) => {
+      elements.forEach((originalOutline, el) => {
         ;(el as HTMLElement).style.outline = originalOutline
         ;(el as HTMLElement).style.outlineOffset = ""
       })
-      outlinedElementsRef.current.clear()
+      elements.clear()
       if (hoveredEl) {
         ;(hoveredEl as HTMLElement).style.outline = ""
         ;(hoveredEl as HTMLElement).style.outlineOffset = ""

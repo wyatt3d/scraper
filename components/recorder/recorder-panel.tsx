@@ -5,8 +5,9 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import {
-  Globe, Loader2, MousePointer, Type, Database, CircleDot, X, ArrowDown
+  Globe, Loader2, MousePointer, Type, Database, CircleDot, X, ArrowDown, Sparkles
 } from "lucide-react"
+import { toast } from "sonner"
 import type { ElementInfo, RecorderAction, FlowStep } from "@/lib/types"
 
 interface RecorderPanelProps {
@@ -173,6 +174,38 @@ export function RecorderPanel({
         )}
       </div>
 
+      {selectedElement && mode === "select" && (
+        <div className="flex items-center gap-2 px-3 py-2 border-b border-border bg-blue-600/5">
+          <span className="text-xs font-mono text-muted-foreground truncate flex-1">
+            {selectedElement.selector}
+          </span>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-6 text-xs gap-1"
+            onClick={async () => {
+              try {
+                const res = await fetch("/api/suggest-selectors", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    url: currentUrl || inputUrl,
+                    fieldDescription: selectedElement.text || selectedElement.tagName,
+                  }),
+                })
+                const data = await res.json()
+                if (data.selector) {
+                  toast.success(`AI suggests: ${data.selector}`, { description: data.reason })
+                }
+              } catch {}
+            }}
+          >
+            <Sparkles className="size-3" />
+            Refine
+          </Button>
+        </div>
+      )}
+
       <div className="flex-1 overflow-auto bg-zinc-100 dark:bg-zinc-900 relative">
         {error && (
           <div className="absolute inset-0 flex items-center justify-center">
@@ -199,6 +232,7 @@ export function RecorderPanel({
                 <Loader2 className="size-6 animate-spin" />
               </div>
             )}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               ref={imgRef}
               src={screenshot}

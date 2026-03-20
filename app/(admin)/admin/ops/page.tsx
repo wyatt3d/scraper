@@ -188,10 +188,9 @@ export default function OpsPage() {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
             {[
-              { category: "Security", items: ["Rate limiting via Upstash Redis (requires external service)", "Browserless HTTPS + token via Authorization header"] },
-              { category: "Architecture", items: ["Convert remaining dashboard pages to server components (all have heavy interactivity)"] },
-              { category: "Frontend", items: ["Multi-page navigation recording in recorder", "Recording playback/preview"] },
-              { category: "Quality", items: ["Enable TypeScript strict mode", "Enable ESLint during builds", "Generate Supabase types with supabase gen types"] },
+              { category: "Security", items: ["Rate limiting via Upstash Redis (requires external service)", "Browserless HTTPS + token via Authorization header", "Configurable session duration + 'Remember me' option", "Session revocation UI + multi-device management"] },
+              { category: "Architecture", items: ["Generate Supabase types with supabase gen types"] },
+              { category: "Frontend", items: ["Fix remaining ESLint warnings (img elements, hook deps)"] },
             ].map((group) => (
               <div key={group.category} className="space-y-2">
                 <h3 className="font-semibold text-sm">{group.category}</h3>

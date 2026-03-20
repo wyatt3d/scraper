@@ -650,6 +650,7 @@ function PreviewPanel({
           </div>
         ) : previewImage ? (
           <div className="w-full h-full overflow-auto">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={previewImage} alt="Page preview" className="w-full" />
           </div>
         ) : (

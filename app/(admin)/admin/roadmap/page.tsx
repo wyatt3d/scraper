@@ -186,6 +186,7 @@ const phases: Phase[] = [
       { name: "Mock data eliminated (all pages real APIs)", done: true },
       { name: "API Playground wired to real fetch calls", done: true },
       { name: "ESLint enabled during builds (0 errors)", done: true },
+      { name: "TypeScript strict checking enabled during builds (0 errors)", done: true },
       { name: "Proper RLS policies with user_id columns", done: false },
       { name: "Rate limiting via Upstash Redis", done: false },
       { name: "E2E test suite (Playwright)", done: false },
@@ -258,9 +259,9 @@ const phases: Phase[] = [
   {
     number: 8,
     name: "Browser Recorder",
-    status: "IN PROGRESS" as PhaseStatus,
-    completion: 90,
-    eta: "Apr 10",
+    status: "COMPLETE" as PhaseStatus,
+    completion: 100,
+    eta: "Completed Mar 19",
     deliverables: [
       { name: "Recorder engine (Browserless script builder + element map)", done: true },
       { name: "API routes (start + action with Zod validation)", done: true },
@@ -275,7 +276,7 @@ const phases: Phase[] = [
       { name: "Multi-page navigation recording", done: true },
       { name: "Recording playback/preview", done: true },
       { name: "Content summarization pipeline via Claude", done: true },
-      { name: "Selector refinement with AI suggestions", done: false },
+      { name: "Selector refinement with AI suggestions", done: true },
     ],
   },
 ]

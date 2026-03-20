@@ -84,6 +84,7 @@ export function KeyboardShortcuts({ open: controlledOpen, onOpenChange }: Keyboa
   const gPressedRef = useRef(false)
   const gTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- setOpen is either useState setter (stable) or a prop callback
   const openModal = useCallback(() => setOpen(true), [])
 
   useEffect(() => {
