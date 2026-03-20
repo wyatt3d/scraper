@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useCallback, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -8,6 +8,7 @@ import {
   Globe, Loader2, MousePointer, Type, Database, CircleDot, X, ArrowDown, Sparkles
 } from "lucide-react"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 import type { ElementInfo, RecorderAction, FlowStep } from "@/lib/types"
 
 interface RecorderPanelProps {
@@ -33,9 +34,7 @@ export function RecorderPanel({
   onAddStep, onStop,
 }: RecorderPanelProps) {
   const [inputUrl, setInputUrl] = useState(url || "")
-  const [hoveredElement, setHoveredElement] = useState<ElementInfo | null>(null)
   const [fillValue, setFillValue] = useState("")
-  const imgRef = useRef<HTMLImageElement>(null)
 
   useEffect(() => {
     if (currentUrl && currentUrl !== inputUrl) {
@@ -47,18 +46,6 @@ export function RecorderPanel({
   const handleNavigate = () => {
     if (inputUrl) onStart(inputUrl)
   }
-
-  const getScaledRect = useCallback((rect: ElementInfo["rect"]) => {
-    if (!imgRef.current) return null
-    const scaleX = imgRef.current.clientWidth / (imgRef.current.naturalWidth || 1)
-    const scaleY = imgRef.current.clientHeight / (imgRef.current.naturalHeight || 1)
-    return {
-      left: rect.x * scaleX,
-      top: rect.y * scaleY,
-      width: rect.width * scaleX,
-      height: rect.height * scaleY,
-    }
-  }, [])
 
   const handleElementClick = (el: ElementInfo) => {
     if (mode === "scroll") {
@@ -174,6 +161,29 @@ export function RecorderPanel({
         )}
       </div>
 
+      {elements.length > 0 && (
+        <div className="max-h-32 overflow-y-auto border-b border-border">
+          <div className="grid grid-cols-1 divide-y divide-border/50">
+            {elements.filter(el => el.isInteractive || el.type === "text").slice(0, 30).map((el, i) => (
+              <button
+                key={i}
+                className={cn(
+                  "flex items-center gap-2 px-3 py-1.5 text-left text-xs hover:bg-muted/50 transition-colors",
+                  selectedElement === el && "bg-blue-600/10"
+                )}
+                onClick={() => handleElementClick(el)}
+              >
+                <Badge variant="outline" className="text-[9px] h-4 w-14 justify-center shrink-0">
+                  {el.type}
+                </Badge>
+                <span className="truncate flex-1">{el.text || el.selector}</span>
+                <span className="font-mono text-muted-foreground text-[10px] truncate max-w-[150px]">{el.selector}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {selectedElement && mode === "select" && (
         <div className="flex items-center gap-2 px-3 py-2 border-b border-border bg-blue-600/5">
           <span className="text-xs font-mono text-muted-foreground truncate flex-1">
@@ -234,36 +244,11 @@ export function RecorderPanel({
             )}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              ref={imgRef}
               src={screenshot}
               alt="Page screenshot"
               className="max-w-full"
               draggable={false}
             />
-            {elements.map((el, i) => {
-              const scaled = getScaledRect(el.rect)
-              if (!scaled || scaled.width < 5 || scaled.height < 5) return null
-              const isHovered = hoveredElement === el
-              const isSelected = selectedElement === el
-              return (
-                <div
-                  key={i}
-                  className="absolute cursor-pointer transition-all duration-75"
-                  style={{
-                    left: scaled.left,
-                    top: scaled.top,
-                    width: scaled.width,
-                    height: scaled.height,
-                    border: isSelected ? "2px solid #2563eb" : isHovered ? "2px solid #3b82f6" : "1px solid transparent",
-                    backgroundColor: isSelected ? "rgba(37,99,235,0.15)" : isHovered ? "rgba(59,130,246,0.1)" : "transparent",
-                    zIndex: isHovered || isSelected ? 10 : 1,
-                  }}
-                  onMouseEnter={() => setHoveredElement(el)}
-                  onMouseLeave={() => setHoveredElement(null)}
-                  onClick={() => handleElementClick(el)}
-                />
-              )
-            })}
           </div>
         )}
 
@@ -278,14 +263,9 @@ export function RecorderPanel({
       </div>
 
       <div className="flex items-center justify-between px-3 py-1.5 border-t border-border text-[11px] text-muted-foreground bg-muted/30">
-        <span>{currentUrl || "No page loaded"}</span>
+        <span>{selectedElement ? `Selected: ${selectedElement.text?.slice(0, 30) || selectedElement.selector}` : currentUrl || "No page loaded"}</span>
         <div className="flex items-center gap-3">
           <span>{elements.length} elements</span>
-          {hoveredElement && (
-            <Badge variant="outline" className="text-[10px] h-5 font-mono">
-              {hoveredElement.selector.slice(0, 40)}
-            </Badge>
-          )}
         </div>
       </div>
     </div>
