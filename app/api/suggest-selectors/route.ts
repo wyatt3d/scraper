@@ -22,7 +22,7 @@ export async function POST(request: Request) {
 
     $("*").each((_, el) => {
       const text = $(el).text().trim()
-      const tag = el.tagName?.toLowerCase()
+      const tag = (el as any).tagName?.toLowerCase()
       if (!tag || ["html", "head", "body", "script", "style"].includes(tag)) return
       if (text.length > 3 && text.length < 200) {
         const cls = $(el).attr("class")?.split(" ")[0]

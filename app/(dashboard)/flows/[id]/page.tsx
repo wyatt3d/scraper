@@ -206,7 +206,6 @@ export default function FlowDetailPage() {
       id: `step-${Date.now()}`,
       type,
       label: `${cfg.label} Step`,
-      config: {},
     }
     setSteps((prev) => [...prev, newStep])
     setSelectedStepId(newStep.id)

@@ -96,7 +96,7 @@ export function AppSidebar() {
                   pathname === item.href ||
                   (item.href !== "/dashboard" && pathname.startsWith(item.href))
                 return (
-                  <SidebarMenuItem key={item.href} {...(item.tourId ? { "data-tour": item.tourId } : {})}>
+                  <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
                       asChild
                       isActive={isActive}

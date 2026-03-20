@@ -28,20 +28,20 @@ const RechartsBar = dynamic(
   () => import("recharts").then((mod) => mod.BarChart),
   { ssr: false }
 )
-const RechartsBarComponent = dynamic(
-  () => import("recharts").then((mod) => mod.Bar),
+const RechartsBarComponent: any = dynamic(
+  () => import("recharts").then((mod) => ({ default: mod.Bar as any })),
   { ssr: false }
 )
-const RechartsXAxis = dynamic(
-  () => import("recharts").then((mod) => mod.XAxis),
+const RechartsXAxis: any = dynamic(
+  () => import("recharts").then((mod) => ({ default: mod.XAxis as any })),
   { ssr: false }
 )
-const RechartsYAxis = dynamic(
-  () => import("recharts").then((mod) => mod.YAxis),
+const RechartsYAxis: any = dynamic(
+  () => import("recharts").then((mod) => ({ default: mod.YAxis as any })),
   { ssr: false }
 )
-const RechartsTooltip = dynamic(
-  () => import("recharts").then((mod) => mod.Tooltip),
+const RechartsTooltip: any = dynamic(
+  () => import("recharts").then((mod) => ({ default: mod.Tooltip as any })),
   { ssr: false }
 )
 const RechartsResponsiveContainer = dynamic(

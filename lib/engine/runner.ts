@@ -86,7 +86,7 @@ async function executeInteractiveFlow(
           const $ = cheerio.load(stepResult.html)
           log("info", `Analyzing page: ${stepResult.pageUrl}`, stepResult.stepId)
           for (const rule of stepResult.rules) {
-            $(rule.selector).each((_: number, el: cheerio.AnyNode) => {
+            $(rule.selector).each((_: number, el: any) => {
               const value = rule.attribute
                 ? $(el).attr(rule.attribute)
                 : $(el).text().trim()
@@ -109,7 +109,7 @@ async function executeInteractiveFlow(
       for (const step of extractSteps) {
         if (step.extractionRules) {
           for (const rule of step.extractionRules) {
-            $(rule.selector).each((_: number, el: cheerio.AnyNode) => {
+            $(rule.selector).each((_: number, el: any) => {
               const value = rule.attribute
                 ? $(el).attr(rule.attribute)
                 : $(el).text().trim()

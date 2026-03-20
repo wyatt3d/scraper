@@ -110,7 +110,7 @@ async function fetchRealApi(method: HttpMethod, path: string, apiKey: string, bo
 }
 
 // Keep legacy mock for destructive operations (DELETE, PUT) to avoid side effects
-function getMockResponse(method: HttpMethod, path: string) {
+function getMockResponse(method: HttpMethod, path: string): { status: number; statusText: string; time: number; size: string; headers: Record<string, string>; body: unknown } {
   if (method === "PUT" && path === "/flows/{id}") {
     return {
       status: 200,

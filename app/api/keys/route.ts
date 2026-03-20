@@ -6,9 +6,9 @@ import { checkCsrf } from "@/lib/csrf"
 export async function GET() {
   try {
     const keys = await listApiKeys()
-    const masked = keys.map((key: { prefix: string; key_hash: string; [k: string]: unknown }) => ({
+    const masked = keys.map((key) => ({
       ...key,
-      key: key.prefix + "****" + key.key_hash.slice(-4),
+      key: key.prefix + "****",
     }))
     return NextResponse.json({ data: masked, total: masked.length })
   } catch (err) {

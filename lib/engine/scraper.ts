@@ -173,7 +173,7 @@ function extractWithRules($: cheerio.CheerioAPI, rules: ExtractionRule[], baseUr
   return items
 }
 
-function extractValue(el: cheerio.Cheerio<cheerio.AnyNode>, rule: ExtractionRule, $: cheerio.CheerioAPI, baseUrl: string): unknown {
+function extractValue(el: cheerio.Cheerio<any>, rule: ExtractionRule, $: cheerio.CheerioAPI, baseUrl: string): unknown {
   if (!el || el.length === 0) return null
 
   if (rule.attribute) {
