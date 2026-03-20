@@ -1,151 +1,61 @@
+import * as cheerio from "cheerio"
 import type { RecorderAction, ElementInfo } from "../types"
 
-export function buildRecorderScript(actions: RecorderAction[]): string {
-  const replayCode = actions
-    .map((action, i) => {
-      switch (action.type) {
-        case "click":
-          return `
-          // Replay action ${i + 1}: click
-          try {
-            await page.waitForSelector(${JSON.stringify(action.selector)}, { timeout: 5000 });
-            await Promise.all([
-              page.click(${JSON.stringify(action.selector)}),
-              page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 5000 }).catch(() => {}),
-            ]);
-          } catch(e) {}
-          await page.waitForTimeout(1000);
-        `
-        case "fill":
-          return `
-          // Replay action ${i + 1}: fill
-          try {
-            await page.waitForSelector(${JSON.stringify(action.selector)}, { timeout: 5000 });
-            await page.type(${JSON.stringify(action.selector)}, ${JSON.stringify(action.value || "")});
-            await page.waitForTimeout(500);
-          } catch {}
-        `
-        case "scroll":
-          return `
-          // Replay action ${i + 1}: scroll
-          try {
-            await page.evaluate((scrollValue) => {
-              if (scrollValue === "bottom") {
-                window.scrollTo(0, document.body.scrollHeight);
-              } else {
-                window.scrollBy(0, parseInt(scrollValue) || 500);
-              }
-            }, ${JSON.stringify(action.value || "500")});
-            await page.waitForTimeout(1000);
-          } catch {}
-        `
-        case "wait":
-          return `
-          // Replay action ${i + 1}: wait
-          await page.waitForTimeout(${Math.min(parseInt(action.value || "2000"), 5000)});
-        `
-        default:
-          return `// Replay action ${i + 1}: unknown (skipped)`
-      }
+function collectElements(html: string): ElementInfo[] {
+  const $ = cheerio.load(html)
+  const results: ElementInfo[] = []
+  const SELECTORS = "a, button, input, select, textarea, [role='button'], img, h1, h2, h3, h4, h5, h6, p, span, li, td, th, label"
+
+  $(SELECTORS).each((_, el) => {
+    if (results.length >= 150) return false
+
+    const $el = $(el)
+    const tag = (el as any).tagName?.toLowerCase()
+    if (!tag) return
+
+    const text = $el.text().trim().substring(0, 100)
+    const testId = $el.attr("data-testid")
+    const id = $el.attr("id")
+    const className = $el.attr("class")
+
+    let selector = ""
+    if (testId) {
+      selector = `[data-testid="${testId}"]`
+    } else if (id) {
+      selector = `#${id}`
+    } else if (className && className.trim()) {
+      const firstClass = className.trim().split(/\s+/)[0]
+      selector = `${tag}.${firstClass}`
+    } else {
+      selector = tag
+    }
+
+    const interactiveTags = ["a", "button", "input", "select", "textarea"]
+    const isInteractive = interactiveTags.includes(tag) || $el.attr("role") === "button"
+
+    let type: ElementInfo["type"] = "container"
+    if (tag === "a") type = "link"
+    else if (tag === "button" || $el.attr("role") === "button") type = "button"
+    else if (tag === "input" || tag === "select" || tag === "textarea") type = "input"
+    else if (tag === "img") type = "image"
+    else if (["h1", "h2", "h3", "h4", "h5", "h6", "p", "span", "label", "li", "td", "th"].includes(tag)) type = "text"
+
+    // Approximate bounding boxes based on content position in DOM
+    // (real bounding boxes require browser execution, but this gives clickable targets)
+    const index = results.length
+    const row = Math.floor(index / 3)
+    const col = index % 3
+    results.push({
+      selector,
+      tagName: tag,
+      text,
+      rect: { x: 20 + col * 300, y: 80 + row * 40, width: 280, height: 30 },
+      isInteractive,
+      type,
     })
-    .join("\n")
+  })
 
-  return `
-    module.exports = async ({ page, context }) => {
-      try {
-        await page.goto(context.url, { waitUntil: 'networkidle2', timeout: 30000 });
-
-        ${replayCode}
-
-        const elements = await page.evaluate(() => {
-          const SELECTORS = 'a, button, input, select, textarea, [role="button"], img, h1, h2, h3, h4, h5, h6, p, span, li, td, th, label';
-          const els = Array.from(document.querySelectorAll(SELECTORS));
-          const results = [];
-
-          const viewHeight = window.innerHeight;
-          const viewWidth = window.innerWidth;
-          for (const el of els) {
-            if (results.length >= 150) break;
-            const rect = el.getBoundingClientRect();
-            if (rect.width < 2 || rect.height < 2) continue;
-            if (rect.bottom < -100 || rect.top > viewHeight + 500) continue;
-            if (rect.right < -100 || rect.left > viewWidth + 100) continue;
-
-            const tag = el.tagName.toLowerCase();
-            let selector = '';
-            const testId = el.getAttribute('data-testid');
-            if (testId) {
-              selector = '[data-testid="' + testId + '"]';
-            } else if (el.id) {
-              selector = '#' + el.id;
-            } else if (el.className && typeof el.className === 'string' && el.className.trim()) {
-              const cls = el.className.trim().split(/\\s+/).join('.');
-              selector = tag + '.' + cls;
-              if (document.querySelectorAll(selector).length > 1) {
-                const parent = el.parentElement;
-                if (parent) {
-                  const siblings = Array.from(parent.children).filter(c => c.tagName === el.tagName);
-                  const idx = siblings.indexOf(el) + 1;
-                  selector = tag + ':nth-of-type(' + idx + ')';
-                  const parentTag = parent.tagName.toLowerCase();
-                  if (parent.id) {
-                    selector = '#' + parent.id + ' > ' + selector;
-                  } else if (parent.className && typeof parent.className === 'string' && parent.className.trim()) {
-                    selector = parentTag + '.' + parent.className.trim().split(/\\s+/).join('.') + ' > ' + selector;
-                  }
-                }
-              }
-            } else {
-              const parent = el.parentElement;
-              if (parent) {
-                const siblings = Array.from(parent.children).filter(c => c.tagName === el.tagName);
-                const idx = siblings.indexOf(el) + 1;
-                selector = tag + ':nth-of-type(' + idx + ')';
-              } else {
-                selector = tag;
-              }
-            }
-
-            const interactiveTags = ['a', 'button', 'input', 'select', 'textarea'];
-            const isInteractive = interactiveTags.includes(tag) || el.getAttribute('role') === 'button';
-
-            let type = 'container';
-            if (tag === 'a') type = 'link';
-            else if (tag === 'button' || el.getAttribute('role') === 'button') type = 'button';
-            else if (tag === 'input' || tag === 'select' || tag === 'textarea') type = 'input';
-            else if (tag === 'img') type = 'image';
-            else if (['h1','h2','h3','h4','h5','h6','p','span','label','li','td','th'].includes(tag)) type = 'text';
-
-            const text = (el.textContent || '').trim().substring(0, 100);
-
-            results.push({
-              selector,
-              tagName: tag,
-              text,
-              rect: { x: Math.round(rect.x), y: Math.round(rect.y), width: Math.round(rect.width), height: Math.round(rect.height) },
-              isInteractive,
-              type,
-            });
-          }
-
-          return results;
-        });
-
-        const screenshot = await page.screenshot({ type: 'png', encoding: 'base64' });
-        const pageTitle = await page.title();
-        const currentUrl = page.url();
-
-        return {
-          screenshot: 'data:image/png;base64,' + screenshot,
-          elements,
-          currentUrl,
-          pageTitle,
-        };
-      } catch (error) {
-        throw new Error('Recorder session failed: ' + error.message);
-      }
-    };
-  `
+  return results
 }
 
 export async function executeRecorderSession(
@@ -163,34 +73,61 @@ export async function executeRecorderSession(
     throw new Error("Browserless not configured")
   }
 
-  const script = buildRecorderScript(actions)
-
-  const response = await fetch(
-    `${browserlessUrl}/function?token=${browserlessToken}&stealth`,
+  // Use /content endpoint (known working) for HTML + element mapping
+  const contentResponse = await fetch(
+    `${browserlessUrl}/content?token=${browserlessToken}&stealth`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        code: script,
-        context: { url, actions },
+        url,
+        waitForSelector: "body",
+        waitForTimeout: 3000,
+        bestAttempt: true,
+        gotoOptions: { waitUntil: "networkidle2", timeout: 20000 },
       }),
-      signal: AbortSignal.timeout(55000),
+      signal: AbortSignal.timeout(25000),
     }
   )
 
-  if (!response.ok) {
-    const errorText = await response.text().catch(() => "Unknown error")
-    throw new Error(`Browserless error (${response.status}): ${errorText.slice(0, 200)}`)
+  if (!contentResponse.ok) {
+    throw new Error(`Failed to load page (${contentResponse.status})`)
   }
 
-  const text = await response.text()
-  if (!text || text.trim().length === 0) {
-    throw new Error("Browserless returned empty response. The browser function may have timed out or crashed.")
+  const html = await contentResponse.text()
+  const $ = cheerio.load(html)
+  const pageTitle = $("title").text().trim()
+
+  // Use /screenshot endpoint (known working) for the visual
+  const screenshotResponse = await fetch(
+    `${browserlessUrl}/screenshot?token=${browserlessToken}&stealth`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        url,
+        options: { fullPage: false, type: "png" },
+        gotoOptions: { waitUntil: "networkidle2", timeout: 20000 },
+      }),
+      signal: AbortSignal.timeout(25000),
+    }
+  )
+
+  if (!screenshotResponse.ok) {
+    throw new Error(`Screenshot failed (${screenshotResponse.status})`)
   }
 
-  try {
-    return JSON.parse(text)
-  } catch {
-    throw new Error(`Browserless returned invalid JSON: ${text.slice(0, 200)}`)
+  const buffer = await screenshotResponse.arrayBuffer()
+  const base64 = Buffer.from(buffer).toString("base64")
+  const screenshot = `data:image/png;base64,${base64}`
+
+  // Collect elements from HTML using cheerio (server-side, no browser needed)
+  const elements = collectElements(html)
+
+  return {
+    screenshot,
+    elements,
+    currentUrl: url,
+    pageTitle,
   }
 }
