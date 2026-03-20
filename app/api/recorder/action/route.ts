@@ -3,6 +3,8 @@ import { z } from "zod"
 import { executeRecorderSession } from "@/lib/engine/recorder"
 import { checkCsrf } from "@/lib/csrf"
 
+export const maxDuration = 60
+
 const actionSchema = z.object({
   url: z.string().url(),
   actions: z.array(z.object({

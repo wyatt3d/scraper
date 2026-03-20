@@ -170,7 +170,7 @@ export async function executeRecorderSession(
         code: script,
         context: { url, actions },
       }),
-      signal: AbortSignal.timeout(30000),
+      signal: AbortSignal.timeout(55000),
     }
   )
 
@@ -179,5 +179,14 @@ export async function executeRecorderSession(
     throw new Error(`Browserless error (${response.status}): ${errorText.slice(0, 200)}`)
   }
 
-  return response.json()
+  const text = await response.text()
+  if (!text || text.trim().length === 0) {
+    throw new Error("Browserless returned empty response. The browser function may have timed out or crashed.")
+  }
+
+  try {
+    return JSON.parse(text)
+  } catch {
+    throw new Error(`Browserless returned invalid JSON: ${text.slice(0, 200)}`)
+  }
 }
