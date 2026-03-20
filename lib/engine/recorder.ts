@@ -62,10 +62,14 @@ export function buildRecorderScript(actions: RecorderAction[]): string {
           const els = Array.from(document.querySelectorAll(SELECTORS));
           const results = [];
 
+          const viewHeight = window.innerHeight;
+          const viewWidth = window.innerWidth;
           for (const el of els) {
-            if (results.length >= 200) break;
+            if (results.length >= 150) break;
             const rect = el.getBoundingClientRect();
-            if (rect.width === 0 || rect.height === 0) continue;
+            if (rect.width < 2 || rect.height < 2) continue;
+            if (rect.bottom < -100 || rect.top > viewHeight + 500) continue;
+            if (rect.right < -100 || rect.left > viewWidth + 100) continue;
 
             const tag = el.tagName.toLowerCase();
             let selector = '';

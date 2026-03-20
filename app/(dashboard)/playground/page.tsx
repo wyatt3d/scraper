@@ -27,11 +27,13 @@ interface ScrapeResponse {
   itemCount: number
   duration: number
   error?: string
+  summary?: string
 }
 
 export default function PlaygroundPage() {
   const router = useRouter()
   const [useBrowser, setUseBrowser] = useState(false)
+  const [summarize, setSummarize] = useState(false)
   const [url, setUrl] = useState("")
   const [inputValue, setInputValue] = useState("")
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -86,10 +88,10 @@ export default function PlaygroundPage() {
       const res = await fetch("/api/extract", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: targetUrl, ...(useBrowser && { mode: "browser" }) }),
+        body: JSON.stringify({ url: targetUrl, ...(useBrowser && { mode: "browser" }), ...(summarize && { summarize: true }) }),
       })
 
-      const data: ScrapeResponse & { error?: string } = await res.json()
+      const data: ScrapeResponse = await res.json()
 
       setMessages((prev) => prev.filter((m) => m.id !== analyzingId))
 
@@ -102,9 +104,10 @@ export default function PlaygroundPage() {
       const fields = data.items.length > 0 ? Object.keys(data.items[0]) : []
       const fieldList = fields.length > 0 ? `\nFields: ${fields.join(", ")}` : ""
 
+      const summaryLine = data.summary ? `\n\nSummary: ${data.summary}` : ""
       addMessage(
         "system",
-        `Found ${data.itemCount} items on "${data.title}" in ${data.duration}ms.${fieldList}\n\nCheck the Output tab for full results.`
+        `Found ${data.itemCount} items on "${data.title}" in ${data.duration}ms.${fieldList}${summaryLine}\n\nCheck the Output tab for full results.`
       )
 
       setOutputData(data.items)
@@ -208,6 +211,16 @@ export default function PlaygroundPage() {
                 Browser mode renders JavaScript. Slower but handles dynamic sites.
               </span>
             )}
+            <div className="flex items-center gap-2">
+              <Switch
+                id="summarize-mode"
+                checked={summarize}
+                onCheckedChange={setSummarize}
+              />
+              <Label htmlFor="summarize-mode" className="text-xs font-medium cursor-pointer">
+                AI Summary
+              </Label>
+            </div>
           </div>
 
           {/* URL bar */}
